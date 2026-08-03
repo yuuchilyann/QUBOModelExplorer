@@ -1,7 +1,9 @@
 node_modules/
-publish/
 dist/
 *.tsbuildinfo
+
+# `publish/` is intentionally NOT ignored: the Pages workflow serves it
+# directly from the repository, so the built site is committed alongside source.
 .DS_Store
 
 # Local editor / tooling configuration — machine-specific, not project content.

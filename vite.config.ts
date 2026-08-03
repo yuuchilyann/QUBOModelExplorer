@@ -13,7 +13,11 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: 'publish',
     emptyOutDir: true,
-    sourcemap: true,
+    // The built output is committed so GitHub Pages can serve it directly, and
+    // every build produces freshly hashed filenames. A ~4 MB source map would
+    // therefore be added to git history on each rebuild and never removed, so
+    // it is not generated. The dev server still has full source maps.
+    sourcemap: false,
   },
   server: {
     port: 5174,

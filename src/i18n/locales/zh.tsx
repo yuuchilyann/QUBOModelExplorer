@@ -74,7 +74,7 @@ export const zh = {
   'case.tab.formulation': '建模推導',
   'case.tab.matrix': 'Q 矩陣',
   'case.tab.solutions': '解空間',
-  'case.tab.domain': '問題視圖',
+  'case.tab.domain': '問題檢視',
   'case.tab.code': '程式碼',
 
   'formulation.original': '原始模型',

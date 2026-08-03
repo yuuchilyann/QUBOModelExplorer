@@ -95,7 +95,7 @@ const NOTES: Record<string, React.ReactNode> = {
       <br />
       <br />
       最優解 x = (1,0,1,1) 讓預算<strong>剛好用滿</strong> 8+5+3 = 16，所以兩個 slack
-      位元都是 0。「問題視圖」分頁的預算條可以看到這一點。
+      位元都是 0。「問題檢視」分頁的預算條可以看到這一點。
     </>
   ),
 };

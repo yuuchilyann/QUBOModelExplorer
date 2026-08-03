@@ -4,6 +4,8 @@
 *Quantum Bridge Analytics I: A Tutorial on Formulating and Using QUBO Models* (2019)
 的十一個建模案例的靜態網站。
 
+線上版：<https://yuuchilyann.github.io/QUBOModelExplorer/>
+
 論文教的是一件事：把各式各樣的組合最佳化問題，**統一映射到同一個標準型**
 
 ```
@@ -23,7 +25,7 @@ min / max   y = xᵀQx,   x ∈ {0,1}ⁿ
 
 這個決策已經產生實際回報：它在 §5.4 QAP 抓到論文自己的排版錯誤（見下）。
 
-## 六個視圖
+## 六個分頁
 
 | 分頁 | 內容 |
 |---|---|
@@ -35,7 +37,7 @@ min / max   y = xᵀQx,   x ∈ {0,1}ⁿ
 | **附錄** | §7 的高次項降階（Rosenberg）與邊變數→點變數置換 |
 
 每個案例頁有五個聯動面板：**建模推導**（KaTeX 逐步展開）、**Q 矩陣**（熱圖＋來源溯源
-hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題視圖**（領域專屬圖）、
+hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題檢視**（領域專屬圖）、
 **程式碼**（Python 匯出）。
 
 ## 十一個案例
@@ -99,9 +101,10 @@ hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題
 | `DWaveSampler` + `EmbeddingComposite` | ✓ |
 | `LeapHybridSampler` | ✓ |
 
-**論文十一個案例全部落在 `ExactSolver` 的射程內**，所以前三個 sampler 產出的程式碼
-在本機執行，不需要 D-Wave 帳號或 API token，也不會產生任何費用；貼進 Colab 按執行
-就會跑出論文印的答案。這不是示意用的假程式碼。
+**論文十一個案例全部落在 `ExactSolver` 的射程內**，所以前三個 sampler 是純古典求解器，
+在執行 Python 的地方直接窮舉，不連線 D-Wave，因此不需要 Leap 帳號或 API token，
+也不會產生 QPU 費用。貼進 Colab 或自己的環境按執行，就會跑出論文印的答案。
+這不是示意用的假程式碼。
 
 ## 三道驗證
 
@@ -193,9 +196,24 @@ QUBOModelExplorer/
 
 ## 部署
 
+線上版：<https://yuuchilyann.github.io/QUBOModelExplorer/>
+
 使用**相對路徑**（`base: './'`）與 **hash 路由**，所以編譯後的 `publish/` 可以丟到
 任何子路徑或 CDN 而不需重編，深連結（`#/case/graph-coloring`）也不需要 404 fallback
 hack。`public/.nojekyll` 確保 GitHub Pages 不啟用 Jekyll。
+
+`publish/` **會一起 commit**，`.github/workflows/static.yml` 直接把它上傳到 Pages。
+所以改完程式碼後的流程是：
+
+```bash
+npm run build     # 更新 publish/
+git add -A && git commit && git push
+```
+
+忘記重新 build 的話，推上去的原始碼會與線上版不同步。產物的檔名帶內容 hash，每次
+build 都會產生新檔名並永久留在 git 歷史裡，所以 production build 刻意關閉 sourcemap
+（否則每次會多存約 4 MB）。若日後覺得 repo 膨脹，改成在 CI 裡 build 即可：把
+`publish/` 加回 `.gitignore`，並在 workflow 的上傳步驟前插入 `npm ci && npm run build`。
 
 ## 已知限制
 

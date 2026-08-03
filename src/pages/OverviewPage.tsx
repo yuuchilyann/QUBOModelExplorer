@@ -90,6 +90,24 @@ const HERE_KEY = {
   planned: 'overview.here.planned',
 } as const;
 
+/**
+ * What the standard form costs.
+ *
+ * The page up to here is the paper's own case FOR QUBO. This section is the
+ * other half of the ledger, which the tutorial — written by the authors of the
+ * classical QUBO metaheuristics it advocates — has little reason to dwell on.
+ * Leaving it out would make the site an advertisement rather than a companion.
+ */
+const COSTS = [
+  ['overview.cost.item1.title', 'overview.cost.item1.body'],
+  ['overview.cost.item2.title', 'overview.cost.item2.body'],
+  ['overview.cost.item3.title', 'overview.cost.item3.body'],
+  ['overview.cost.item4.title', 'overview.cost.item4.body'],
+] as const;
+
+const FIT = ['overview.cost.fit.1', 'overview.cost.fit.2', 'overview.cost.fit.3', 'overview.cost.fit.4'] as const;
+const UNFIT = ['overview.cost.unfit.1', 'overview.cost.unfit.2', 'overview.cost.unfit.3', 'overview.cost.unfit.4'] as const;
+
 const PROBLEM_SIDE = [
   'Number Partitioning',
   'Max-Cut',
@@ -273,6 +291,65 @@ export function OverviewPage() {
       </Typography>
       <MinorEmbeddingView />
 
+      {/* ── the other half of the ledger ── */}
+      <Typography variant="h2" sx={{ mt: 4, mb: 1 }}>
+        {t('overview.cost.title')}
+      </Typography>
+      <Typography variant="body2" component="div" sx={{ mb: 2 }}>
+        {t('overview.cost.lead')}
+      </Typography>
+
+      <Stack spacing={1.5} sx={{ mb: 3 }}>
+        {COSTS.map(([title, body], i) => (
+          <Paper key={title} variant="outlined" sx={{ p: 2 }}>
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start' }}>
+              <Chip size="small" color="warning" label={i + 1} />
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="h3" sx={{ mb: 0.5 }}>
+                  {t(title)}
+                </Typography>
+                <Typography variant="body2" component="div" color="text.secondary">
+                  {t(body)}
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+        ))}
+      </Stack>
+
+      {/* The practical takeaway: a two-column smell test. */}
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+        {(
+          [
+            ['overview.cost.fit.title', FIT, 'success.main'],
+            ['overview.cost.unfit.title', UNFIT, 'warning.main'],
+          ] as const
+        ).map(([title, items, color]) => (
+          <Paper
+            key={title}
+            variant="outlined"
+            sx={{ p: 2, flex: 1, borderTop: 3, borderTopColor: color }}
+          >
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              {t(title)}
+            </Typography>
+            <Stack component="ul" spacing={0.75} sx={{ m: 0, pl: 2.5 }}>
+              {items.map((k) => (
+                <Typography key={k} component="li" variant="body2" color="text.secondary">
+                  {t(k)}
+                </Typography>
+              ))}
+            </Stack>
+          </Paper>
+        ))}
+      </Stack>
+
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'action.hover' }}>
+        <Typography variant="body2" component="div">
+          {t('overview.cost.verdict')}
+        </Typography>
+      </Paper>
+
       <PresenterNotes>
         這一頁只要讓觀眾接受一件事：<strong>QUBO 是一座橋，不是一個目的地</strong>。一端是十一種看起來毫無關係的問題，另一端是四種完全不同的硬體，中間那個{' '}
         <Math>{'x^tQx'}</Math> 是唯一的共同語言。
@@ -286,6 +363,10 @@ export function OverviewPage() {
         <br />
         <br />
         minor-embedding 那張圖建議現場拖 slider 從 3 拉到 10，讓大家看物理需求怎麼平方成長。這是「5000 qubits 為什麼只放得下幾百個變數」最快的解釋。
+        <br />
+        <br />
+        最後那節「真實成本」是<strong>刻意加的逆風</strong>，論文本身沒有。如果時間不夠只能講一項，講第 4 項（拿不到對偶界），
+        那是實務上最痛、也最少人事先想到的。第 1 項可以留到 B 組的頂點覆蓋頁再講，那裡有 P 滑桿可以現場示範「罰得不夠痛就會作弊」。
       </PresenterNotes>
     </Box>
   );

@@ -9,6 +9,8 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
 
@@ -26,6 +28,9 @@ import { SourceBadge } from '../components/SourceBadge';
 import { VerificationChip, type VerificationStatus } from '../components/VerificationChip';
 import { useI18n } from '../i18n';
 
+/** Which end of the row the first column shows. */
+type ColOrder = 'asc' | 'desc';
+
 /**
  * Every assignment, laid out.
  *
@@ -33,10 +38,27 @@ import { useI18n } from '../i18n';
  * where the ENTIRE search space fits on screen at once. Seeing the optimum as
  * one row among sixteen — rather than as an answer handed down by a solver — is
  * the point of the page.
+ *
+ * Rows are enumerated with x1 as the LOW bit of the row index, so printing the
+ * columns as x1…xn reads back-to-front against the usual binary convention.
+ * `order` flips the columns to xn…x1, which turns the same sixteen rows into
+ * plain counting — 0000, 0001, 0010 — without touching the enumeration.
  */
-function AllStatesTable({ Q, sense }: { Q: number[][]; sense: 'min' | 'max' }) {
+function AllStatesTable({
+  Q,
+  sense,
+  order,
+}: {
+  Q: number[][];
+  sense: 'min' | 'max';
+  order: ColOrder;
+}) {
   const { t } = useI18n();
   const n = Q.length;
+  const cols = useMemo(() => {
+    const idx = Array.from({ length: n }, (_, i) => i);
+    return order === 'desc' ? idx.reverse() : idx;
+  }, [n, order]);
   const rows = useMemo(() => {
     const out = Array.from({ length: 2 ** n }, (_, m) => {
       const x = Array.from({ length: n }, (_, i) => (m >> i) & 1);
@@ -54,9 +76,9 @@ function AllStatesTable({ Q, sense }: { Q: number[][]; sense: 'min' | 'max' }) {
       <Table size="small" stickyHeader>
         <TableHead>
           <TableRow>
-            {Array.from({ length: n }, (_, i) => (
-              <TableCell key={i} align="center" sx={{ py: 0.5 }}>
-                x{i + 1}
+            {cols.map((c) => (
+              <TableCell key={c} align="center" sx={{ py: 0.5 }}>
+                x{c + 1}
               </TableCell>
             ))}
             <TableCell align="right" sx={{ py: 0.5 }}>
@@ -73,9 +95,9 @@ function AllStatesTable({ Q, sense }: { Q: number[][]; sense: 'min' | 'max' }) {
                 '& td': { py: 0.35 },
               }}
             >
-              {r.x.map((v, k) => (
-                <TableCell key={k} align="center" sx={{ fontFamily: 'monospace' }}>
-                  {v}
+              {cols.map((c) => (
+                <TableCell key={c} align="center" sx={{ fontFamily: 'monospace' }}>
+                  {r.x[c]}
                 </TableCell>
               ))}
               <TableCell
@@ -93,7 +115,10 @@ function AllStatesTable({ Q, sense }: { Q: number[][]; sense: 'min' | 'max' }) {
 }
 
 export function HelloWorldPage() {
-  const { t } = useI18n();
+  const { t, tStr } = useI18n();
+  // Default to the paper's own x1…xn order; the toggle offers the binary
+  // reading order, which most readers find easier to scan.
+  const [order, setOrder] = useState<ColOrder>('asc');
   const [linear, setLinear] = useState([...helloWorld.model.linear]);
   const [quadratic, setQuadratic] = useState(helloWorld.model.quadratic.map((q) => ({ ...q })));
 
@@ -127,6 +152,20 @@ export function HelloWorldPage() {
       <Typography variant="body1" component="div" sx={{ mb: 3 }}>
         {t('hello.lead')}
       </Typography>
+
+      {/*
+        Every other case page opens with a concrete scenario. This one cannot,
+        because §2 has no domain — and a reader who does not know that reads the
+        absence as something they failed to understand. Saying so is the fix.
+      */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderLeft: 4, borderLeftColor: 'text.disabled' }}>
+        <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+          {t('hello.noScenario.title')}
+        </Typography>
+        <Typography variant="body2" component="div" color="text.secondary">
+          {t('hello.noScenario.body')}
+        </Typography>
+      </Paper>
 
       {/* ── three lessons ── */}
       <Stack spacing={2} sx={{ mb: 4 }}>
@@ -191,10 +230,32 @@ export function HelloWorldPage() {
           </Box>
         </Box>
         <Box sx={{ width: { xs: '100%', lg: 320 }, flexShrink: 0 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            {t('hello.allStates')}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mb: 1, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 1 }}
+          >
+            <Typography variant="subtitle2">{t('hello.allStates')}</Typography>
+            <ToggleButtonGroup
+              value={order}
+              exclusive
+              size="small"
+              onChange={(_, v: ColOrder | null) => v && setOrder(v)}
+              color="primary"
+              aria-label={tStr('hello.order.label')}
+            >
+              <ToggleButton value="asc" sx={{ px: 1, py: 0.15, fontSize: 12 }}>
+                {t('hello.order.asc', { n: model.n })}
+              </ToggleButton>
+              <ToggleButton value="desc" sx={{ px: 1, py: 0.15, fontSize: 12 }}>
+                {t('hello.order.desc', { n: model.n })}
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+          <AllStatesTable Q={model.Q} sense={model.sense} order={order} />
+          <Typography variant="caption" component="div" color="text.secondary" sx={{ mt: 0.75 }}>
+            {t('hello.order.hint')}
           </Typography>
-          <AllStatesTable Q={model.Q} sense={model.sense} />
         </Box>
       </Stack>
 

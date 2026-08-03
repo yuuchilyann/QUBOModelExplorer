@@ -2,6 +2,10 @@
 
 十一個案例的資料與勾稽狀態。全部由 `npm run verify` 逐項檢查。
 
+每個案例另外帶一段**情境**（做什麼用的、`x` 代表什麼、真實應用），存在 i18n 字典裡
+而不是案例定義裡：那是簡報文案，不是勾稽資料，不該和 `paperQ` 放在同一個檔案。
+對照表見 README「十一個案例」。
+
 ## 資料模型
 
 每個案例宣告的是**原始約束模型**與論文套用的懲罰規則，Q 由 `derive()` 算出來。
@@ -113,7 +117,10 @@ p.28 印出的目標函數與 p.29 印出的 Q 矩陣互相矛盾：
 1. 在 `src/cases/` 對應的 group 檔裡加一個 `QuboCase`
 2. 填 `model`（原始約束模型）、`paperQ`、`paperConstant`、`paperSolution`
 3. 加進 `src/cases/index.ts` 的 `ALL_CASES`
-4. `npm run verify:all` — 三道驗證都要綠
+4. 在 `src/i18n/locales/zh.tsx` 加四個情境字串（`case.<id>.name` / `.scenario` /
+   `.xMeans` / `.uses`），並在 `src/components/CaseScenario.tsx` 的 `SCENARIOS`
+   註冊。鍵是明寫的，漏掉會是編譯錯誤而不是頁面上一行原始 key
+5. `npm run verify:all` — 三道驗證都要綠
 
 如果 `derive()` 算不出 `paperQ`，**先懷疑 `model` 宣告錯了**，不要去改 `paperQ`。
 `paperQ` 是外部真值，不是可以調整到符合的參數。

@@ -276,6 +276,177 @@ export const zh = {
     </>
   ),
 
+  'overview.cost.title': 'QUBO 的真實成本',
+  'overview.cost.lead': (
+    <>
+      上面整頁講的是 QUBO <strong>買到</strong>了什麼：一個統一介面、一整排可以替換的求解器。這一節講它<strong>賣掉</strong>了什麼。
+      QUBO 是拿<strong>結構</strong>換<strong>通用性</strong>。原問題裡那些求解器可以利用的資訊（約束是哪幾條、哪些變數互斥、線性鬆弛長什麼樣），在壓進單一 Q 矩陣的過程中會被抹平。這不是實作細節，是這個標準型的本質代價；論文因為立場的關係，對這一面著墨不多。
+    </>
+  ),
+  'overview.cost.item1.title': '約束被壓成懲罰項，結構跟著消失',
+  'overview.cost.item1.body': (
+    <>
+      以本站的最小頂點覆蓋（§4.1）為例：原問題是「最小化 <Math>{'\\sum x_i'}</Math>」加上六條「每條邊至少被覆蓋一次」。目標是線性的、約束是稀疏的，這對 MIP 求解器是理想狀況：線性鬆弛很緊、分支定界剪得很乾淨。
+      <br />
+      轉成 QUBO 之後，六條約束被吸收進對角線（<Math>{'1'}</Math> 變成 <Math>{'-15'}</Math> 與 <Math>{'-23'}</Math>），多出一個 constant <Math>{'= 48'}</Math>，然後<strong>求解器再也看不到「這裡有六條約束」這件事</strong>。約束傳播、切平面、鬆弛界，全部用不上了，剩下一個沒有結構的二次式。
+      <br />
+      附帶的負擔是懲罰係數 <Math>{'P'}</Math> 要人工調校：太小，最優解會跑進不可行區（在案例頁把滑桿往左拉就看得到）；太大，目標函數被壓平，啟發式與硬體反而分不出好解與好解之間的差別。MIP 求解器沒有這個問題：約束就是約束。
+    </>
+  ),
+  'overview.cost.item2.title': '係數的動態範圍會爆炸',
+  'overview.cost.item2.body': (
+    <>
+      二次背包（§5.5）的原始資料全是個位數：價值 2–10、重量 3–8、容量 16。套用 Transformation #1、<Math>{'P = 10'}</Math> 之後，Q 的元素從 20 一路到 1922，常數是 <Math>{'-2560'}</Math>：最大與最小差了將近百倍，而原始問題根本沒有這種尺度。
+      <br />
+      純古典求解時這只是浮點數，無所謂。但退火硬體的耦合器<strong>精度有限</strong>（實際只有幾個位元，還帶類比雜訊），動態範圍一大，小係數就被量化進雜訊裡消失。也就是說：紙上等價的模型，跑到硬體上不一定等價。
+    </>
+  ),
+  'overview.cost.item3.title': '不等式約束要拿 slack 變數來換',
+  'overview.cost.item3.body': (
+    <>
+      QUBO 只有 0/1 變數，沒有「≤」這種東西。一條不等式約束必須先補上 slack 變數變成等式，才有辦法平方成懲罰項。
+      <br />
+      還是二次背包：4 個物品，加上容納 <Math>{'8x_1 + 6x_2 + 5x_3 + 3x_4 \\le 16'}</Math> 所需的 slack，<strong>Q 是 6×6 而不是 4×4</strong>，多了 50%。在真實硬體上這個代價還要再乘一次：每個邏輯變數都要展開成一條 chain，維度膨脹會平方級地反映到物理 qubit 需求上（見上一節）。
+    </>
+  ),
+  'overview.cost.item4.title': '拿不到對偶界，不知道自己離最優有多遠',
+  'overview.cost.item4.body': (
+    <>
+      這一項最常被忽略，實務上卻往往最痛。
+      <br />
+      MIP 求解器回報的是「目前這個解，保證在最優的 3.2% 以內」，那個 gap 是可以拿去跟人交代的。QUBO 的啟發式求解器（tabu、模擬退火、量子退火）<strong>只給您一個數字</strong>，不附帶任何界限。您不會知道手上的 <Math>{'-11'}</Math> 究竟是最優解，還是離最優還差 40%。
+      <br />
+      本站十一個案例看不出這個問題，因為它們小到可以用 <code>dimod.ExactSolver</code> 窮舉、保證最優。一旦超過約 20 個變數，這個保證就沒了，而且<strong>沒有東西可以取代它</strong>。
+    </>
+  ),
+  'overview.cost.fit.title': 'QUBO 划算的訊號',
+  'overview.cost.unfit.title': 'QUBO 不划算的訊號',
+  'overview.cost.fit.1': '目標函數本來就是稠密二次的（變數兩兩互相影響、有搭配加成）',
+  'overview.cost.fit.2': '約束很少，或根本沒有約束',
+  'overview.cost.fit.3': '線性鬆弛很鬆，MIP 的分支定界剪不動',
+  'overview.cost.fit.4': '需要跨平台可攜性：同一個 Q 要餵給數位退火機、GPU sampler、QPU',
+  'overview.cost.unfit.1': '目標函數是線性的，複雜度全在約束上',
+  'overview.cost.unfit.2': '約束多而稀疏、結構良好（指派、流量、排程這類）',
+  'overview.cost.unfit.3': '線性鬆弛很緊，MIP 求解器幾秒就收斂',
+  'overview.cost.unfit.4': '需要最優性證明，或可稽核的 gap',
+  'overview.cost.verdict': (
+    <>
+      這個交易划不划算，取決於問題長什麼樣，跟量子硬體成不成熟關係不大：<strong>目標函數本來就是稠密二次、約束不多的問題，QUBO 是自然選擇；線性目標加大量結構化約束的問題，用 QUBO 是自找麻煩。</strong>
+      <br />
+      本站的 Hello World（§2）與二次背包的目標函數（§5.5）屬於前者，那就是 QUBO 天生的樣子。最小頂點覆蓋（§4.1）屬於後者：它出現在論文裡是為了示範懲罰法怎麼運作，不是因為 QUBO 是解它的好辦法。
+      <br />
+      帶著這個問句去讀後面的懲罰法頁面會更有收穫：<strong>這裡被吸收掉的約束，原本承載了多少求解器可以利用的資訊？</strong>
+    </>
+  ),
+
+  // ── per-case scenarios ────────────────────────────────────────────────
+  // The paper names its cases by section number and jumps straight to the
+  // algebra. These give each one a concrete story first, so a reader meets
+  // "what is this for" before "here is the Q matrix".
+  'scenario.heading': '這題在解什麼',
+  'scenario.xMeans': 'x 的意義',
+  'scenario.uses': '真實應用',
+
+  'case.number-partitioning.name': '數字分割',
+  'case.number-partitioning.scenario': (
+    <>
+      一批貨要分裝上兩台卡車，八個箱子的重量是 25、7、13、31、42、17、21、10，總重 166。兩台車都要出，希望兩邊載重<strong>盡量接近</strong>：各 83 是最理想的情況。差額越小越好。
+    </>
+  ),
+  'case.number-partitioning.xMeans': 'xⱼ = 1 表示第 j 個箱子放上 A 車，= 0 表示放上 B 車。',
+  'case.number-partitioning.uses': '生產線工時平衡、伺服器負載分配、兩組人力或預算對分、電路分割',
+
+  'case.max-cut.name': '最大割',
+  'case.max-cut.scenario': (
+    <>
+      把一張網路的節點分成兩群，讓<strong>橫跨兩群</strong>的連線越多越好。換個角度看，這是在找這張網路最脆弱的那道切口：從哪裡剪下去，可以切斷最多連結。
+    </>
+  ),
+  'case.max-cut.xMeans': 'xᵢ = 1 表示節點 i 分到 B 群，= 0 表示留在 A 群。',
+  'case.max-cut.uses': '晶片佈線分層、影像的前景／背景分割、社群網路的對立分群、統計物理的自旋玻璃',
+
+  'case.min-vertex-cover.name': '最小頂點覆蓋',
+  'case.min-vertex-cover.scenario': (
+    <>
+      把節點看成路口、邊看成街道。要在路口裝監視器，讓<strong>每一條街都至少被一台拍到</strong>，問最少要裝幾台、裝在哪裡。這一題的圖有 5 個路口、6 條街。
+    </>
+  ),
+  'case.min-vertex-cover.xMeans': 'xᵢ = 1 表示在路口 i 裝一台監視器。',
+  'case.min-vertex-cover.uses': '感測器與監視器布點、網路關鍵節點防護、生物網路的關鍵蛋白質、軟體測試的最小覆蓋集',
+
+  'case.set-packing.name': '最大集合裝填',
+  'case.set-packing.scenario': (
+    <>
+      手上有四個候選方案，其中某幾組<strong>彼此衝突</strong>（搶同一個資源、佔同一個時段），衝突的不能同時選。在不衝突的前提下，盡量多選幾個。
+    </>
+  ),
+  'case.set-packing.xMeans': 'xⱼ = 1 表示選用第 j 個方案。',
+  'case.set-packing.uses': '會議室與設備預約、航班與機組的相容組合、廣告版位配置、無線通道分配',
+
+  'case.max-2-sat.name': '最大 2-可滿足性',
+  'case.max-2-sat.scenario': (
+    <>
+      有一堆「A 或 B」形式的條件，每條只牽涉兩個是非題。這些條件<strong>彼此打架</strong>，不可能全部滿足，所以目標退一步改成「盡量滿足最多條」。這一題是 4 個變數、12 條子句。
+    </>
+  ),
+  'case.max-2-sat.xMeans': 'xᵢ = 1 表示第 i 個是非題答「是」。',
+  'case.max-2-sat.uses': '電路與硬體驗證、排班的軟性偏好、電腦視覺的能量最小化、推薦系統的成對限制',
+
+  'case.set-partitioning.name': '集合分割',
+  'case.set-partitioning.scenario': (
+    <>
+      航空公司的經典題。有四個航段要飛，六張現成的「機組班表」可選，每張涵蓋其中幾個航段、各有成本。要求每個航段<strong>剛好</strong>被一張班表涵蓋一次（不能漏掉，也不能重複派人），並讓總成本最低。
+    </>
+  ),
+  'case.set-partitioning.xMeans': 'xⱼ = 1 表示採用第 j 張班表。',
+  'case.set-partitioning.uses': '航空機組排班、公車與貨運路線規劃、輪班表編制、選區劃分',
+
+  'case.graph-coloring.name': '圖著色',
+  'case.graph-coloring.scenario': (
+    <>
+      把節點看成課程、邊看成「這兩門課有共同學生」。有共同學生的兩門課<strong>不能排在同一個時段</strong>。給定 5 門課、7 組衝突、3 個時段，問排不排得出來。
+      <br />
+      注意這一題<strong>沒有目標函數</strong>，只是在找可行解：排得出來就贏了，沒有「排得更好」這回事。
+    </>
+  ),
+  'case.graph-coloring.xMeans':
+    'x 是「節點 × 顏色」的展開：第 (i, c) 格 = 1 表示節點 i 塗第 c 色，也就是排進第 c 個時段。',
+  'case.graph-coloring.uses': '考試與課表排程、無線基地台頻率配置、編譯器的暫存器配置、球隊賽程安排',
+
+  'case.general-01.name': '通用 0/1 線性規劃',
+  'case.general-01.scenario': (
+    <>
+      這一題<strong>刻意沒有情境</strong>，它是一份示範模板：任何「0/1 變數 ＋ 線性目標 ＋ 線性約束」的問題，無論來自哪個領域，都可以照這個流程轉成 QUBO。
+      <br />
+      三種約束（<code>≤</code>、<code>=</code>、<code>≥</code>）在這裡一次到齊，slack 變數的二進位展開也示範得最完整。
+    </>
+  ),
+  'case.general-01.xMeans':
+    'x₁…x₅ 是五個沒有指定意義的是非決策；x₆ 之後是為了把不等式補成等式而加的 slack 位元。',
+  'case.general-01.uses': '這是配方本身，不是應用；本組其他每一個案例都是它的特例',
+
+  'case.qap.name': '二次指派問題',
+  'case.qap.scenario': (
+    <>
+      工廠裡有幾個部門要配置到幾個廠房位置。部門之間每天有固定的<strong>搬運流量</strong>，位置之間有固定的<strong>距離</strong>，總成本是「流量 × 距離」的總和。要決定哪個部門放哪個位置，讓總搬運成本最低。
+      <br />
+      成本取決於<strong>兩個決策的組合</strong>（A 放這、B 放那，才談得上距離），所以它天生就是二次的，這正是 QUBO 的原生形狀。
+    </>
+  ),
+  'case.qap.xMeans': 'x 是「設施 × 位置」的展開：第 (i, k) 格 = 1 表示設施 i 放在位置 k。',
+  'case.qap.uses': '廠房與醫院科室佈局、鍵盤配列設計、晶片元件擺放、資料中心機櫃配置',
+
+  'case.quadratic-knapsack.name': '二次背包',
+  'case.quadratic-knapsack.scenario': (
+    <>
+      有四個專案可以投資，各自有預期收益，但<strong>兩兩之間還有綜效</strong>：某兩個一起做會額外加分。每個專案吃掉一部分預算，總預算 16。要選一組專案，讓「單獨收益 ＋ 搭配加成」最大。
+      <br />
+      所以不能只挑單價最高的：一個看似划算的專案，可能因為排擠掉更好的搭配而不值得做。
+    </>
+  ),
+  'case.quadratic-knapsack.xMeans': 'xⱼ = 1 表示投資第 j 個專案；x₅、x₆ 是預算上限那條不等式的 slack 位元。',
+  'case.quadratic-knapsack.uses': '專案組合與研發選題、投資組合配置、行銷方案搭售、設施選址的互補效應',
+
   // ── domain views ──────────────────────────────────────────────────────
   'domain.partition.subset1': '子集 1',
   'domain.partition.subset2': '子集 2',
@@ -345,7 +516,22 @@ export const zh = {
       兩種寫法完全等價。論文選對稱形式，但 <code>dimod</code> 要的是上三角形式（非對角係數是 <Math>{'2q_{ij}'}</Math>）。切換上面的開關看差別；匯出的 Python 已為您完成這步轉換。
     </>
   ),
+  'hello.noScenario.title': '這一題刻意沒有情境',
+  'hello.noScenario.body': (
+    <>
+      後面每一個案例都會先給您一個故事（監視器裝在哪個路口、哪些專案值得投資），再進入代數。<strong>這一題沒有</strong>，而且是故意的。
+      四個變數不代表任何東西，<Math>{'-11'}</Math> 也不是任何真實的成本或收益。論文 §2 用它回答的問題只有一個：<Math>{'x^tQx'}</Math> 這個式子是什麼意思。
+      <br />
+      所以如果您看完覺得「那這個答案能拿來做什麼」，正確答案是<strong>什麼都不能</strong>。它不是一個問題，是一個算式示範。等到 A / B / C 三組的案例，
+      x 才會開始代表真實世界裡的決定。
+    </>
+  ),
   'hello.allStates': '全部 16 種組合',
+  'hello.order.label': '欄位順序',
+  'hello.order.asc': (p: TParams) => `x1→x${p.n}`,
+  'hello.order.desc': (p: TParams) => `x${p.n}→x1`,
+  'hello.order.hint':
+    '列的順序固定不變，切換的只是欄位由左到右的方向。切成 x4→x1 之後，每一列讀起來就是一般的二進位遞增（0000、0001、0010 …）。',
   'hello.paperForm': '論文的寫法',
   'hello.paperFormBody': (
     <>

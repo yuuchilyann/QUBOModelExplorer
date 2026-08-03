@@ -1,6 +1,7 @@
-import { Alert, Box, Typography } from '@mui/material';
+import { Alert, Box, Chip, Stack, Typography } from '@mui/material';
 
 import { findCase } from '../cases';
+import { CaseScenario, useCaseName } from '../components/CaseScenario';
 import { CaseWorkbench } from '../components/CaseWorkbench';
 import { PresenterNotes } from '../components/PresenterNotes';
 
@@ -102,6 +103,8 @@ const NOTES: Record<string, React.ReactNode> = {
 
 export function CasePage({ id }: { id: string }) {
   const qcase = findCase(id);
+  // Hooks must run unconditionally, so this precedes the not-found return.
+  const name = useCaseName(id);
 
   if (!qcase) {
     return <Alert severity="error">找不到案例：{id}</Alert>;
@@ -109,9 +112,19 @@ export function CasePage({ id }: { id: string }) {
 
   return (
     <Box>
-      <Typography variant="h1" sx={{ mb: 2 }}>
-        {qcase.section} · {qcase.id}
+      {/*
+        The paper's own handle (§3.1) stays visible for cross-referencing, but
+        the heading now leads with the problem's name rather than its slug.
+      */}
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', mb: 0.5, flexWrap: 'wrap' }}>
+        <Typography variant="h1">{name ?? qcase.id}</Typography>
+        <Chip size="small" variant="outlined" label={qcase.section} />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+        {qcase.id}
       </Typography>
+
+      <CaseScenario id={qcase.id} />
       <CaseWorkbench base={qcase} />
       {NOTES[qcase.id] && <PresenterNotes>{NOTES[qcase.id]}</PresenterNotes>}
     </Box>

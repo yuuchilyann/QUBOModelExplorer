@@ -1,0 +1,14 @@
+node_modules/
+publish/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# Local editor / tooling configuration — machine-specific, not project content.
+.vscode/
+.idea/
+.claude/
+*.local
+.env
+.env.*
+!.env.example

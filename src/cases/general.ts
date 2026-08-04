@@ -77,7 +77,7 @@ function coloringConstraints(): Constraint[] {
         '=',
         1,
         'transform1',
-        `節點 ${node} 恰好一種顏色`,
+        `node ${node}: exactly one colour`,
       ),
     );
   }
@@ -91,7 +91,7 @@ function coloringConstraints(): Constraint[] {
           '<=',
           1,
           'transform2',
-          `邊 (${a},${b}) 不同時用色 ${c}`,
+          `edge (${a},${b}): not both colour ${c}`,
         ),
       );
     }
@@ -272,12 +272,12 @@ export const qap: QuboCase = {
     linear: new Array<number>(9).fill(0),
     quadratic: qapQuadratic(),
     constraints: [
-      unitRow(9, [0, 1, 2], '=', 1, 'transform1', '設施 1 恰好一個位置'),
-      unitRow(9, [3, 4, 5], '=', 1, 'transform1', '設施 2 恰好一個位置'),
-      unitRow(9, [6, 7, 8], '=', 1, 'transform1', '設施 3 恰好一個位置'),
-      unitRow(9, [0, 3, 6], '=', 1, 'transform1', '位置 1 恰好一個設施'),
-      unitRow(9, [1, 4, 7], '=', 1, 'transform1', '位置 2 恰好一個設施'),
-      unitRow(9, [2, 5, 8], '=', 1, 'transform1', '位置 3 恰好一個設施'),
+      unitRow(9, [0, 1, 2], '=', 1, 'transform1', 'facility 1: exactly one location'),
+      unitRow(9, [3, 4, 5], '=', 1, 'transform1', 'facility 2: exactly one location'),
+      unitRow(9, [6, 7, 8], '=', 1, 'transform1', 'facility 3: exactly one location'),
+      unitRow(9, [0, 3, 6], '=', 1, 'transform1', 'location 1: exactly one facility'),
+      unitRow(9, [1, 4, 7], '=', 1, 'transform1', 'location 2: exactly one facility'),
+      unitRow(9, [2, 5, 8], '=', 1, 'transform1', 'location 3: exactly one facility'),
     ],
   },
   paperQ: [

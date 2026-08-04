@@ -187,6 +187,20 @@ npm run preview
 npm run verify:all   # 三道驗證
 ```
 
+## 語言
+
+介面有繁體中文與英文兩種，右上角切換，選擇存在 `localStorage`（`qme.lang`），首次
+進站則依瀏覽器語言判斷。
+
+`src/i18n/locales/zh.tsx` 是**正典字典**，`Dictionary` 與 `TKey` 由它推導；
+`src/i18n/locales/en.tsx` 已補齊全部 key，並且**型別上就是完整的 `Dictionary`**，
+所以在 zh 加了新 key 卻忘了補英文會直接編譯失敗，而不是讓英文頁面默默出現中文。
+`I18nProvider` 仍保留 fallback 機制，供日後新增的語言逐步翻譯。
+
+UI 字串一律不寫死在元件裡（講者提示、平台比較表、sampler 上限也都在字典中）。唯一
+的例外是約束標籤（`src/cases/*.ts` 的 `label`），它跟論文的式子一樣是與語言無關的
+記號，例如 `x₁ + x₃ + x₆ = 1`、`node 3: exactly one colour`。
+
 ## 專案結構
 
 ```
@@ -214,7 +228,7 @@ QUBOModelExplorer/
    │  └─ python/               # samplers / module / emit / serialize
    ├─ workers/solver.worker.ts
    ├─ hooks/                   # useSolver、useHashRoute
-   ├─ i18n/                    # zh 為正典，en 部分覆蓋並 fallback
+   ├─ i18n/                    # zh 為正典，en 已補齊（型別上要求完整）
    ├─ components/
    └─ pages/
 ```
@@ -245,8 +259,6 @@ build 都會產生新檔名並永久留在 git 歷史裡，所以 production bui
 - **大 n 視覺擁擠**：Q 矩陣熱圖在 n > 20 時字級會縮到很小，目前以橫向捲動因應。
 - **自訂輸入只開放五個案例**：Number Partitioning、Max-Cut、Min Vertex Cover、
   Max 2-SAT、Graph Colouring。其餘案例只開放 P 滑桿。
-- **英文只有部分翻譯**：架構已就位，缺的 key 會 fallback 到繁中；補齊只需要填
-  `src/i18n/locales/en.tsx`，不必動任何元件。
 - **不連線 D-Wave 實機**：QPU sampler 只產碼不執行。這是刻意的：論文案例小到
   QPU 毫無優勢，而且實連需要後端 proxy 保管 token。
 

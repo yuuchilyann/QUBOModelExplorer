@@ -184,9 +184,10 @@ export function buildNotebook(
 
   if (s.needsToken) {
     cells.push({
-      source: `# 這個 sampler 需要 D-Wave Leap 帳號。在 Colab 請設定環境變數：
+      source: `# This sampler needs a D-Wave Leap account. In Colab, set the token as an
+# environment variable before running the cells below.
 import os
-os.environ["DWAVE_API_TOKEN"] = "在此貼上您的 token"`,
+os.environ["DWAVE_API_TOKEN"] = "paste your token here"`,
     });
   }
 

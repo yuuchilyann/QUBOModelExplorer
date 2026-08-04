@@ -297,7 +297,12 @@ export function SatEditor({
         >
           {t('editor.sat.add')}
         </Button>
-        <Chip size="small" variant="outlined" sx={{ ml: 1 }} label={`${clauses.length} 子句`} />
+        <Chip
+          size="small"
+          variant="outlined"
+          sx={{ ml: 1 }}
+          label={t('editor.sat.clauses', { count: clauses.length })}
+        />
       </Box>
     </Stack>
   );
@@ -313,10 +318,12 @@ export function HelloEditor({
   quadratic: { i: number; j: number; coef: number }[];
   onChange: (linear: number[], quadratic: { i: number; j: number; coef: number }[]) => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <Paper variant="outlined" sx={{ p: 1.5 }}>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        線性項係數
+        {t('editor.hello.linear')}
       </Typography>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1, mb: 2 }}>
         {linear.map((v, i) => (
@@ -337,7 +344,7 @@ export function HelloEditor({
       </Stack>
 
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        二次項係數
+        {t('editor.hello.quadratic')}
       </Typography>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
         {quadratic.map((q, k) => (

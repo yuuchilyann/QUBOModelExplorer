@@ -87,8 +87,13 @@ export function AppendixPage() {
             ))}
           </TableBody>
         </Table>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', p: 1.5 }}>
-          綠色列是 <Math>{'y_1 = x_1x_2'}</Math> 的四種情形：懲罰值恰好全是 0，其餘全是正數。所以最小化時最佳解一定會自己選對代換。
+        <Typography
+          variant="caption"
+          component="div"
+          color="text.secondary"
+          sx={{ p: 1.5 }}
+        >
+          {t('appendix.higherOrder.tableNote')}
         </Typography>
       </Paper>
 
@@ -100,20 +105,10 @@ export function AppendixPage() {
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'action.hover' }}>
-        <Typography variant="body2">
-          舉例：一個 1,000 個節點的稠密圖，邊變數模型有約 500,000 個變數；換成點變數只剩 1,000 個。差了 500 倍，這正是論文 §7 第 3 點說的「a graph normally has a much smaller number of nodes than edges」。
-        </Typography>
+        <Typography variant="body2">{t('appendix.nodeVars.example')}</Typography>
       </Paper>
 
-      <PresenterNotes>
-        附錄這兩招都是「當 QUBO 的二次形式不夠用時怎麼辦」。
-        <br />
-        <br />
-        Rosenberg reduction 的真值表建議現場逐列念一遍：重點是懲罰項<strong>只有在代換正確時才等於 0</strong>，所以不必額外「強迫」<code>y₁ = x₁x₂</code>，最佳化過程會自己選對。這和整篇論文的懲罰哲學完全一致。
-        <br />
-        <br />
-        點變數置換那一招在實務上威力最大，因為它動的是變數數的<strong>數量級</strong>，不是常數。前面所有案例都還在幾十個變數，這一招是真的把百萬級問題壓回千級的手法。
-      </PresenterNotes>
+      <PresenterNotes>{t('notes.appendix')}</PresenterNotes>
     </Box>
   );
 }

@@ -8,6 +8,8 @@
  * aspirational snippet. Only the last two entries reach D-Wave hardware.
  */
 
+import type { TKey } from '../../i18n/locales/zh';
+
 export type SamplerId = 'exact' | 'tabu' | 'sa' | 'qpu' | 'hybrid';
 
 export type SamplerSpec = {
@@ -23,8 +25,8 @@ export type SamplerSpec = {
   construct: string;
   /** Extra keyword arguments passed to `.sample()`. */
   sampleArgs: string;
-  /** Practical ceiling, shown in the UI. */
-  limit: string;
+  /** Practical ceiling, shown in the UI. Localised, hence a key. */
+  limitKey: TKey;
 };
 
 export const SAMPLERS: SamplerSpec[] = [
@@ -36,7 +38,7 @@ export const SAMPLERS: SamplerSpec[] = [
     imports: ['import dimod'],
     construct: 'dimod.ExactSolver()',
     sampleArgs: '',
-    limit: '≤ ~20 變數（窮舉全部 2ⁿ 組合，回傳保證最優解）',
+    limitKey: 'sampler.limit.exact',
   },
   {
     id: 'tabu',
@@ -46,7 +48,7 @@ export const SAMPLERS: SamplerSpec[] = [
     imports: ['import dimod', 'from dwave.samplers import TabuSampler'],
     construct: 'TabuSampler()',
     sampleArgs: 'num_reads=100',
-    limit: '數千變數（啟發式，回傳目前找到最好的解）',
+    limitKey: 'sampler.limit.tabu',
   },
   {
     id: 'sa',
@@ -56,7 +58,7 @@ export const SAMPLERS: SamplerSpec[] = [
     imports: ['import dimod', 'from dwave.samplers import SimulatedAnnealingSampler'],
     construct: 'SimulatedAnnealingSampler()',
     sampleArgs: 'num_reads=100',
-    limit: '數千變數（啟發式）',
+    limitKey: 'sampler.limit.sa',
   },
   {
     id: 'qpu',
@@ -69,7 +71,7 @@ export const SAMPLERS: SamplerSpec[] = [
     ],
     construct: 'EmbeddingComposite(DWaveSampler())',
     sampleArgs: 'num_reads=1000',
-    limit: '受 minor-embedding 限制，全連通問題約數百個邏輯變數',
+    limitKey: 'sampler.limit.qpu',
   },
   {
     id: 'hybrid',
@@ -79,7 +81,7 @@ export const SAMPLERS: SamplerSpec[] = [
     imports: ['import dimod', 'from dwave.system import LeapHybridSampler'],
     construct: 'LeapHybridSampler()',
     sampleArgs: '',
-    limit: '數萬變數（古典／量子混合）',
+    limitKey: 'sampler.limit.hybrid',
   },
 ];
 
@@ -121,4 +123,4 @@ export function packagesFor(spec: SamplerSpec, extras: string[] = []): string[] 
 }
 
 /** Configuring credentials is a shell step, and only applies to the QPU samplers. */
-export const TOKEN_SETUP = `dwave config create   # 或設定環境變數 DWAVE_API_TOKEN`;
+export const TOKEN_SETUP = `dwave config create   # or set the DWAVE_API_TOKEN environment variable`;

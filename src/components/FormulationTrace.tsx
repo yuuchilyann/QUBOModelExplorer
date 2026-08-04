@@ -60,7 +60,9 @@ export function FormulationTrace({
               ))}
               {qcase.model.constraints.length > 8 && (
                 <Typography variant="caption" color="text.secondary">
-                  …另外 {qcase.model.constraints.length - 8} 條
+                  {t('formulation.moreConstraints', {
+                    count: qcase.model.constraints.length - 8,
+                  })}
                 </Typography>
               )}
             </Stack>
@@ -107,7 +109,7 @@ export function FormulationTrace({
             ))}
             {penalties.length > 12 && (
               <Typography variant="caption" color="text.secondary">
-                …另外 {penalties.length - 12} 個懲罰項（結構相同，只是換了變數）
+                {t('formulation.morePenalties', { count: penalties.length - 12 })}
               </Typography>
             )}
           </Stack>

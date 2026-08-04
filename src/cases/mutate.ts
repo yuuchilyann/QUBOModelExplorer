@@ -96,7 +96,7 @@ export function applyEdit(base: QuboCase, edit: CaseEdit): QuboCase {
             '=',
             1,
             'transform1' as const,
-            `節點 ${id} 恰好一種顏色`,
+            `node ${id}: exactly one colour`,
           ),
         ),
         ...edit.graph.edges.flatMap(([a, b]) => {
@@ -104,7 +104,7 @@ export function applyEdit(base: QuboCase, edit: CaseEdit): QuboCase {
           const pb = idx.get(b);
           if (pa === undefined || pb === undefined) return [];
           return Array.from({ length: K }, (_, c) =>
-            unitRow(n, [at(pa, c), at(pb, c)], '<=', 1, 'transform2' as const, `邊 (${a},${b}) 色 ${c + 1}`),
+            unitRow(n, [at(pa, c), at(pb, c)], '<=', 1, 'transform2' as const, `edge (${a},${b}): colour ${c + 1}`),
           );
         }),
       ];

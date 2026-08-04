@@ -181,7 +181,7 @@ export function SolutionPanel({ qcase, model, state }: SolutionPanelProps) {
             </Table>
             {feas.rows.length > 30 && (
               <Typography variant="caption" color="text.secondary" sx={{ p: 1, display: 'block' }}>
-                …另外 {feas.rows.length - 30} 條（全部已檢查，只顯示前 30 條）
+                {t('solutions.moreRows', { count: feas.rows.length - 30, shown: 30 })}
               </Typography>
             )}
           </Paper>

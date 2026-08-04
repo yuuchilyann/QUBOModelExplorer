@@ -339,15 +339,7 @@ export function HelloWorldPage() {
       */}
       <CodeExportPanel qcase={qcase} model={model} />
 
-      <PresenterNotes>
-        這一頁是全站唯一「手把手教怎麼跑起來」的地方，後面每一頁都假設觀眾已經會了。
-        <br />
-        <br />
-        建議流程：先念三個 lesson（約 2 分鐘），再現場改一個係數讓大家看右邊 16 列整張表即時重算，這一步最能建立「Q 矩陣就是目標函數」的直覺。最後把程式碼複製到 Colab 真的跑一次，讓大家看到 y = −11 出現在輸出裡。
-        <br />
-        <br />
-        強調 <code>dimod.ExactSolver</code> <strong>不需要任何帳號或 API token</strong>。後面每一頁的程式碼都可以照樣貼進去跑，這不是示意用的假程式碼。
-      </PresenterNotes>
+      <PresenterNotes>{t('notes.hello')}</PresenterNotes>
     </Box>
   );
 }

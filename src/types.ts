@@ -41,7 +41,7 @@ export type Constraint = {
   rhs: number;
   /** Which penalty recipe the paper applies to this row. */
   method: PenaltyMethod;
-  /** Human label used in the formulation trace, e.g. `節點 1 必須著色`. */
+  /** Human label used in the formulation trace, e.g. `node 1: exactly one colour`. */
   label?: string;
   /**
    * For an inequality closed by a slack variable: the upper bound the PAPER

@@ -18,17 +18,28 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { MinorEmbeddingView } from '../components/MinorEmbeddingView';
 import { PresenterNotes } from '../components/PresenterNotes';
 import { Math } from '../components/Math';
+import type { TKey } from '../i18n/locales/zh';
 import { useI18n } from '../i18n';
 
 type Here = 'run' | 'emit' | 'planned';
 
+/**
+ * The solver side of the bridge.
+ *
+ * `name` doubles as the React key, so it stays a stable ASCII handle; the two
+ * platforms whose name is descriptive rather than a proper noun carry a
+ * `nameKey` for display. Anything else a reader has to read — topology, scale —
+ * is a dictionary key unless it is itself a proper noun (Zephyr, QUBO, Ising).
+ */
 const PLATFORMS: {
   name: string;
-  kindKey: 'overview.platform.annealing' | 'overview.platform.gate' | 'overview.platform.digital' | 'overview.platform.classical';
+  nameKey?: TKey;
+  kindKey: TKey;
   native: string;
-  topology: string;
+  topology?: string;
+  topologyKey?: TKey;
   embedding: boolean;
-  scale: string;
+  scaleKey: TKey;
   here: Here;
 }[] = [
   {
@@ -37,43 +48,46 @@ const PLATFORMS: {
     native: 'Ising',
     topology: 'Zephyr',
     embedding: true,
-    scale: '全連通約數百個邏輯變數',
+    scaleKey: 'overview.scale.advantage2',
     here: 'emit',
   },
   {
     name: 'Fujitsu Digital Annealer',
     kindKey: 'overview.platform.digital',
     native: 'QUBO',
-    topology: '全連通 (ASIC)',
+    topologyKey: 'overview.topology.asic',
     embedding: false,
-    scale: '1,024 變數（Aramon et al. 2019）',
+    scaleKey: 'overview.scale.digital',
     here: 'planned',
   },
   {
-    name: 'QAOA（閘模型）',
+    name: 'QAOA',
+    nameKey: 'overview.platform.name.qaoa',
     kindKey: 'overview.platform.gate',
     native: 'Hamiltonian',
-    topology: '依硬體而異',
+    topologyKey: 'overview.topology.varies',
     embedding: true,
-    scale: '目前僅小規模 MaxCut / MIS',
+    scaleKey: 'overview.scale.qaoa',
     here: 'planned',
   },
   {
-    name: 'Tabu search（古典）',
+    name: 'Tabu search',
+    nameKey: 'overview.platform.name.tabu',
     kindKey: 'overview.platform.classical',
     native: 'QUBO',
     topology: '—',
     embedding: false,
-    scale: '數千變數',
+    scaleKey: 'overview.scale.tabu',
     here: 'run',
   },
   {
-    name: '窮舉（古典）',
+    name: 'Exhaustive search',
+    nameKey: 'overview.platform.name.exhaustive',
     kindKey: 'overview.platform.classical',
     native: 'QUBO',
     topology: '—',
     embedding: false,
-    scale: '≤ 24 變數，保證最優',
+    scaleKey: 'overview.scale.exhaustive',
     here: 'run',
   },
 ];
@@ -122,7 +136,9 @@ const PROBLEM_SIDE = [
 ];
 
 export function OverviewPage() {
-  const { t } = useI18n();
+  const { t, tStr } = useI18n();
+  const platformName = (p: (typeof PLATFORMS)[number]) =>
+    p.nameKey ? tStr(p.nameKey) : p.name;
 
   return (
     <Box>
@@ -186,7 +202,7 @@ export function OverviewPage() {
                 <Chip
                   key={p.name}
                   size="small"
-                  label={p.name}
+                  label={platformName(p)}
                   color={HERE_COLOR[p.here]}
                   variant={p.here === 'planned' ? 'outlined' : 'filled'}
                   sx={{ justifyContent: 'flex-start' }}
@@ -224,17 +240,17 @@ export function OverviewPage() {
               <TableRow key={p.name}>
                 <TableCell>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {p.name}
+                    {platformName(p)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {t(p.kindKey)}
                   </Typography>
                 </TableCell>
                 <TableCell>{p.native}</TableCell>
-                <TableCell>{p.topology}</TableCell>
+                <TableCell>{p.topologyKey ? t(p.topologyKey) : p.topology}</TableCell>
                 <TableCell>{p.embedding ? t('overview.yes') : t('overview.no')}</TableCell>
                 <TableCell>
-                  <Typography variant="caption">{p.scale}</Typography>
+                  <Typography variant="caption">{t(p.scaleKey)}</Typography>
                 </TableCell>
                 <TableCell>
                   <Chip size="small" color={HERE_COLOR[p.here]} label={t(HERE_KEY[p.here])} />
@@ -350,24 +366,7 @@ export function OverviewPage() {
         </Typography>
       </Paper>
 
-      <PresenterNotes>
-        這一頁只要讓觀眾接受一件事：<strong>QUBO 是一座橋，不是一個目的地</strong>。一端是十一種看起來毫無關係的問題，另一端是四種完全不同的硬體，中間那個{' '}
-        <Math>{'x^tQx'}</Math> 是唯一的共同語言。
-        <br />
-        <br />
-        常見提問一：「那是不是丟給量子電腦就會比較快？」答案是不會。論文作者自己在 p.34
-        說他們的古典 solver QUBO 2.0 比主流量子系統快三個數量級。本站十一個案例全都小到瀏覽器毫秒級就窮舉完了。
-        <br />
-        <br />
-        常見提問二：「為什麼要先變成 NP-hard？」其實並沒有變難。QUBO 本來就是 NP-hard，規約沒有讓問題變簡單。動機是<strong>統一介面</strong>，不是降低難度。
-        <br />
-        <br />
-        minor-embedding 那張圖建議現場拖 slider 從 3 拉到 10，讓大家看物理需求怎麼平方成長。這是「5000 qubits 為什麼只放得下幾百個變數」最快的解釋。
-        <br />
-        <br />
-        最後那節「真實成本」是<strong>刻意加的逆風</strong>，論文本身沒有。如果時間不夠只能講一項，講第 4 項（拿不到對偶界），
-        那是實務上最痛、也最少人事先想到的。第 1 項可以留到 B 組的頂點覆蓋頁再講，那裡有 P 滑桿可以現場示範「罰得不夠痛就會作弊」。
-      </PresenterNotes>
+      <PresenterNotes>{t('notes.overview')}</PresenterNotes>
     </Box>
   );
 }

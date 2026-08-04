@@ -351,8 +351,10 @@ export function SatView({ clauses, x, qcase }: { clauses: Clause[]; x: number[];
           {t('domain.sat.sizeNote')}
         </Typography>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          目前：{qcase.model.numVars} 變數 · {clauses.length} 子句 → QUBO 仍是{' '}
-          {qcase.model.numVars}×{qcase.model.numVars}
+          {t('domain.sat.current', {
+            vars: qcase.model.numVars,
+            clauses: clauses.length,
+          })}
         </Typography>
       </Paper>
     </Box>

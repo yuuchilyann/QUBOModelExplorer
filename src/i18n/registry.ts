@@ -7,8 +7,9 @@ import { en } from './locales/en';
  * The ONLY place to touch when adding a language: register its module here and
  * add its code to the `Lang` union in types.ts. No component changes needed.
  *
- * Locales other than zh are `Partial` — missing keys fall back to zh at
- * resolution time, which is what lets English ship incrementally.
+ * The map's value type is `Partial` so a new locale can ship incrementally,
+ * falling back to zh for anything it has not translated. `en` opts out of that
+ * licence by typing itself as the full `Dictionary` (see locales/en.tsx).
  */
 export const LOCALES: Record<Lang, Partial<Dictionary>> = {
   'zh-Hant': zh,

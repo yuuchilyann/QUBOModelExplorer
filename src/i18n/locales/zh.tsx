@@ -34,6 +34,177 @@ export const zh = {
   'notes.title': '講者提示',
   'notes.hint': '導覽時的重點與常見提問（預設收合，觀眾看不到）',
 
+  // Note bodies live here rather than in the pages so English gets them too;
+  // they are the densest prose on the site and the most useful to a presenter.
+  'notes.overview': (
+    <>
+      這一頁只要讓觀眾接受一件事：<strong>QUBO 是一座橋，不是一個目的地</strong>。一端是十一種看起來毫無關係的問題，另一端是四種完全不同的硬體，中間那個{' '}
+      <Math>{'x^tQx'}</Math> 是唯一的共同語言。
+      <br />
+      <br />
+      常見提問一：「那是不是丟給量子電腦就會比較快？」答案是不會。論文作者自己在 p.34
+      說他們的古典 solver QUBO 2.0 比主流量子系統快三個數量級。本站十一個案例全都小到瀏覽器毫秒級就窮舉完了。
+      <br />
+      <br />
+      常見提問二：「為什麼要先變成 NP-hard？」其實並沒有變難。QUBO 本來就是 NP-hard，規約沒有讓問題變簡單。動機是<strong>統一介面</strong>，不是降低難度。
+      <br />
+      <br />
+      minor-embedding 那張圖建議現場拖 slider 從 3 拉到 10，讓大家看物理需求怎麼平方成長。這是「5000 qubits 為什麼只放得下幾百個變數」最快的解釋。
+      <br />
+      <br />
+      最後那節「真實成本」是<strong>刻意加的逆風</strong>，論文本身沒有。如果時間不夠只能講一項，講第 4 項（拿不到對偶界），
+      那是實務上最痛、也最少人事先想到的。第 1 項可以留到 B 組的頂點覆蓋頁再講，那裡有 P 滑桿可以現場示範「罰得不夠痛就會作弊」。
+    </>
+  ),
+  'notes.hello': (
+    <>
+      這一頁是全站唯一「手把手教怎麼跑起來」的地方，後面每一頁都假設觀眾已經會了。
+      <br />
+      <br />
+      建議流程：先念三個 lesson（約 2 分鐘），再現場改一個係數讓大家看右邊 16 列整張表即時重算，這一步最能建立「Q 矩陣就是目標函數」的直覺。最後把程式碼複製到 Colab 真的跑一次，讓大家看到 y = −11 出現在輸出裡。
+      <br />
+      <br />
+      強調 <code>dimod.ExactSolver</code> <strong>不需要任何帳號或 API token</strong>。後面每一頁的程式碼都可以照樣貼進去跑，這不是示意用的假程式碼。
+    </>
+  ),
+  'notes.appendix': (
+    <>
+      附錄這兩招都是「當 QUBO 的二次形式不夠用時怎麼辦」。
+      <br />
+      <br />
+      Rosenberg reduction 的真值表建議現場逐列念一遍：重點是懲罰項<strong>只有在代換正確時才等於 0</strong>，所以不必額外「強迫」<code>y₁ = x₁x₂</code>，最佳化過程會自己選對。這和整篇論文的懲罰哲學完全一致。
+      <br />
+      <br />
+      點變數置換那一招在實務上威力最大，因為它動的是變數數的<strong>數量級</strong>，不是常數。前面所有案例都還在幾十個變數，這一招是真的把百萬級問題壓回千級的手法。
+    </>
+  ),
+
+  'notes.group.natural': (
+    <>
+      這一組要建立的直覺是「Q 矩陣就是目標函數換個寫法」。沒有懲罰、沒有 slack，對角線是線性項、非對角線是二次項的一半，就這樣。
+      <br />
+      <br />
+      Number Partitioning 值得多停一下：論文是從 <code>diff²</code>{' '}
+      手推的，但本站把它表達成「Transformation #1 套在平衡等式{' '}
+      <code>Σsⱼxⱼ = c/2</code> 上、P = 1」，推出來的 Q 一模一樣。這證明論文的「自然形式」和「通用配方」其實是同一件事的兩種說法。
+    </>
+  ),
+  'notes.group.knownPenalty': (
+    <>
+      重點台詞：<strong>這些懲罰是精確的，不是近似的</strong>。傳統罰函數法只能逼近，這裡只要 P 夠大，QUBO 的最優解就<em>等於</em>原問題的最優解；可以在「解空間」分頁把最優解代回原始約束，看到全部滿足。
+      <br />
+      <br />
+      Max 2-SAT 是這一組最好的展示品：拖 P 沒有用（它沒有 P），但它示範了「QUBO 大小只由變數數決定，與子句數無關」。現場多加幾個子句給觀眾看維度不變。
+    </>
+  ),
+  'notes.group.general': (
+    <>
+      這一組是論文的技術核心。三個動作要講清楚：
+      <br />
+      1. 不等式 → 加 slack 變數變成等式（<code>≤</code> 加、<code>≥</code> 減）
+      <br />
+      2. slack 變數 → 二進位展開成幾個 0/1 位元
+      <br />
+      3. 等式 <code>Ax = b</code> → 懲罰 <code>P(Ax−b)ᵀ(Ax−b)</code>
+      <br />
+      <br />
+      §5.2 Graph Colouring 是唯一同時用到 #1 和 #2 的案例，也是規模儀表最容易撞牆的案例（變數數 = 節點數 × 顏色數）。§5.4 QAP 則是 n² 成長。這兩個現場拉一下就會撞到組合爆炸。
+    </>
+  ),
+
+  'notes.case.number-partitioning': (
+    <>
+      論文是從 <code>diff²</code> 手推 Q 的；本站改用「Transformation #1 套在平衡等式{' '}
+      <code>Σsⱼxⱼ = 83</code>、P = 1」推導，得到<strong>一模一樣</strong>的 Q。這說明論文的「自然形式」其實只是通用配方的一個特例。
+      <br />
+      <br />
+      加性常數是 83² = 6,889，所以完美平分時 xᵀQx = −6889、原始目標值 = 0。在「解空間」分頁可以看到這一點。試著改一組加不起來的數字，看差額怎麼變。
+    </>
+  ),
+  'notes.case.max-cut': (
+    <>
+      關鍵恆等式：<code>xᵢ + xⱼ − 2xᵢxⱼ</code> 當兩端不同集合時等於 1，同集合時等於 0。所以把它對所有邊加總，就直接是割集大小，不需要任何約束。
+      <br />
+      <br />
+      注意最優解一定<strong>至少有兩個</strong>（degeneracy ≥ 2）：把整個 x 取補集，割集完全一樣。「解空間」分頁的簡併度會顯示這件事，這是窮舉才看得到的現象。
+    </>
+  ),
+  'notes.case.min-vertex-cover': (
+    <>
+      對角線是 <code>1 − P·deg(j)</code>，所以度數 3 的節點是 −23、度數 2 的是 −15
+      （P = 8）。這個結構在 Q 矩陣熱圖上一眼就能看出來。
+      <br />
+      <br />
+      這一頁最值得玩的是 P 滑桿：把 P 調到 1 以下，最優解會變成「什麼都不選」，因為省下的成本大過懲罰，可行性瞬間崩掉。這就是論文 p.13 說的「P 太小會
+      jeopardize the search for feasible solutions」。
+    </>
+  ),
+  'notes.case.set-packing': (
+    <>
+      這是最大化問題，所以懲罰是<strong>減</strong>的，非對角線因此是負數（−P/2 = −3）。如果觀眾問「為什麼 §4.1 的懲罰是正的、這裡是負的」，就是這個原因。
+    </>
+  ),
+  'notes.case.max-2-sat': (
+    <>
+      本頁的主秀：<strong>QUBO 的維度只由變數數決定，與子句數無關</strong>。現場請按幾次「新增子句」，讓大家看 Q 還是 4×4。論文 p.17 說 200 變數、
+      30,000 子句仍然只是 200 變數的 QUBO。
+      <br />
+      <br />
+      這也是唯一 Q 出現 ±½ 的案例：<code>−x₂x₃</code> 這種單一二次項在對稱形式下要對半拆到兩格。切到「上三角形式」就會變回整數。
+    </>
+  ),
+  'notes.case.set-partitioning': (
+    <>
+      論文 Remark 2 給了一個捷徑：<code>qᵢᵢ = cᵢ − P·kᵢ</code>、<code>qᵢⱼ = P·rᵢⱼ</code>，其中 kⱼ 是「包含 xⱼ 的約束數」、rᵢⱼ 是「同時包含兩者的約束數」。可以現場抽一格驗算：x₃ 出現在 3 條約束，所以 q₃₃ = 1 − 30 = −29。
+      <br />
+      <br />
+      這個捷徑跟通用的 Transformation #1 完全等價；熱圖 hover 顯示的來源分解就是在展示這件事。
+    </>
+  ),
+  'notes.case.graph-coloring': (
+    <>
+      唯一同時用到兩種變換的案例：節點指派用 #1，相鄰限制用 #2。
+      Q 的<strong>區塊對角結構</strong>（五個 3×3 區塊）在熱圖上非常明顯，論文 p.23 特別說「Looking for patterns is often a useful de-bugging tool」。
+      <br />
+      <br />
+      規模儀表在這一頁最有戲：變數數 = 節點數 × 顏色數。6 節點 4 色 = 24 已經到窮舉邊緣，7 節點 4 色 = 28 就得改啟發式。現場拉一下就撞牆。
+      <br />
+      <br />
+      這題沒有目標函數，只是找可行解，所以任何正的 P 都行。
+    </>
+  ),
+  'notes.case.general-01': (
+    <>
+      三種約束一次到齊（≤、=、≥），也是 slack 變數展開最完整的示範。
+      <br />
+      <br />
+      重點提醒：slack 上界 3 和 6 是<strong>論文作者自己判斷的</strong>，不是推導出來的，這兩條約束理論上最大可到 7 和 11。本站在「建模推導」分頁會把兩個數字並列顯示。這是實務建模裡很典型的取捨：上界估太鬆會多花 bit，估太緊會切掉可行解。
+      <br />
+      <br />
+      另外注意最優解裡第三條約束是鬆的（11 ≥ 5），surplus 用掉 6，正好是上界。
+    </>
+  ),
+  'notes.case.qap': (
+    <>
+      n 個設施要 n² 個變數，這是 QAP 難用的根本原因。3×3 已經 9 個變數，
+      5×5 就 25 個（窮舉邊緣），6×6 是 36（只能啟發式）。
+      <br />
+      <br />
+      ⚠️ 一個值得講的發現：論文 p.28 印出的<strong>目標函數式子</strong>與 p.29 印出的
+      <strong> Q 矩陣</strong>不一致：式子少列了兩項（48x₅x₇、90x₆x₇），且 32x₂x₇ 被誤植為 60x₂x₇。本站是從流量／距離矩陣<strong>重新推導</strong>的，推出來的 Q 與論文印的 Q 完全相符，也重現了論文自己的答案 218。這正是「推導而非抄寫」這個架構決策的價值。
+    </>
+  ),
+  'notes.case.quadratic-knapsack': (
+    <>
+      最大化 + 不等式約束 + slack 二進位展開，把前面所有技術綜合起來。
+      slack 上界一樣是論文的判斷（取 3，理論上限是 16）。
+      <br />
+      <br />
+      最優解 x = (1,0,1,1) 讓預算<strong>剛好用滿</strong> 8+5+3 = 16，所以兩個 slack
+      位元都是 0。「問題檢視」分頁的預算條可以看到這一點。
+    </>
+  ),
+
   // ── source badge / reconciliation ─────────────────────────────────────
   'verify.matches': '符合原論文',
   'verify.mismatch': '與原論文不符',
@@ -89,6 +260,9 @@ export const zh = {
   'formulation.method.exactlyOne2': '已知懲罰（p.10 表格第 3 列）',
   'formulation.method.implication': '已知懲罰（p.10 表格第 4 列）',
   'formulation.method.equal2': '已知懲罰（p.10 表格第 6 列）',
+  'formulation.moreConstraints': (p: TParams) => `…另外 ${p.count} 條`,
+  'formulation.morePenalties': (p: TParams) =>
+    `…另外 ${p.count} 個懲罰項（結構相同，只是換了變數）`,
   'formulation.slackNote': (p: TParams) =>
     `原論文取上界 ${p.used}，這條約束理論上最大可到 ${p.auto}；差額是作者的判斷，不是推導出來的。`,
 
@@ -115,6 +289,8 @@ export const zh = {
   'solutions.landscapeHint':
     '橫軸是 xᵀQx，縱軸是有多少組解落在該區間。可行解被懲罰推到能量低處，這就是懲罰法在做的事。',
   'solutions.feasibilityCheck': '把最優解代回原始約束',
+  'solutions.moreRows': (p: TParams) =>
+    `…另外 ${p.count} 條（全部已檢查，只顯示前 ${p.shown} 條）`,
   'solutions.rowOk': '滿足',
   'solutions.rowBad': '違反',
   'solutions.infeasible':
@@ -165,6 +341,12 @@ export const zh = {
   'export.sampler.token': '需要 D-Wave Leap 帳號',
   'export.sampler.tokenWarn':
     '這個 sampler 會連線到 D-Wave 並消耗 QPU 使用額度。論文的案例規模很小，改用上面的古典求解器就能得到同樣的答案。',
+  // Practical ceilings, keyed by sampler id (see lib/python/samplers.ts).
+  'sampler.limit.exact': '≤ ~20 變數（窮舉全部 2ⁿ 組合，回傳保證最優解）',
+  'sampler.limit.tabu': '數千變數（啟發式，回傳目前找到最好的解）',
+  'sampler.limit.sa': '數千變數（啟發式）',
+  'sampler.limit.qpu': '受 minor-embedding 限制，全連通問題約數百個邏輯變數',
+  'sampler.limit.hybrid': '數萬變數（古典／量子混合）',
   'export.install.label': '安裝',
   'export.install.hint': '複製到終端機執行；Colab 請用下方 Notebook 分頁的第一個 cell。',
   'export.install.copy.tooltip': '複製安裝指令',
@@ -208,6 +390,17 @@ export const zh = {
   'overview.platform.gate': '閘模型',
   'overview.platform.digital': '數位退火',
   'overview.platform.classical': '古典啟發式',
+  // Platform rows: proper nouns stay put, everything descriptive is a key.
+  'overview.platform.name.qaoa': 'QAOA（閘模型）',
+  'overview.platform.name.tabu': 'Tabu search（古典）',
+  'overview.platform.name.exhaustive': '窮舉（古典）',
+  'overview.topology.asic': '全連通 (ASIC)',
+  'overview.topology.varies': '依硬體而異',
+  'overview.scale.advantage2': '全連通約數百個邏輯變數',
+  'overview.scale.digital': '1,024 變數（Aramon et al. 2019）',
+  'overview.scale.qaoa': '目前僅小規模 MaxCut / MIS',
+  'overview.scale.tabu': '數千變數',
+  'overview.scale.exhaustive': '≤ 24 變數，保證最優',
   'overview.col.native': '原生形式',
   'overview.col.topology': '拓樸',
   'overview.col.embedding': '需要 embedding',
@@ -465,6 +658,8 @@ export const zh = {
   'domain.knapsack.budget': (p: TParams) => `預算 ${p.used} / ${p.total}`,
   'domain.knapsack.value': (p: TParams) => `總價值 = ${p.value}`,
   'domain.sat.count': (p: TParams) => `${p.sat} / ${p.total} 個子句被滿足`,
+  'domain.sat.current': (p: TParams) =>
+    `目前：${p.vars} 變數 · ${p.clauses} 子句 → QUBO 仍是 ${p.vars}×${p.vars}`,
   'domain.sat.sizeNote': (
     <>
       注意 QUBO 的大小<strong>只由變數數決定，與子句數完全無關</strong>。論文 p.17：
@@ -484,6 +679,9 @@ export const zh = {
   'editor.colors.label': '顏色數 K',
   'editor.sat.add': '新增子句',
   'editor.sat.vars': '變數數',
+  'editor.sat.clauses': (p: TParams) => `${p.count} 子句`,
+  'editor.hello.linear': '線性項係數',
+  'editor.hello.quadratic': '二次項係數',
   'editor.overflow': (p: TParams) =>
     `Q 矩陣元素達到 ${p.max}，已超過雙精度浮點數的安全整數範圍（2^53）。論文 p.27 也提醒過這一點，建議縮小輸入數值。`,
 
@@ -565,6 +763,12 @@ export const zh = {
     </>
   ),
   'appendix.higherOrder.table': '懲罰項真值表',
+  'appendix.higherOrder.tableNote': (
+    <>
+      綠色列是 <Math>{'y_1 = x_1x_2'}</Math> 的四種情形：懲罰值恰好全是
+      0，其餘全是正數。所以最小化時最佳解一定會自己選對代換。
+    </>
+  ),
   'appendix.nodeVars.title': '邊變數 → 點變數的置換',
   'appendix.nodeVars.body': (
     <>
@@ -572,9 +776,12 @@ export const zh = {
       <Math>{'x_{ij} \\to x_i x_j'}</Math>，線性模型就變成二次模型，但變數數從邊數降到點數，通常小好幾個數量級。二次模型再用前面的方法轉成 QUBO 即可。
     </>
   ),
+  'appendix.nodeVars.example':
+    '舉例：一個 1,000 個節點的稠密圖，邊變數模型有約 500,000 個變數；換成點變數只剩 1,000 個。差了 500 倍，這正是論文 §7 第 3 點說的「a graph normally has a much smaller number of nodes than edges」。',
   'appendix.penaltyValue': '懲罰值',
 
   // ── misc ──────────────────────────────────────────────────────────────
+  'case.notFound': (p: TParams) => `找不到案例：${p.id}`,
   'common.constraints': '約束',
   'common.min': '最小化',
   'common.max': '最大化',

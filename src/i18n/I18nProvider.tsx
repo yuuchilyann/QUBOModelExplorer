@@ -10,9 +10,10 @@ import { I18nContext } from './context';
 /**
  * Resolve a key, falling back to the canonical zh entry.
  *
- * The fallback is load-bearing in the first release: `en` is deliberately
- * partial, so any key it has not been given yet renders its zh text rather than
- * a raw key. Filling `en.tsx` in later needs no component changes.
+ * `en` is complete and typed as the full `Dictionary`, so the fallback never
+ * fires for it today; it stays because a locale added later can ship
+ * incrementally, rendering zh text rather than a raw key for whatever it has
+ * not translated yet.
  */
 function resolveNode(dict: Partial<Dictionary>, key: TKey, params: TParams): ReactNode {
   const value = dict[key] ?? zh[key] ?? key;

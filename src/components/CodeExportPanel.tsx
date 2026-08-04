@@ -107,7 +107,7 @@ export function CodeExportPanel({ qcase, model, extraPackages = [] }: CodeExport
                 <Stack>
                   <Typography variant="body2">{s.label}</Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {s.limit}
+                    {t(s.limitKey)}
                   </Typography>
                 </Stack>
               </MenuItem>
@@ -123,7 +123,7 @@ export function CodeExportPanel({ qcase, model, extraPackages = [] }: CodeExport
                 <Stack>
                   <Typography variant="body2">{s.label}</Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {s.limit}
+                    {t(s.limitKey)}
                   </Typography>
                 </Stack>
               </MenuItem>

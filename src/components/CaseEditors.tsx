@@ -16,7 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveIcon from '@mui/icons-material/Remove';
 
-import type { Clause, Graph } from '../types';
+import type { Clause, Graph } from 'qubo-core/types';
 import { useI18n } from '../i18n';
 
 /** §3.1 — a comma-separated list of positive integers. */

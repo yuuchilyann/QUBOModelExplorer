@@ -1,6 +1,6 @@
 import { Alert, Box, Button, Paper, Slider, Stack, Typography } from '@mui/material';
 
-import type { QuboCase } from '../types';
+import type { QuboCase } from 'qubo-core/types';
 import { useI18n } from '../i18n';
 
 export type PenaltySliderProps = {

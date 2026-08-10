@@ -18,6 +18,9 @@ min / max   y = xᵀQx,   x ∈ {0,1}ⁿ
 ## 核心設計決策
 
 > **Q 矩陣一律用程式從原始約束模型推導，絕不硬寫。**
+>
+> 推導引擎、案例定義、求解器與產碼器已抽出為獨立的公開套件
+> [`qubo-core`](https://github.com/yuuchilyann/qubo-core)，本站是它的消費端之一。
 
 論文印出的 Q 另存一份（`paperQ`），只用來做 diff。這代表比對通過時證明的是
 **通用配方本身正確**，而不是「十一個矩陣抄對了」，因為十一個案例走的是同一支
@@ -116,8 +119,11 @@ Hello World 與 §5.3 沒有情境，而且都**明講**這件事：前者是純
 
 ## 三道驗證
 
+推導引擎與驗證都住在 [`qubo-core`](https://github.com/yuuchilyann/qubo-core)，
+所以驗證指令在那邊跑：
+
 ```bash
-npm run verify:all
+cd ../qubo-core && npm run verify:all
 ```
 
 | 指令 | 檢查什麼 |
@@ -130,6 +136,9 @@ npm run verify:all
 變數索引對應。前兩道抓不到這些。
 
 最後一次執行全部通過。
+
+本站另有一道編譯期檢查（`src/i18n/coreKeys.ts`）：核心宣告它需要哪些字典鍵，
+本站斷言自己的字典涵蓋它們，少一個就編譯失敗。
 
 ## 在論文裡發現的問題
 
@@ -166,6 +175,7 @@ Q 矩陣是對的，上面那行目標函數式子有排版錯誤。
 
 | 套件 | 版本 |
 |---|---|
+| `qubo-core` | 推導引擎、案例、求解器、產碼器 |
 | Vite | ^8.0 |
 | React | ^19.2 |
 | TypeScript | ^6.0 |
@@ -173,8 +183,8 @@ Q 矩陣是對的，上面那行目標函數式子有排版錯誤。
 | KaTeX | ^0.16 |
 | Prism | ^1.30 |
 
-需要 Node.js 20 以上（Vite 8）。驗證腳本另外需要 `python` 在 PATH 上（純 stdlib，
-不需安裝任何套件）；沒有的話會自動 SKIP 而非誤報通過。
+需要 Node.js 20 以上（Vite 8）。`qubo-core` 的驗證腳本另外需要 `python` 在 PATH 上
+（純 stdlib，不需安裝任何套件）；沒有的話會自動 SKIP 而非誤報通過。
 
 ## 開發
 
@@ -184,8 +194,9 @@ npm run dev          # http://localhost:5174
 npm run typecheck
 npm run build        # 輸出至 ./publish
 npm run preview
-npm run verify:all   # 三道驗證
 ```
+
+三道驗證在 `qubo-core` 裡跑（見上）。
 
 ## 語言
 
@@ -198,7 +209,7 @@ npm run verify:all   # 三道驗證
 `I18nProvider` 仍保留 fallback 機制，供日後新增的語言逐步翻譯。
 
 UI 字串一律不寫死在元件裡（講者提示、平台比較表、sampler 上限也都在字典中）。唯一
-的例外是約束標籤（`src/cases/*.ts` 的 `label`），它跟論文的式子一樣是與語言無關的
+的例外是約束標籤（`qubo-core` 的 `cases/*.ts` 的 `label`），它跟論文的式子一樣是與語言無關的
 記號，例如 `x₁ + x₃ + x₆ = 1`、`node 3: exactly one colour`。
 
 ## 專案結構
@@ -207,30 +218,28 @@ UI 字串一律不寫死在元件裡（講者提示、平台比較表、sampler 
 QUBOModelExplorer/
 ├─ index.html
 ├─ vite.config.ts              # base './', build.outDir = "publish"
-├─ scripts/
-│  ├─ verify-cases.mjs         # 推導 ↔ 論文
-│  ├─ verify-python.mjs        # Python ↔ TypeScript ↔ 論文
-│  └─ verify-emit.mjs          # 產出的程式碼是否真的跑出論文答案
 ├─ public/                     # .nojekyll, favicon.svg
 └─ src/
-   ├─ types.ts                 # QuboCase / ConstrainedModel / QuboModel
    ├─ theme.ts
    ├─ App.tsx                  # 分頁群組 + hash 路由 + 線性導引
-   ├─ cases/                   # 十一個案例定義（含 paperQ 對照）
-   │  ├─ natural.ts            # §2, §3.1, §3.2
-   │  ├─ knownPenalty.ts       # §4.1, §4.2, §4.3
-   │  ├─ general.ts            # §5.1 – §5.5
-   │  └─ mutate.ts             # 自訂輸入 → 重建案例
-   ├─ lib/
-   │  ├─ qubo.ts               # QuboBuilder、對稱／上三角、slack 展開
-   │  ├─ derive.ts             # 通用推導引擎（全案唯一入口）
-   │  ├─ samplers/             # bruteForce.ts、tabu.ts
-   │  └─ python/               # samplers / module / emit / serialize
-   ├─ workers/solver.worker.ts
+   ├─ workers/solver.worker.ts # Web Worker 薄殼，求解器本身在 qubo-core
    ├─ hooks/                   # useSolver、useHashRoute
    ├─ i18n/                    # zh 為正典，en 已補齊（型別上要求完整）
+   │  └─ coreKeys.ts           # 斷言字典涵蓋 qubo-core 需要的鍵
    ├─ components/
    └─ pages/
+```
+
+領域邏輯全部來自 [`qubo-core`](https://github.com/yuuchilyann/qubo-core)：
+
+```
+qubo-core/src/
+├─ types.ts                    # QuboCase / ConstrainedModel / QuboModel
+├─ qubo.ts                     # QuboBuilder、對稱／上三角、slack 展開
+├─ derive.ts                   # 通用推導引擎（全案唯一入口）
+├─ cases/                      # 十一個案例定義（含 paperQ 對照）+ mutate
+├─ samplers/                   # bruteForce.ts、tabu.ts
+└─ python/                     # samplers / module / emit / serialize
 ```
 
 ## 部署

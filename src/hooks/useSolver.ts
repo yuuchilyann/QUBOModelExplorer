@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { ConstrainedModel, QuboModel, SampleSet } from '../types';
-import { EXACT_LIMIT, HARD_LIMIT } from '../types';
+import type { ConstrainedModel, QuboModel, SampleSet } from 'qubo-core/types';
+import { EXACT_LIMIT, HARD_LIMIT } from 'qubo-core/types';
 import type { SolveRequest, SolveResponse } from '../workers/solver.worker';
 
 export type SolveState = {

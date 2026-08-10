@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-import { installCommand, type EnvKey } from '../lib/python/samplers';
+import { installCommand, type EnvKey } from 'qubo-core/python/samplers';
 import { useI18n } from '../i18n';
 
 const ENVS: EnvKey[] = ['pip', 'conda', 'uv'];

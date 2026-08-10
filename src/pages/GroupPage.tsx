@@ -1,10 +1,10 @@
 import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
 
-import { derive } from '../lib/derive';
+import { derive } from 'qubo-core/derive';
 import { CaseScenarioLine, useCaseName } from '../components/CaseScenario';
 import { PresenterNotes } from '../components/PresenterNotes';
 import { SourceBadge } from '../components/SourceBadge';
-import type { CaseGroup, QuboCase } from '../types';
+import type { CaseGroup, QuboCase } from 'qubo-core/types';
 import { useI18n } from '../i18n';
 
 const TITLE_KEY = {

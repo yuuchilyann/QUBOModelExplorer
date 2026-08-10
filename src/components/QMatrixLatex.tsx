@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 
-import type { QuboModel } from '../types';
+import type { QuboModel } from 'qubo-core/types';
 // Aliased: a local binding called `Math` would shadow the global object, so
 // `Math.abs` below would resolve to the React component instead.
 import { Math as Tex } from './Math';

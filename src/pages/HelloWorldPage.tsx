@@ -14,10 +14,10 @@ import {
   Typography,
 } from '@mui/material';
 
-import { helloWorld } from '../cases';
-import { applyEdit } from '../cases/mutate';
-import { derive } from '../lib/derive';
-import { evaluate } from '../lib/qubo';
+import { helloWorld } from 'qubo-core/cases';
+import { applyEdit } from 'qubo-core/cases/mutate';
+import { derive } from 'qubo-core/derive';
+import { evaluate } from 'qubo-core/qubo';
 import { useSolver } from '../hooks/useSolver';
 import { CodeExportPanel } from '../components/CodeExportPanel';
 import { HelloEditor } from '../components/CaseEditors';

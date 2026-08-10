@@ -12,9 +12,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import type { QuboCase, QuboModel } from '../types';
+import type { QuboCase, QuboModel } from 'qubo-core/types';
 import type { SolveState } from '../hooks/useSolver';
-import { checkFeasibility } from '../lib/derive';
+import { checkFeasibility } from 'qubo-core/derive';
 import { EnergyLandscape } from './EnergyLandscape';
 import { useI18n } from '../i18n';
 

@@ -15,20 +15,20 @@ import {
 import CloudOffIcon from '@mui/icons-material/CloudOff';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 
-import type { QuboCase, QuboModel } from '../types';
+import type { QuboCase, QuboModel } from 'qubo-core/types';
 import {
   buildIpynb,
   buildNotebook,
   emitTier1,
   emitTier2,
-} from '../lib/python/emit';
+} from 'qubo-core/python/emit';
 import {
   SAMPLERS,
   TOKEN_SETUP,
   findSampler,
   packagesFor,
   type SamplerId,
-} from '../lib/python/samplers';
+} from 'qubo-core/python/samplers';
 import { CodePanel } from './CodePanel';
 import { InstallBlock } from './InstallBlock';
 import { JupyterPanel } from './JupyterPanel';

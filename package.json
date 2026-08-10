@@ -8,13 +8,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit",
-    "verify": "node scripts/verify-cases.mjs",
-    "verify:python": "node scripts/verify-python.mjs",
-    "verify:emit": "node scripts/verify-emit.mjs",
-    "verify:all": "npm run verify && npm run verify:python && npm run verify:emit"
+    "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
+    "qubo-core": "github:yuuchilyann/qubo-core#v0.1.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.10",

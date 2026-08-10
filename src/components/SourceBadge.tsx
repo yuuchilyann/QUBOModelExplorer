@@ -1,7 +1,7 @@
 import { Chip, Tooltip } from '@mui/material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
-import type { QuboCase } from '../types';
+import type { QuboCase } from 'qubo-core/types';
 
 /**
  * Section and page anchor, pinned to every case header so a presenter can turn

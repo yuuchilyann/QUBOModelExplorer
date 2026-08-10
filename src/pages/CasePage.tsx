@@ -1,6 +1,6 @@
 import { Alert, Box, Chip, Stack, Typography } from '@mui/material';
 
-import { findCase } from '../cases';
+import { findCase } from 'qubo-core/cases';
 import { CaseScenario, useCaseName } from '../components/CaseScenario';
 import { CaseWorkbench } from '../components/CaseWorkbench';
 import { PresenterNotes } from '../components/PresenterNotes';

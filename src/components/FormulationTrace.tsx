@@ -1,7 +1,7 @@
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
-import type { Derivation } from '../lib/derive';
-import type { Constraint, QuboCase } from '../types';
+import type { Derivation } from 'qubo-core/derive';
+import type { Constraint, QuboCase } from 'qubo-core/types';
 import { Math } from './Math';
 import { useI18n } from '../i18n';
 

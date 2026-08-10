@@ -14,7 +14,7 @@ import {
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import { GROUP_ORDER, WALK_ORDER, casesInGroup, findCase } from './cases';
+import { GROUP_ORDER, WALK_ORDER, casesInGroup, findCase } from 'qubo-core/cases';
 import { keyToRoute, routeKey, useHashRoute } from './hooks/useHashRoute';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { AppendixPage } from './pages/AppendixPage';
@@ -23,7 +23,7 @@ import { CasePage } from './pages/CasePage';
 import { GroupPage } from './pages/GroupPage';
 import { HelloWorldPage } from './pages/HelloWorldPage';
 import { useI18n } from './i18n';
-import type { CaseGroup } from './types';
+import type { CaseGroup } from 'qubo-core/types';
 
 const GROUP_NAV_KEY: Record<CaseGroup, 'app.nav.natural' | 'app.nav.knownPenalty' | 'app.nav.general'> =
   {

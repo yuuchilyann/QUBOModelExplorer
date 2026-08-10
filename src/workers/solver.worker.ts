@@ -9,9 +9,9 @@
  * one per run.
  */
 
-import { bruteForce } from '../lib/samplers/bruteForce';
-import { tabuSearch } from '../lib/samplers/tabu';
-import type { SampleSet, Sense } from '../types';
+import { bruteForce } from 'qubo-core/samplers/bruteForce';
+import { tabuSearch } from 'qubo-core/samplers/tabu';
+import type { SampleSet, Sense } from 'qubo-core/types';
 
 export type SolveRequest = {
   Q: number[][];

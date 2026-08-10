@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Box, Grid, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
 
-import { applyEdit, maxMagnitude, SAFE_MAGNITUDE, type CaseEdit } from '../cases/mutate';
-import { derive } from '../lib/derive';
-import { diffMatrices } from '../lib/qubo';
+import { applyEdit, maxMagnitude, SAFE_MAGNITUDE, type CaseEdit } from 'qubo-core/cases/mutate';
+import { derive } from 'qubo-core/derive';
+import { diffMatrices } from 'qubo-core/qubo';
 import { useSolver } from '../hooks/useSolver';
-import type { Clause, Graph, QuboCase } from '../types';
+import type { Clause, Graph, QuboCase } from 'qubo-core/types';
 import { CodeExportPanel } from './CodeExportPanel';
 import { ColoringEditor, GraphEditor, HelloEditor, NumbersEditor, SatEditor } from './CaseEditors';
 import { AssignmentView, GraphView, KnapsackView, PartitionView, SatView } from './DomainViews';

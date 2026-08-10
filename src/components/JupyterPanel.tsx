@@ -6,7 +6,7 @@ import Prism from 'prismjs';
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism.css';
 
-import type { NotebookCell } from '../lib/python/emit';
+import type { NotebookCell } from 'qubo-core/python/emit';
 import { useI18n } from '../i18n';
 
 export type JupyterPanelProps = {

@@ -1,7 +1,7 @@
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
-import type { Clause, Graph, QuboCase } from '../types';
-import { unsatisfiedClauses } from '../lib/derive';
+import type { Clause, Graph, QuboCase } from 'qubo-core/types';
+import { unsatisfiedClauses } from 'qubo-core/derive';
 import { CATEGORY_COLORS } from '../theme';
 import { useI18n } from '../i18n';
 

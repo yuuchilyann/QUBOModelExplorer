@@ -1,6 +1,6 @@
 import { Box, Stack, Tooltip, Typography } from '@mui/material';
 
-import type { SampleSet } from '../types';
+import type { SampleSet } from 'qubo-core/types';
 import { useI18n } from '../i18n';
 
 export type EnergyLandscapeProps = {

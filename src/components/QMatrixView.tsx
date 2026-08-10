@@ -10,8 +10,8 @@ import {
   Typography,
 } from '@mui/material';
 
-import type { QuboModel } from '../types';
-import { toUpperTriangular } from '../lib/qubo';
+import type { QuboModel } from 'qubo-core/types';
+import { toUpperTriangular } from 'qubo-core/qubo';
 import { bmatrix } from './QMatrixLatex';
 // Aliased: this file uses Math.abs/Math.max, and an import named `Math` would
 // shadow the global object.

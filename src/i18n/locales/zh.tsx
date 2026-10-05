@@ -38,12 +38,12 @@ export const zh = {
   // they are the densest prose on the site and the most useful to a presenter.
   'notes.overview': (
     <>
-      這一頁只要讓觀眾接受一件事：<strong>QUBO 是一座橋，不是一個目的地</strong>。一端是十一種看起來毫無關係的問題，另一端是四種完全不同的硬體，中間那個{' '}
+      這一頁只要讓觀眾接受一件事：<strong>QUBO 是一座橋，不是一個目的地</strong>。一端是一大串看起來毫無關係的問題（論文算過的十一個，加上論文只點名、本站補上的延伸案例），另一端是四種完全不同的硬體，中間那個{' '}
       <Math>{'x^tQx'}</Math> 是唯一的共同語言。
       <br />
       <br />
       常見提問一：「那是不是丟給量子電腦就會比較快？」答案是不會。論文作者自己在 p.34
-      說他們的古典 solver QUBO 2.0 比主流量子系統快三個數量級。本站十一個案例全都小到瀏覽器毫秒級就窮舉完了。
+      說他們的古典 solver QUBO 2.0 比主流量子系統快三個數量級。本站所有案例全都小到瀏覽器毫秒級就窮舉完了。
       <br />
       <br />
       常見提問二：「為什麼要先變成 NP-hard？」其實並沒有變難。QUBO 本來就是 NP-hard，規約沒有讓問題變簡單。動機是<strong>統一介面</strong>，不是降低難度。
@@ -150,6 +150,83 @@ export const zh = {
       <br />
       <br />
       值得現場示範：把 P 拉到 1，最優值仍然是 2，但簡併度從 4 變成 7，多出來的 3 個是同時選了某條邊兩端的不可行解。收益和懲罰剛好打平，所以 P 必須<strong>嚴格大於</strong> 1。
+    </>
+  ),
+  'notes.case.max-clique': (
+    <>
+      論文 p.10 提到 Pardalos &amp; Xue 在 maximum clique 上用的就是 <code>P·xᵢxⱼ</code> 這個懲罰。和最大獨立集只差在約束取自哪裡：獨立集取「有邊」的點對，團取「沒有邊」的點對，也就是補圖上的獨立集。把兩頁的 Q 矩陣並排比較，非零的非對角格剛好互補。
+      <br />
+      <br />
+      這張圖唯一的三角形是 3–4–5，最優值 3、唯一解。問題檢視裡，被選入卻不相鄰的點對會畫成紅色虛線，拖 P 滑桿時可以看到它們出現。
+    </>
+  ),
+  'notes.case.max-diversity': (
+    <>
+      目標函數本來就是二次的（<code>Σ dᵢⱼxᵢxⱼ</code>），唯一的約束是「恰好選 4 個」，用 Transformation #1 處理。最優解是 {'{'}7, 10, 31, 42{'}'}，總距離 126：直線上的點，兩個端點必選，中間兩個要拉得最開。
+      <br />
+      <br />
+      P 的取法值得講：本站取 200，理由是多選一個數字最多多賺它的距離列和（最大是 42 的 170），所以 P &gt; 170 一定夠。但實測 P = 60 就不會出錯，充分界和實際門檻差了三倍多，這就是論文 p.13 說的 Goldilocks 區間很寬。把滑桿往下拉，可以找到它失效的地方。
+    </>
+  ),
+  'notes.case.discrete-tomography': (
+    <>
+      沒有目標函數，六條投影等式都用 Transformation #1，結構和 §5.2 的節點指派方程一樣，任何正的 P 都可以。
+      <br />
+      <br />
+      重點在解空間分頁：有 <strong>5 張</strong>影像的投影完全相同，「X」形只是其中之一。只給列和與行和，影像無法唯一決定，這正是真實的斷層重建要再加其他方向的投影或先驗知識的原因。
+    </>
+  ),
+  'notes.case.task-allocation': (
+    <>
+      通訊成本只在兩個任務分開時才付，寫成 <code>cᵢⱼ(xᵢ₁xⱼ₂ + xᵢ₂xⱼ₁)</code>，所以目標函數本身就是二次的；每個任務「恰好放一台」用 Transformation #1。
+      <br />
+      <br />
+      資料刻意設計成兩股力量互相拉扯：全部放處理器 2 可以省掉所有通訊，總成本 16；但最優解是拆開（任務 1、3 在處理器 1，任務 2 在處理器 2），總成本 14。P 取 16 是充分界（拿掉一個任務最多省 15），實測 P = 8 就夠了。
+    </>
+  ),
+  'notes.case.capital-budgeting': (
+    <>
+      這是 §5.5 去掉二次項、再多一個預算期。只有第一期時最好是選 2、3、4（價值 11），第二期把它排除，最優解變成 2、4（價值 9）。
+      <br />
+      <br />
+      值得指出：slack 上界這裡用整列範圍（16、13），不能沿用 §5.5 的 3，因為最優解第一期剩下 7，上界 3 表示不了。§5.3／§5.5 的 slack 上界是針對那一題的判斷，換一題就要重新判斷。
+    </>
+  ),
+  'notes.case.multiple-knapsack': (
+    <>
+      這題和 §5.2 一樣同時用兩種變換：「每件最多放一個背包」是 p.10 表格第 1 列（Transformation #2，不需 slack），容量是 ≤ 加 slack（Transformation #1）。
+      <br />
+      <br />
+      總重 22 超過總容量 18，一定有東西放不進去。最優價值 11，有 4 種不同裝法，解空間分頁會顯示這個簡併度。
+    </>
+  ),
+  'notes.case.p-median': (
+    <>
+      第一次用到 p.10 表格第 4 列：「客戶只能由開了的據點服務」<code>xᵢⱼ ≤ yⱼ</code> → <code>P(xᵢⱼ − xᵢⱼyⱼ)</code>。一題裡同時有三種約束：恰好服務一次、恰好開 2 個（都是 Transformation #1），以及 12 條蘊含式。
+      <br />
+      <br />
+      實作細節：蘊含式配方依變數編號取「前件 ≤ 後件」，所以所有 x 必須排在 y 前面。最優解開最外側的據點 1、3，總距離 5。
+    </>
+  ),
+  'notes.case.warehouse-location': (
+    <>
+      和 P-中位數只差兩處：拿掉「恰好開 2 個」，在 y 上加開設成本。便宜的中間據點改變了答案：最優解開據點 1、2，總成本 14；P-中位數在同一組點上開的是 1、3。兩頁並排很好講「模型差一條約束，答案就不同」。
+    </>
+  ),
+  'notes.case.linear-ordering': (
+    <>
+      每個三元組 i &lt; j &lt; k 有兩條約束 <code>0 ≤ xᵢⱼ + xⱼₖ − xᵢₖ ≤ 1</code>，確保不出現循環。slack 上界取 1，低於整列範圍 2：只要另一條成立，這條的 slack 不會超過 1。這和 §5.3 論文自己挑 slack 上界是同一種判斷，約束窮舉確認沒有因此漏掉任何合法排名。
+      <br />
+      <br />
+      目標是淨一致數；問題檢視補回常數 12，顯示完整的一致數。最佳排名 4 › 1 › 2 › 3，一致 21／30。
+    </>
+  ),
+  'notes.case.clique-partitioning': (
+    <>
+      這是論文 §7 第 3 點的點變數置換：標準模型每條邊一個變數，改成「i 與 j 同組」= <code>Σₖ xᵢₖxⱼₖ</code>，目標變成二次、約束只剩每個節點恰好一組。附錄頁也有這個置換的說明。
+      <br />
+      <br />
+      最優是 {'{'}1, 2{'}'} {'{'}3, 4{'}'}，總權重 7，但解空間顯示 12 個最優解：組的標籤可以互換（4 × 3 種命名）。可以藉此講對稱性為什麼讓 QUBO 的解空間變大。
     </>
   ),
   'notes.case.max-2-sat': (
@@ -411,6 +488,7 @@ export const zh = {
     </>
   ),
   'overview.left': '問題端 · 組合最佳化問題',
+  'overview.extendedChip': (p: TParams) => `＋ ${p.n} 個延伸案例（論文只點名）`,
   'overview.middle': 'QUBO 標準型',
   'overview.right': '求解端 · 求解器',
   'overview.whyIsing': (
@@ -544,7 +622,7 @@ export const zh = {
       <br />
       MIP 求解器回報的是「目前這個解，保證在最優的 3.2% 以內」，那個 gap 是可以拿去跟人交代的。QUBO 的啟發式求解器（tabu、模擬退火、量子退火）<strong>只給您一個數字</strong>，不附帶任何界限。您不會知道手上的 <Math>{'-11'}</Math> 究竟是最優解，還是離最優還差 40%。
       <br />
-      本站十一個案例看不出這個問題，因為它們小到可以用 <code>dimod.ExactSolver</code> 窮舉、保證最優。一旦超過約 20 個變數，這個保證就沒了，而且<strong>沒有東西可以取代它</strong>。
+      本站的案例看不出這個問題，因為它們小到可以用 <code>dimod.ExactSolver</code> 窮舉、保證最優。一旦超過約 20 個變數，這個保證就沒了，而且<strong>沒有東西可以取代它</strong>。
     </>
   ),
   'overview.cost.fit.title': 'QUBO 划算的訊號',
@@ -625,6 +703,96 @@ export const zh = {
     </>
   ),
 
+  'case.max-clique.name': '最大團',
+  'case.max-clique.scenario': (
+    <>
+      把節點看成人、邊看成「彼此認識」。要找出最大的一群人，<strong>群裡任兩人都互相認識</strong>。用的仍是那張 5 個節點、6 條邊的圖。它和最大獨立集正好相反：獨立集要任兩人都不相鄰，團要任兩人都相鄰。
+    </>
+  ),
+  'case.max-clique.xMeans': 'xᵢ = 1 表示節點 i 在團裡。',
+  'case.max-clique.uses': '社群網路的緊密小圈圈偵測、蛋白質交互作用網路的功能模組、金融交易網路的關聯帳戶、化學結構比對',
+
+  'case.max-diversity.name': '最大分散度',
+  'case.max-diversity.scenario': (
+    <>
+      從八個數字裡<strong>挑恰好四個</strong>，讓它們兩兩之間的差距加起來越大越好。數字沿用 §3.1 數字分割的那八個（25, 7, 13, 31, 42, 17, 21, 10），差距就是兩數相減的絕對值。
+    </>
+  ),
+  'case.max-diversity.xMeans': 'xⱼ = 1 表示選入第 j 個數字。',
+  'case.max-diversity.uses': '挑選彼此差異最大的候選人或專案組合、新藥篩選的多樣化化合物庫、店面選址避免互搶客源、推薦清單的多樣性',
+
+  'case.discrete-tomography.name': '離散斷層重建',
+  'case.discrete-tomography.scenario': (
+    <>
+      一張 3×3 的黑白影像看不到，只知道<strong>每一列、每一行各有幾個黑格</strong>（列和、行和都是 2, 1, 2）。要把影像還原回來。這是 CT 掃描的極簡版：從各方向的投影推回內部的樣子。
+    </>
+  ),
+  'case.discrete-tomography.xMeans': '變數依列優先編號（x₁…x₉ 對應第 1 列由左到右，再第 2 列……）；= 1 表示該格是黑格。',
+  'case.discrete-tomography.uses': '醫學與工業 CT 影像重建、電子顯微鏡的晶格結構重建、材料內部缺陷檢測',
+
+  'case.task-allocation.name': '任務分配',
+  'case.task-allocation.scenario': (
+    <>
+      三個運算任務要分給兩台處理器。每個任務在不同處理器上的<strong>執行成本</strong>不同；兩個任務若放在不同處理器，彼此之間還要付<strong>通訊成本</strong>。要決定每個任務放哪台，讓總成本最低。
+    </>
+  ),
+  'case.task-allocation.xMeans': '變數依「任務 × 處理器」排列：x₁、x₂ 是任務 1 放處理器 1、2，x₃、x₄ 是任務 2，依此類推；= 1 表示放在那台。',
+  'case.task-allocation.uses': '分散式系統與雲端的工作排程、多核心處理器的執行緒配置、微服務部署位置、邊緣運算的卸載決策',
+
+  'case.capital-budgeting.name': '資本預算',
+  'case.capital-budgeting.scenario': (
+    <>
+      四個投資專案各有價值，但每個專案在<strong>兩個預算期</strong>都要花錢，每一期都有上限。要選哪幾個專案，讓總價值最大、兩期都不超支？價值與第一期預算沿用 §5.5，第二期是本站加的。
+    </>
+  ),
+  'case.capital-budgeting.xMeans': 'xⱼ = 1 表示投資第 j 個專案；後面的變數是兩期預算各自的 slack 位元。',
+  'case.capital-budgeting.uses': '企業年度投資組合、政府公共建設排序、研發專案組合管理、IT 預算分配',
+
+  'case.multiple-knapsack.name': '多背包',
+  'case.multiple-knapsack.scenario': (
+    <>
+      四件物品、兩個背包（容量 10 和 8）。每件物品<strong>最多放進一個背包</strong>，每個背包不能超重，要讓裝進去的總價值最大。物品的重量與價值沿用 §5.5 的四個專案。
+    </>
+  ),
+  'case.multiple-knapsack.xMeans': '變數依「物品 × 背包」排列：x₁、x₂ 是物品 1 放背包 1、2，依此類推；後面是兩個背包容量的 slack 位元。',
+  'case.multiple-knapsack.uses': '貨櫃與車輛裝載、雲端虛擬機配置到多台主機、廣告預算分配到多個通路、生產工單分配到多條產線',
+
+  'case.p-median.name': 'P-中位數選址',
+  'case.p-median.scenario': (
+    <>
+      一條路上有四個客戶（位置 0, 2, 7, 10）和三個候選據點（位置 1, 5, 9）。要<strong>恰好開 2 個據點</strong>，每個客戶由開了的據點之一服務，讓所有客戶的總距離最短。
+    </>
+  ),
+  'case.p-median.xMeans': '前 12 個變數依「客戶 × 據點」排列，= 1 表示該客戶由該據點服務；最後 3 個變數 y₁…y₃ = 1 表示該據點開設。',
+  'case.p-median.uses': '物流中心與倉庫選址、消防隊與救護站配置、零售門市布點、資料分群（k-medoids）',
+
+  'case.warehouse-location.name': '倉庫選址',
+  'case.warehouse-location.scenario': (
+    <>
+      同樣四個客戶、三個候選據點，但這次<strong>每個據點有開設成本</strong>（4, 1, 6），而且不限開幾個。要在開設成本與運送距離之間取捨，讓總成本最低。
+    </>
+  ),
+  'case.warehouse-location.xMeans': '與 P-中位數相同：前 12 個變數是「客戶 × 據點」的服務指派，最後 3 個 y₁…y₃ 是據點是否開設。',
+  'case.warehouse-location.uses': '倉儲與配送中心規劃、工廠設廠決策、充電站與基地台布建、資料中心選址',
+
+  'case.linear-ordering.name': '線性排序',
+  'case.linear-ordering.scenario': (
+    <>
+      五位評審對四個項目兩兩比較，例如有 4 位認為 1 比 2 好。要排出一個<strong>總排名</strong>，讓排名和評審意見一致的次數最多。難處在於多數意見是循環的：多數認為 1 勝 2、2 勝 4，卻也認為 4 勝 1。
+    </>
+  ),
+  'case.linear-ordering.xMeans': '每一對 i < j 一個變數（x₁₂, x₁₃, …, x₃₄），= 1 表示 i 排在 j 前面；後面是避免循環的 slack 位元。',
+  'case.linear-ordering.uses': '排名聚合（多位評審或多個搜尋引擎的結果合併）、運動賽事排名、經濟學投入產出表的三角化、考古學的定年排序',
+
+  'case.clique-partitioning.name': '團分割',
+  'case.clique-partitioning.scenario': (
+    <>
+      四個節點兩兩之間有正負不等的相似度（正的希望同組、負的希望分開）。要把節點分成<strong>任意多組</strong>，讓同組內的相似度總和最大。
+    </>
+  ),
+  'case.clique-partitioning.xMeans': '變數依「節點 × 組」排列（4 個節點、最多 4 組）：x₁…x₄ 是節點 1 放第 1–4 組，依此類推；= 1 表示放在那一組。',
+  'case.clique-partitioning.uses': '相關性分群（correlation clustering）、社群偵測、生物資訊的基因分群、製造業的機器與零件分組',
+
   'case.max-2-sat.name': '最大 2-可滿足性',
   'case.max-2-sat.scenario': (
     <>
@@ -703,6 +871,36 @@ export const zh = {
   'domain.color.feasible': '合法著色',
   'domain.independent.size': (p: TParams) => `獨立集大小 = ${p.size}`,
   'domain.independent.conflict': '兩端都被選入的邊',
+  'domain.clique.size': (p: TParams) => `團的大小 = ${p.size}`,
+  'domain.clique.missing': '選入但不相鄰的點對',
+  'domain.diversity.total': (p: TParams) => `總距離 = ${p.value}`,
+  'domain.diversity.count': (p: TParams) => `已選 ${p.count} / ${p.pick} 個`,
+  'domain.tomo.match': '投影全部吻合',
+  'domain.tomo.mismatch': '投影不吻合',
+  'domain.tomo.note': '格子旁的數字是「目前／目標」。投影同樣吻合的其他影像，見「解空間」分頁的簡併度。',
+  'domain.alloc.task': '任務',
+  'domain.alloc.proc': '處理器',
+  'domain.alloc.exec': (p: TParams) => `執行成本 ${p.value}`,
+  'domain.alloc.comm': (p: TParams) => `通訊成本 ${p.value}`,
+  'domain.alloc.total': (p: TParams) => `總成本 = ${p.value}`,
+  'domain.alloc.note': '格子裡是該任務在該處理器上的執行成本；藍色是目前的分配。',
+  'domain.budget.project': (p: TParams) => `專案 ${p.j}（價值 ${p.value}）`,
+  'domain.budget.period': (p: TParams) => `第 ${p.k} 期預算`,
+  'domain.mknap.sack': (p: TParams) => `背包 ${p.k}`,
+  'domain.mknap.left': (p: TParams) => `沒裝進去：${p.items}`,
+  'domain.mknap.note': '每列是一個背包，數字是「已用／容量」。',
+  'domain.facility.distance': (p: TParams) => `總距離 ${p.value}`,
+  'domain.facility.fixed': (p: TParams) => `開設成本 ${p.value}`,
+  'domain.facility.total': (p: TParams) => `總成本 = ${p.value}`,
+  'domain.facility.note': '方塊是候選據點（藍色＝開設），圓點是客戶；連線表示由哪個據點服務，紅色虛線表示服務據點沒開。',
+  'domain.order.item': (p: TParams) => `項目 ${p.i}`,
+  'domain.order.consistent': '排名沒有循環',
+  'domain.order.cycle': '出現循環，不是合法排名',
+  'domain.order.agreement': (p: TParams) => `與評審一致 ${p.value} / ${p.total}`,
+  'domain.order.note': '一致數 = 模型的淨值 + 常數 12。約束模型沒有放常數的地方，這裡補回。',
+  'domain.cluster.inside': (p: TParams) => `組內相似度總和 = ${p.value}`,
+  'domain.cluster.invalid': '有節點不在恰好一組裡',
+  'domain.cluster.note': (p: TParams) => `相似度：${p.weights}`,
   'domain.assign.facility': '設施',
   'domain.assign.location': '位置',
   'domain.assign.cost': (p: TParams) => `加權流量成本 = ${p.cost}`,

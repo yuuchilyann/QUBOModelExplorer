@@ -41,13 +41,13 @@ export const en: Dictionary = {
   'notes.overview': (
     <>
       All this page has to land is one idea: <strong>QUBO is a bridge, not a destination</strong>. At one
-      end are eleven problems that look completely unrelated, at the other four quite different kinds of
+      end is a long list of problems that look completely unrelated (the paper’s eleven worked ones, plus the extensions it only names), at the other four quite different kinds of
       hardware, and the <Math>{'x^tQx'}</Math> in between is the only shared language.
       <br />
       <br />
       Question one, always asked: “so does handing it to a quantum computer make it faster?” It does not.
       On p.34 the authors themselves report that their own classical solver, QUBO 2.0, beats mainstream
-      quantum systems by three orders of magnitude. Every one of the eleven cases here is small enough for
+      quantum systems by three orders of magnitude. Every case here is small enough for
       the browser to enumerate in milliseconds.
       <br />
       <br />
@@ -202,6 +202,120 @@ export const en: Dictionary = {
       Worth demonstrating live: drag P down to 1. The optimal value is still 2, but the degeneracy jumps from 4
       to 7, and the three newcomers each pick both ends of some edge. Gain and penalty tie exactly, which is why
       P must be <strong>strictly</strong> greater than 1.
+    </>
+  ),
+  'notes.case.max-clique': (
+    <>
+      On p.10 the paper notes that Pardalos &amp; Xue used exactly this <code>P·xᵢxⱼ</code> penalty for maximum
+      clique. The only difference from maximum independent set is where the constraints come from: the
+      independent set takes the pairs that ARE edges, the clique the pairs that are NOT — it is an independent
+      set on the complement graph. Put the two Q matrices side by side and their nonzero off-diagonal cells are
+      exact complements.
+      <br />
+      <br />
+      The graph’s only triangle is 3–4–5, so the optimum is 3 and unique. In the problem view, chosen pairs that
+      are not adjacent are drawn as red dashed lines; drag the P slider down to make them appear.
+    </>
+  ),
+  'notes.case.max-diversity': (
+    <>
+      The objective is quadratic from the start (<code>Σ dᵢⱼxᵢxⱼ</code>); the only constraint is “choose exactly
+      4”, handled by Transformation #1. The optimum is {'{'}7, 10, 31, 42{'}'} with total distance 126: on a line,
+      both extremes must be chosen, and the middle pair should be as far apart as possible.
+      <br />
+      <br />
+      The choice of P is worth a minute. This site takes 200, because an extra item gains at most its row sum
+      of distances (the largest is 170, for 42), so any P &gt; 170 is guaranteed to work. But on this instance
+      P = 60 already does — the guaranteed bound and the actual threshold are more than three times apart, which
+      is the paper’s p.13 point that the “Goldilocks” region is wide. Drag the slider down to find where it breaks.
+    </>
+  ),
+  'notes.case.discrete-tomography': (
+    <>
+      There is no objective; all six projection equalities go through Transformation #1, just like §5.2’s node
+      rows, and any positive P works.
+      <br />
+      <br />
+      The point is on the solutions tab: <strong>five</strong> images share exactly these projections, and the
+      “X” is only one of them. Row and column sums alone do not determine the picture, which is why real
+      tomography adds projections from more directions, or prior knowledge.
+    </>
+  ),
+  'notes.case.task-allocation': (
+    <>
+      Communication is paid only when two tasks are split, written <code>cᵢⱼ(xᵢ₁xⱼ₂ + xᵢ₂xⱼ₁)</code>, so the
+      objective itself is quadratic; each task’s “exactly one processor” is Transformation #1.
+      <br />
+      <br />
+      The data are built so the two pulls disagree. Putting everything on processor 2 avoids all communication,
+      for a total of 16; but the optimum splits — tasks 1 and 3 on processor 1, task 2 on processor 2 — for 14.
+      P = 16 is the guaranteed bound (unassigning a task saves at most 15); on this instance P = 8 already works.
+    </>
+  ),
+  'notes.case.capital-budgeting': (
+    <>
+      This is §5.5 without its quadratic terms and with a second budget period. With period 1 alone the best
+      choice is projects 2, 3, 4 (value 11); period 2 rules that out, and the optimum becomes projects 2 and 4
+      (value 9).
+      <br />
+      <br />
+      Worth pointing out: the slack bounds here are the full row ranges (16 and 13), not §5.5’s 3, because the
+      optimum leaves 7 unused in period 1 and a bound of 3 could not represent it. The slack bounds of §5.3 and
+      §5.5 are judgements about those problems; a new problem needs its own.
+    </>
+  ),
+  'notes.case.multiple-knapsack': (
+    <>
+      Like §5.2, this case uses both transformations: “at most one knapsack per item” is row 1 of the p.10
+      table (Transformation #2, no slack), and each capacity is a ≤ row with slack (Transformation #1).
+      <br />
+      <br />
+      The total weight of 22 exceeds the 18 available, so something must stay out. The best value is 11,
+      reached by four different packings; the solutions tab shows the degeneracy.
+    </>
+  ),
+  'notes.case.p-median': (
+    <>
+      The first use of row 4 of the p.10 table: “a customer may only be served by an open site”,{' '}
+      <code>xᵢⱼ ≤ yⱼ</code> → <code>P(xᵢⱼ − xᵢⱼyⱼ)</code>. One model, three kinds of row: served exactly once and
+      exactly 2 open (both Transformation #1), plus 12 implications.
+      <br />
+      <br />
+      An implementation detail: the implication recipe takes its variables in index order as “antecedent ≤
+      consequent”, so every x must come before the y’s. The optimum opens the two outer sites, 1 and 3, for a
+      total distance of 5.
+    </>
+  ),
+  'notes.case.warehouse-location': (
+    <>
+      Two differences from P-Median: the “exactly 2 open” row is gone, and the y’s carry opening costs. The
+      cheap middle site changes the answer: open sites 1 and 2 for a total of 14, where P-Median on the same
+      points opened 1 and 3. Side by side, the two pages make the point that one row more or less changes the
+      answer.
+    </>
+  ),
+  'notes.case.linear-ordering': (
+    <>
+      Each triple i &lt; j &lt; k has two rows, <code>0 ≤ xᵢⱼ + xⱼₖ − xᵢₖ ≤ 1</code>, which rule out cycles. Each
+      slack bound is 1, below the row’s full range of 2: whenever the other row holds, this row’s slack cannot
+      exceed 1. It is the same kind of judgement the paper makes when it picks slack bounds in §5.3, and the
+      constrained search confirms no valid ranking is lost because of it.
+      <br />
+      <br />
+      The objective is net agreement; the problem view adds back the constant 12 to show full agreement. The best
+      ranking is 4 › 1 › 2 › 3, agreeing 21 times out of 30.
+    </>
+  ),
+  'notes.case.clique-partitioning': (
+    <>
+      This is §7 point 3’s node-variable substitution: the standard model has one variable per edge; replacing
+      “i and j together” with <code>Σₖ xᵢₖxⱼₖ</code> makes the objective quadratic and leaves only “each node in
+      exactly one group”. The appendix page describes the substitution too.
+      <br />
+      <br />
+      The best partition is {'{'}1, 2{'}'} {'{'}3, 4{'}'} with total weight 7, yet the solutions tab shows 12
+      optima: group labels are interchangeable (4 × 3 ways to name two groups). A good moment to explain why
+      symmetry inflates a QUBO’s solution space.
     </>
   ),
   'notes.case.max-2-sat': (
@@ -498,6 +612,7 @@ export const en: Dictionary = {
     </>
   ),
   'overview.left': 'Problem side · combinatorial optimisation',
+  'overview.extendedChip': (p: TParams) => `+ ${p.n} extensions (named in the paper only)`,
   'overview.middle': 'QUBO standard form',
   'overview.right': 'Solver side · samplers and hardware',
   'overview.whyIsing': (
@@ -673,7 +788,7 @@ export const en: Dictionary = {
       quantum annealing — <strong>hands you one number</strong> and no bound at all. You cannot tell
       whether the <Math>{'-11'}</Math> you are holding is the optimum or 40% away from it.
       <br />
-      The eleven cases here hide the problem, because they are small enough for{' '}
+      The cases here hide the problem, because they are small enough for{' '}
       <code>dimod.ExactSolver</code> to enumerate and guarantee. Past roughly 20 variables that guarantee
       is gone, and <strong>nothing replaces it</strong>.
     </>
@@ -786,6 +901,132 @@ export const en: Dictionary = {
     </>
   ),
 
+  'case.max-clique.name': 'Maximum clique',
+  'case.max-clique.scenario': (
+    <>
+      Think of the nodes as people and each edge as “these two know each other”. Find the largest group in
+      which <strong>every two members know each other</strong>. The graph is the same 5-node, 6-edge one. It is the
+      mirror image of maximum independent set: there no two members may be adjacent, here every two must be.
+    </>
+  ),
+  'case.max-clique.xMeans': 'xᵢ = 1 puts node i in the clique.',
+  'case.max-clique.uses':
+    'finding tight-knit circles in social networks, functional modules in protein interaction networks, linked accounts in financial transaction networks, chemical structure matching',
+
+  'case.max-diversity.name': 'Maximum diversity',
+  'case.max-diversity.scenario': (
+    <>
+      From eight numbers, <strong>choose exactly four</strong> so that the gaps between every pair of them add up to
+      as much as possible. The numbers are the eight from §3.1’s number partitioning (25, 7, 13, 31, 42, 17, 21,
+      10), and the gap is the absolute difference.
+    </>
+  ),
+  'case.max-diversity.xMeans': 'xⱼ = 1 selects the j-th number.',
+  'case.max-diversity.uses':
+    'choosing the most mutually different candidates or projects, diverse compound libraries in drug screening, store siting that avoids cannibalisation, diversity in recommendation lists',
+
+  'case.discrete-tomography.name': 'Discrete tomography',
+  'case.discrete-tomography.scenario': (
+    <>
+      A 3×3 black-and-white image is hidden; all that is known is <strong>how many black cells each row and each
+      column contains</strong> (row and column sums are both 2, 1, 2). Recover the image. It is CT scanning in
+      miniature: work back from projections to what is inside.
+    </>
+  ),
+  'case.discrete-tomography.xMeans':
+    'Variables are numbered row by row (x₁…x₉: row 1 left to right, then row 2, …); = 1 makes that cell black.',
+  'case.discrete-tomography.uses':
+    'medical and industrial CT reconstruction, lattice reconstruction in electron microscopy, detecting internal defects in materials',
+
+  'case.task-allocation.name': 'Task allocation',
+  'case.task-allocation.scenario': (
+    <>
+      Three computing tasks must be placed on two processors. Each task has a different <strong>execution
+      cost</strong> on each processor, and two tasks placed on different processors also pay a <strong>communication
+      cost</strong> between them. Decide where each task runs so that the total cost is lowest.
+    </>
+  ),
+  'case.task-allocation.xMeans':
+    'Variables run task by processor: x₁, x₂ put task 1 on processor 1 or 2, x₃, x₄ are task 2, and so on; = 1 places it there.',
+  'case.task-allocation.uses':
+    'job scheduling in distributed and cloud systems, thread placement on multi-core processors, microservice deployment, offloading decisions in edge computing',
+
+  'case.capital-budgeting.name': 'Capital budgeting',
+  'case.capital-budgeting.scenario': (
+    <>
+      Four investment projects each have a value, but every project draws on <strong>two budget periods</strong>,
+      each with its own limit. Which projects maximise total value without overspending in either period? The
+      values and period 1 come from §5.5; period 2 is this site’s.
+    </>
+  ),
+  'case.capital-budgeting.xMeans': 'xⱼ = 1 funds project j; the variables after them are each period’s slack bits.',
+  'case.capital-budgeting.uses':
+    'annual corporate investment portfolios, ranking public infrastructure, R&D portfolio management, IT budget allocation',
+
+  'case.multiple-knapsack.name': 'Multiple knapsack',
+  'case.multiple-knapsack.scenario': (
+    <>
+      Four items, two knapsacks (capacities 10 and 8). Each item goes into <strong>at most one knapsack</strong>, no
+      knapsack may be overloaded, and the total value packed should be as large as possible. Item weights and
+      values are §5.5’s four projects.
+    </>
+  ),
+  'case.multiple-knapsack.xMeans':
+    'Variables run item by knapsack: x₁, x₂ put item 1 in knapsack 1 or 2, and so on; then come the two capacities’ slack bits.',
+  'case.multiple-knapsack.uses':
+    'loading containers and vehicles, placing virtual machines on hosts, splitting an ad budget across channels, assigning jobs to production lines',
+
+  'case.p-median.name': 'P-median',
+  'case.p-median.scenario': (
+    <>
+      Four customers sit along a road (at 0, 2, 7, 10) with three candidate sites (at 1, 5, 9). Open{' '}
+      <strong>exactly 2 sites</strong> and serve every customer from one of them so that the total distance is
+      as small as possible.
+    </>
+  ),
+  'case.p-median.xMeans':
+    'The first 12 variables run customer by site, = 1 meaning that site serves that customer; the last 3, y₁…y₃, = 1 open that site.',
+  'case.p-median.uses':
+    'siting distribution centres and warehouses, placing fire and ambulance stations, retail store networks, k-medoids clustering',
+
+  'case.warehouse-location.name': 'Warehouse location',
+  'case.warehouse-location.scenario': (
+    <>
+      The same four customers and three candidate sites, but now <strong>each site has an opening cost</strong> (4,
+      1, 6) and any number may be opened. Trade opening costs against travel distance to minimise the total.
+    </>
+  ),
+  'case.warehouse-location.xMeans':
+    'As in P-median: the first 12 variables assign customers to sites, and the last 3, y₁…y₃, open the sites.',
+  'case.warehouse-location.uses':
+    'planning warehouses and distribution centres, plant location, rolling out charging stations and base stations, data-centre siting',
+
+  'case.linear-ordering.name': 'Linear ordering',
+  'case.linear-ordering.scenario': (
+    <>
+      Five judges compare four items pair by pair — for example, 4 of them prefer item 1 to item 2. Produce one{' '}
+      <strong>overall ranking</strong> that agrees with the judges as often as possible. The difficulty: the
+      majorities form a cycle — most prefer 1 to 2 and 2 to 4, yet also 4 to 1.
+    </>
+  ),
+  'case.linear-ordering.xMeans':
+    'One variable per pair i < j (x₁₂, x₁₃, …, x₃₄), = 1 putting i ahead of j; then come the slack bits that rule out cycles.',
+  'case.linear-ordering.uses':
+    'rank aggregation (merging judges or search engines), sports rankings, triangulating input–output tables in economics, seriation in archaeology',
+
+  'case.clique-partitioning.name': 'Clique partitioning',
+  'case.clique-partitioning.scenario': (
+    <>
+      Every pair of four nodes has a similarity, positive (wants to be together) or negative (wants to be
+      apart). Split the nodes into <strong>any number of groups</strong> so the total similarity inside groups
+      is as large as possible.
+    </>
+  ),
+  'case.clique-partitioning.xMeans':
+    'Variables run node by group (4 nodes, up to 4 groups): x₁…x₄ put node 1 in group 1–4, and so on; = 1 places it there.',
+  'case.clique-partitioning.uses':
+    'correlation clustering, community detection, gene clustering in bioinformatics, machine–part grouping in manufacturing',
+
   'case.max-2-sat.name': 'Max 2-satisfiability',
   'case.max-2-sat.scenario': (
     <>
@@ -891,6 +1132,39 @@ export const en: Dictionary = {
   'domain.color.feasible': 'valid colouring',
   'domain.independent.size': (p: TParams) => `independent set size = ${p.size}`,
   'domain.independent.conflict': 'edges with both ends chosen',
+  'domain.clique.size': (p: TParams) => `clique size = ${p.size}`,
+  'domain.clique.missing': 'chosen pairs that are not adjacent',
+  'domain.diversity.total': (p: TParams) => `total distance = ${p.value}`,
+  'domain.diversity.count': (p: TParams) => `${p.count} of ${p.pick} chosen`,
+  'domain.tomo.match': 'all projections match',
+  'domain.tomo.mismatch': 'projections do not match',
+  'domain.tomo.note':
+    'The numbers beside the grid read “current / target”. For the other images with the same projections, see the degeneracy on the solutions tab.',
+  'domain.alloc.task': 'task',
+  'domain.alloc.proc': 'processor',
+  'domain.alloc.exec': (p: TParams) => `execution ${p.value}`,
+  'domain.alloc.comm': (p: TParams) => `communication ${p.value}`,
+  'domain.alloc.total': (p: TParams) => `total cost = ${p.value}`,
+  'domain.alloc.note': 'Each cell is that task’s execution cost on that processor; blue is the current placement.',
+  'domain.budget.project': (p: TParams) => `project ${p.j} (value ${p.value})`,
+  'domain.budget.period': (p: TParams) => `period ${p.k} budget`,
+  'domain.mknap.sack': (p: TParams) => `knapsack ${p.k}`,
+  'domain.mknap.left': (p: TParams) => `left out: ${p.items}`,
+  'domain.mknap.note': 'One bar per knapsack, reading “used / capacity”.',
+  'domain.facility.distance': (p: TParams) => `distance ${p.value}`,
+  'domain.facility.fixed': (p: TParams) => `opening ${p.value}`,
+  'domain.facility.total': (p: TParams) => `total cost = ${p.value}`,
+  'domain.facility.note':
+    'Squares are candidate sites (blue = open), circles are customers; each link shows which site serves the customer, red dashed if that site is closed.',
+  'domain.order.item': (p: TParams) => `item ${p.i}`,
+  'domain.order.consistent': 'no cycle in the ranking',
+  'domain.order.cycle': 'contains a cycle — not a valid ranking',
+  'domain.order.agreement': (p: TParams) => `agrees with judges ${p.value} / ${p.total}`,
+  'domain.order.note':
+    'Agreement = the model’s net value + the constant 12, which a constrained model has no place for and is added back here.',
+  'domain.cluster.inside': (p: TParams) => `similarity inside groups = ${p.value}`,
+  'domain.cluster.invalid': 'some node is not in exactly one group',
+  'domain.cluster.note': (p: TParams) => `similarities: ${p.weights}`,
   'domain.assign.facility': 'Facility',
   'domain.assign.location': 'Location',
   'domain.assign.cost': (p: TParams) => `weighted flow cost = ${p.cost}`,

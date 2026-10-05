@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+import { EXTENDED_CASES } from 'qubo-core/cases';
 import { MinorEmbeddingView } from '../components/MinorEmbeddingView';
 import { PresenterNotes } from '../components/PresenterNotes';
 import { Math } from '../components/Math';
@@ -164,6 +165,14 @@ export function OverviewPage() {
               {PROBLEM_SIDE.map((p) => (
                 <Chip key={p} size="small" label={p} variant="outlined" sx={{ justifyContent: 'flex-start' }} />
               ))}
+              {/* The paper's worked problems above; the ones it only names, counted separately. */}
+              <Chip
+                size="small"
+                color="warning"
+                variant="outlined"
+                label={t('overview.extendedChip', { n: EXTENDED_CASES.length })}
+                sx={{ justifyContent: 'flex-start', borderStyle: 'dashed' }}
+              />
             </Stack>
           </Box>
 

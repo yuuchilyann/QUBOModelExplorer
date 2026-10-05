@@ -1,6 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Box, Grid, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
 
+import {
+  BUDGET_ROWS,
+  CLUSTER_WEIGHTS,
+  FACILITY_CUSTOMERS,
+  FACILITY_OPEN_COST,
+  FACILITY_SITES,
+  KNAPSACK_CAPS,
+  KNAPSACK_WEIGHTS,
+  NUMBERS,
+  ORDERING_VOTES,
+  PROJECT_VALUES,
+  TASK_COMM,
+  TASK_EXEC,
+  TOMOGRAPHY_SUMS,
+} from 'qubo-core/cases';
 import { applyEdit, maxMagnitude, SAFE_MAGNITUDE, type CaseEdit } from 'qubo-core/cases/mutate';
 import { solveConstrained } from 'qubo-core/constrained';
 import { checkFeasibility, derive } from 'qubo-core/derive';
@@ -9,7 +24,21 @@ import { useSolver } from '../hooks/useSolver';
 import type { Clause, Graph, CatalogCase } from 'qubo-core/types';
 import { CodeExportPanel } from './CodeExportPanel';
 import { ColoringEditor, GraphEditor, HelloEditor, NumbersEditor, SatEditor } from './CaseEditors';
-import { AssignmentView, GraphView, KnapsackView, PartitionView, SatView } from './DomainViews';
+import {
+  AllocationView,
+  AssignmentView,
+  BudgetView,
+  ClusterView,
+  DiversityView,
+  FacilityView,
+  GraphView,
+  KnapsackView,
+  MultiKnapsackView,
+  OrderingView,
+  PartitionView,
+  SatView,
+  TomographyView,
+} from './DomainViews';
 import { FormulationTrace } from './FormulationTrace';
 import { PenaltySlider } from './PenaltySlider';
 import { QMatrixView } from './QMatrixView';
@@ -27,6 +56,7 @@ function initialEdit(qcase: CatalogCase): CaseEdit | null {
     case 'max-cut':
     case 'min-vertex-cover':
     case 'max-independent-set':
+    case 'max-clique':
       return qcase.graph ? { kind: 'graph', graph: qcase.graph } : null;
     case 'graph-coloring':
       return qcase.graph
@@ -272,6 +302,42 @@ function renderDomain(qcase: CatalogCase, x: number[], constant: number, energy:
       return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="cover" /> : null;
     case 'max-independent-set':
       return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="independent" /> : null;
+    case 'max-clique':
+      return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="clique" /> : null;
+    case 'max-diversity':
+      return (
+        <DiversityView
+          numbers={NUMBERS}
+          x={x}
+          pick={qcase.model.constraints[0].rhs}
+          value={energy + constant}
+        />
+      );
+    case 'discrete-tomography':
+      return <TomographyView x={x} rows={TOMOGRAPHY_SUMS.rows} cols={TOMOGRAPHY_SUMS.cols} />;
+    case 'task-allocation':
+      return <AllocationView x={x} exec={TASK_EXEC} comm={TASK_COMM} />;
+    case 'capital-budgeting':
+      return <BudgetView x={x} values={PROJECT_VALUES} rows={BUDGET_ROWS} />;
+    case 'multiple-knapsack':
+      return (
+        <MultiKnapsackView x={x} weights={KNAPSACK_WEIGHTS} values={PROJECT_VALUES} caps={KNAPSACK_CAPS} />
+      );
+    case 'p-median':
+      return <FacilityView x={x} customers={FACILITY_CUSTOMERS} sites={FACILITY_SITES} />;
+    case 'warehouse-location':
+      return (
+        <FacilityView
+          x={x}
+          customers={FACILITY_CUSTOMERS}
+          sites={FACILITY_SITES}
+          openCost={FACILITY_OPEN_COST}
+        />
+      );
+    case 'linear-ordering':
+      return <OrderingView x={x} votes={ORDERING_VOTES} />;
+    case 'clique-partitioning':
+      return <ClusterView x={x} n={4} weights={CLUSTER_WEIGHTS} />;
     case 'graph-coloring': {
       if (!qcase.graph) return null;
       const K = qcase.model.numVars / qcase.graph.nodes.length;

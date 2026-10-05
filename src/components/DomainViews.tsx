@@ -18,12 +18,12 @@ export type GraphViewProps = {
   graph: Graph;
   x: number[];
   /** How to interpret the assignment. */
-  mode: 'cut' | 'cover' | 'color' | 'independent';
+  mode: 'cut' | 'cover' | 'color' | 'independent' | 'clique';
   /** Colours per node, for `mode === 'color'`. */
   colorOf?: (node: number) => number | null;
 };
 
-/** Shared renderer for Max-Cut, Minimum Vertex Cover, Max Independent Set and Graph Colouring. */
+/** Shared renderer for Max-Cut, Vertex Cover, Independent Set, Clique and Graph Colouring. */
 export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
   const { t } = useI18n();
   const pts = layout(graph.nodes);
@@ -44,7 +44,26 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
     }
   }
 
+  // A clique's violations are edges that are NOT there: chosen pairs that are
+  // not adjacent. They are drawn as extra dashed lines.
+  const adjacent = new Set(graph.edges.map(([a, b]) => `${Math.min(a, b)},${Math.max(a, b)}`));
+  const chosen = graph.nodes.filter(inSet);
+  const missing: [number, number][] =
+    mode === 'clique'
+      ? chosen.flatMap((a, i) =>
+          chosen
+            .slice(i + 1)
+            .filter((b) => !adjacent.has(`${Math.min(a, b)},${Math.max(a, b)}`))
+            .map((b) => [a, b] as [number, number]),
+        )
+      : [];
+
   const edgeStyle = (a: number, b: number) => {
+    if (mode === 'clique') {
+      return inSet(a) && inSet(b)
+        ? { stroke: '#2f855a', width: 3, dash: undefined }
+        : { stroke: '#cbd5e0', width: 1.5, dash: undefined };
+    }
     if (mode === 'cut') {
       return inSet(a) !== inSet(b)
         ? { stroke: '#2f855a', width: 3, dash: undefined }
@@ -71,7 +90,9 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
       const c = colorOf?.(node);
       return c === null || c === undefined ? '#e2e8f0' : CATEGORY_COLORS[c % CATEGORY_COLORS.length];
     }
-    if (mode === 'cover' || mode === 'independent') return inSet(node) ? '#2b6cb0' : '#e2e8f0';
+    if (mode === 'cover' || mode === 'independent' || mode === 'clique') {
+      return inSet(node) ? '#2b6cb0' : '#e2e8f0';
+    }
     return inSet(node) ? '#2b6cb0' : '#c05621';
   };
 
@@ -92,6 +113,22 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
               stroke={s.stroke}
               strokeWidth={s.width}
               strokeDasharray={s.dash}
+            />
+          );
+        })}
+        {missing.map(([a, b]) => {
+          const pa = pos.get(a)!;
+          const pb = pos.get(b)!;
+          return (
+            <line
+              key={`missing-${a}-${b}`}
+              x1={pa.x}
+              y1={pa.y}
+              x2={pb.x}
+              y2={pb.y}
+              stroke="#c53030"
+              strokeWidth={3}
+              strokeDasharray="4 3"
             />
           );
         })}
@@ -141,6 +178,14 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
             />
             {clashes > 0 && (
               <Chip size="small" color="error" label={`${t('domain.independent.conflict')}: ${clashes}`} />
+            )}
+          </>
+        )}
+        {mode === 'clique' && (
+          <>
+            <Chip size="small" color="primary" label={t('domain.clique.size', { size: chosen.length })} />
+            {missing.length > 0 && (
+              <Chip size="small" color="error" label={`${t('domain.clique.missing')}: ${missing.length}`} />
             )}
           </>
         )}
@@ -376,6 +421,470 @@ export function SatView({ clauses, x, qcase }: { clauses: Clause[]; x: number[];
           })}
         </Typography>
       </Paper>
+    </Box>
+  );
+}
+
+/** Max Diversity — the chosen numbers on a number line, so "spread out" is visible. */
+export function DiversityView({
+  numbers,
+  x,
+  pick,
+  value,
+}: {
+  numbers: number[];
+  x: number[];
+  pick: number;
+  value: number;
+}) {
+  const { t } = useI18n();
+  const lo = Math.min(...numbers);
+  const hi = Math.max(...numbers);
+  const at = (v: number) => 20 + ((v - lo) / (hi - lo || 1)) * 360;
+  const count = x.filter(Boolean).length;
+
+  return (
+    <Box>
+      <Box component="svg" viewBox="0 0 400 80" sx={{ width: '100%', maxWidth: 480 }}>
+        <line x1={20} y1={40} x2={380} y2={40} stroke="#a0aec0" strokeWidth={1.5} />
+        {numbers.map((v, i) => {
+          const on = !!x[i];
+          return (
+            <g key={i}>
+              <circle cx={at(v)} cy={40} r={on ? 9 : 6} fill={on ? '#2b6cb0' : '#e2e8f0'} stroke="#fff" strokeWidth={2} />
+              <text x={at(v)} y={i % 2 ? 70 : 20} textAnchor="middle" fontSize={11} fontWeight={on ? 700 : 400} fill="#4a5568">
+                {v}
+              </text>
+            </g>
+          );
+        })}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" color="primary" label={t('domain.diversity.total', { value })} />
+        <Chip
+          size="small"
+          color={count === pick ? 'success' : 'error'}
+          variant="outlined"
+          label={t('domain.diversity.count', { count, pick })}
+        />
+      </Stack>
+    </Box>
+  );
+}
+
+/** Discrete Tomography — the reconstructed image against its target projections. */
+export function TomographyView({ x, rows, cols }: { x: number[]; rows: number[]; cols: number[] }) {
+  const { t } = useI18n();
+  const R = rows.length;
+  const C = cols.length;
+  const cell = (r: number, c: number) => !!x[r * C + c];
+  const rowSum = (r: number) => cols.reduce((s, _, c) => s + (cell(r, c) ? 1 : 0), 0);
+  const colSum = (c: number) => rows.reduce((s, _, r) => s + (cell(r, c) ? 1 : 0), 0);
+  const ok = rows.every((v, r) => rowSum(r) === v) && cols.every((v, c) => colSum(c) === v);
+  const sumBox = (got: number, want: number) => (
+    <Typography
+      variant="caption"
+      sx={{ alignSelf: 'center', textAlign: 'center', fontWeight: 600, color: got === want ? 'success.main' : 'error.main' }}
+    >
+      {got}/{want}
+    </Typography>
+  );
+
+  return (
+    <Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${C}, 44px) 48px`, gap: '3px' }}>
+        {Array.from({ length: R }, (_, r) => (
+          <Box key={r} sx={{ display: 'contents' }}>
+            {Array.from({ length: C }, (_, c) => (
+              <Box
+                key={c}
+                sx={{ height: 44, borderRadius: 1, bgcolor: cell(r, c) ? 'text.primary' : 'action.hover' }}
+              />
+            ))}
+            {sumBox(rowSum(r), rows[r])}
+          </Box>
+        ))}
+        {cols.map((want, c) => (
+          <Box key={c} sx={{ display: 'flex', justifyContent: 'center' }}>
+            {sumBox(colSum(c), want)}
+          </Box>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip
+          size="small"
+          color={ok ? 'success' : 'error'}
+          label={ok ? t('domain.tomo.match') : t('domain.tomo.mismatch')}
+        />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.tomo.note')}
+      </Typography>
+    </Box>
+  );
+}
+
+/** Task Allocation — which task runs where, with the two cost components split out. */
+export function AllocationView({
+  x,
+  exec,
+  comm,
+}: {
+  x: number[];
+  exec: number[][];
+  comm: { i: number; j: number; cost: number }[];
+}) {
+  const { t } = useI18n();
+  const K = exec[0]?.length ?? 0;
+  const procOf = (i: number) => {
+    for (let k = 0; k < K; k++) if (x[i * K + k]) return k;
+    return -1;
+  };
+  const execCost = exec.reduce((s, row, i) => s + row.reduce((a, c, k) => a + (x[i * K + k] ? c : 0), 0), 0);
+  const commCost = comm.reduce((s, { i, j, cost }) => {
+    const a = procOf(i);
+    const b = procOf(j);
+    return s + (a >= 0 && b >= 0 && a !== b ? cost : 0);
+  }, 0);
+
+  return (
+    <Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: `auto repeat(${K}, 72px)`, gap: '3px' }}>
+        <Box />
+        {Array.from({ length: K }, (_, k) => (
+          <Typography key={k} variant="caption" align="center" color="text.secondary">
+            {t('domain.alloc.proc')} {k + 1}
+          </Typography>
+        ))}
+        {exec.map((row, i) => (
+          <Box key={i} sx={{ display: 'contents' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ pr: 1, alignSelf: 'center' }}>
+              {t('domain.alloc.task')} {i + 1}
+            </Typography>
+            {row.map((c, k) => {
+              const on = !!x[i * K + k];
+              return (
+                <Box
+                  key={k}
+                  sx={{
+                    height: 44,
+                    borderRadius: 1,
+                    bgcolor: on ? 'primary.main' : 'action.hover',
+                    color: on ? 'primary.contrastText' : 'text.secondary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontVariantNumeric: 'tabular-nums',
+                    fontWeight: on ? 700 : 400,
+                  }}
+                >
+                  {c}
+                </Box>
+              );
+            })}
+          </Box>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" variant="outlined" label={t('domain.alloc.exec', { value: execCost })} />
+        <Chip size="small" variant="outlined" label={t('domain.alloc.comm', { value: commCost })} />
+        <Chip size="small" color="primary" label={t('domain.alloc.total', { value: execCost + commCost })} />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.alloc.note')}
+      </Typography>
+    </Box>
+  );
+}
+
+/** One horizontal fill bar: `used` of `limit`, red once it overflows. */
+function UsageBar({ label, used, limit }: { label: string; used: number; limit: number }) {
+  const over = used > limit;
+  return (
+    <Box sx={{ mb: 1 }}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+        <Typography variant="caption" color="text.secondary">
+          {label}
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: over ? 'error.main' : 'success.main' }}
+        >
+          {used} / {limit}
+        </Typography>
+      </Stack>
+      <Box sx={{ height: 12, borderRadius: 1, bgcolor: 'action.hover', overflow: 'hidden' }}>
+        <Box
+          sx={{
+            width: `${Math.min(100, (used / (limit || 1)) * 100)}%`,
+            height: '100%',
+            bgcolor: over ? 'error.main' : 'primary.main',
+          }}
+        />
+      </Box>
+    </Box>
+  );
+}
+
+/** Capital Budgeting — chosen projects, and each period's spend against its limit. */
+export function BudgetView({
+  x,
+  values,
+  rows,
+}: {
+  x: number[];
+  values: number[];
+  rows: { use: number[]; limit: number }[];
+}) {
+  const { t, tStr } = useI18n();
+  const value = values.reduce((s, v, j) => s + (x[j] ? v : 0), 0);
+  return (
+    <Box sx={{ maxWidth: 420 }}>
+      <Stack direction="row" spacing={1} sx={{ mb: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+        {values.map((v, j) => (
+          <Chip
+            key={j}
+            size="small"
+            color={x[j] ? 'primary' : 'default'}
+            variant={x[j] ? 'filled' : 'outlined'}
+            label={tStr('domain.budget.project', { j: j + 1, value: v })}
+          />
+        ))}
+      </Stack>
+      {rows.map((r, k) => (
+        <UsageBar
+          key={k}
+          label={tStr('domain.budget.period', { k: k + 1 })}
+          used={r.use.reduce((s, a, j) => s + (x[j] ? a : 0), 0)}
+          limit={r.limit}
+        />
+      ))}
+      <Chip size="small" color="primary" sx={{ mt: 0.5 }} label={t('domain.knapsack.value', { value })} />
+    </Box>
+  );
+}
+
+/** Multiple Knapsack — what went into each knapsack, and what stayed out. */
+export function MultiKnapsackView({
+  x,
+  weights,
+  values,
+  caps,
+}: {
+  x: number[];
+  weights: number[];
+  values: number[];
+  caps: number[];
+}) {
+  const { t, tStr } = useI18n();
+  const K = caps.length;
+  const inSack = (i: number, k: number) => !!x[i * K + k];
+  const value = weights.reduce((s, _, i) => s + caps.reduce((a, _c, k) => a + (inSack(i, k) ? values[i] : 0), 0), 0);
+  const left = weights.map((_, i) => i).filter((i) => caps.every((_, k) => !inSack(i, k)));
+  return (
+    <Box sx={{ maxWidth: 420 }}>
+      {caps.map((cap, k) => {
+        const items = weights.map((_, i) => i).filter((i) => inSack(i, k));
+        return (
+          <Box key={k} sx={{ mb: 1 }}>
+            <UsageBar
+              label={`${tStr('domain.mknap.sack', { k: k + 1 })}: ${items.map((i) => i + 1).join(', ') || '—'}`}
+              used={items.reduce((s, i) => s + weights[i], 0)}
+              limit={cap}
+            />
+          </Box>
+        );
+      })}
+      <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" color="primary" label={t('domain.knapsack.value', { value })} />
+        <Chip
+          size="small"
+          variant="outlined"
+          label={t('domain.mknap.left', { items: left.map((i) => i + 1).join(', ') || '—' })}
+        />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.mknap.note')}
+      </Typography>
+    </Box>
+  );
+}
+
+/**
+ * P-Median / Warehouse Location — customers (circles) and sites (squares) on a
+ * line, open sites filled, each customer joined to the site serving it.
+ */
+export function FacilityView({
+  x,
+  customers,
+  sites,
+  openCost,
+}: {
+  x: number[];
+  customers: number[];
+  sites: number[];
+  openCost?: number[];
+}) {
+  const { t } = useI18n();
+  const S = sites.length;
+  const nA = customers.length * S;
+  const open = (j: number) => !!x[nA + j];
+  const all = [...customers, ...sites];
+  const lo = Math.min(...all);
+  const hi = Math.max(...all);
+  const at = (v: number) => 30 + ((v - lo) / (hi - lo || 1)) * 340;
+  let distance = 0;
+  const links: { c: number; s: number }[] = [];
+  customers.forEach((c, i) =>
+    sites.forEach((s, j) => {
+      if (x[i * S + j]) {
+        distance += Math.abs(c - s);
+        links.push({ c: i, s: j });
+      }
+    }),
+  );
+  const fixed = openCost ? openCost.reduce((s, f, j) => s + (open(j) ? f : 0), 0) : 0;
+
+  return (
+    <Box>
+      <Box component="svg" viewBox="0 0 400 120" sx={{ width: '100%', maxWidth: 480 }}>
+        <line x1={20} y1={60} x2={380} y2={60} stroke="#cbd5e0" strokeWidth={1.5} />
+        {links.map(({ c, s }, k) => (
+          <path
+            key={k}
+            d={`M ${at(customers[c])} 78 Q ${(at(customers[c]) + at(sites[s])) / 2} 112 ${at(sites[s])} 42`}
+            fill="none"
+            stroke={open(s) ? '#2f855a' : '#c53030'}
+            strokeWidth={1.5}
+            strokeDasharray={open(s) ? undefined : '4 3'}
+          />
+        ))}
+        {sites.map((s, j) => (
+          <g key={`s${j}`}>
+            <rect x={at(s) - 11} y={20} width={22} height={22} rx={3} fill={open(j) ? '#2b6cb0' : '#e2e8f0'} stroke="#fff" strokeWidth={2} />
+            <text x={at(s)} y={35} textAnchor="middle" fontSize={11} fontWeight={600} fill={open(j) ? '#fff' : '#4a5568'}>
+              {j + 1}
+            </text>
+          </g>
+        ))}
+        {customers.map((c, i) => (
+          <g key={`c${i}`}>
+            <circle cx={at(c)} cy={78} r={9} fill="#c05621" stroke="#fff" strokeWidth={2} />
+            <text x={at(c)} y={82} textAnchor="middle" fontSize={10} fontWeight={600} fill="#fff">
+              {i + 1}
+            </text>
+          </g>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" variant="outlined" label={t('domain.facility.distance', { value: distance })} />
+        {openCost && <Chip size="small" variant="outlined" label={t('domain.facility.fixed', { value: fixed })} />}
+        <Chip size="small" color="primary" label={t('domain.facility.total', { value: distance + fixed })} />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.facility.note')}
+      </Typography>
+    </Box>
+  );
+}
+
+/**
+ * Linear Ordering — the ranking the pair variables describe, plus the full
+ * agreement count (the net objective plus the constant the model leaves out).
+ */
+export function OrderingView({ x, votes }: { x: number[]; votes: number[][] }) {
+  const { t } = useI18n();
+  const n = votes.length;
+  const pairs: [number, number][] = [];
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pairs.push([i, j]);
+  const ahead = (i: number, j: number) => {
+    if (i < j) return !!x[pairs.findIndex(([a, b]) => a === i && b === j)];
+    return !x[pairs.findIndex(([a, b]) => a === j && b === i)];
+  };
+  // Position = how many items are ahead. A cyclic choice yields a tie in positions.
+  const wins = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (j !== i && ahead(i, j) ? 1 : 0)).reduce((s: number, v: number) => s + v, 0),
+  );
+  const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => wins[b] - wins[a]);
+  const consistent = new Set(wins).size === n;
+  let agreement = 0;
+  let total = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      // Every judge-pair comparison is counted once, as votes[i][j] or votes[j][i].
+      total += votes[i][j];
+      if (ahead(i, j)) agreement += votes[i][j];
+    }
+  }
+
+  return (
+    <Box>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 1 }}>
+        {order.map((i, k) => (
+          <Stack key={i} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            {k > 0 && <Typography color="text.secondary">›</Typography>}
+            <Chip color="primary" label={t('domain.order.item', { i: i + 1 })} />
+          </Stack>
+        ))}
+      </Stack>
+      <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip
+          size="small"
+          color={consistent ? 'success' : 'error'}
+          label={consistent ? t('domain.order.consistent') : t('domain.order.cycle')}
+        />
+        <Chip size="small" variant="outlined" label={t('domain.order.agreement', { value: agreement, total })} />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.order.note')}
+      </Typography>
+    </Box>
+  );
+}
+
+/** Clique Partitioning — the groups the node variables describe, and the weight kept inside them. */
+export function ClusterView({
+  x,
+  n,
+  weights,
+}: {
+  x: number[];
+  n: number;
+  weights: { i: number; j: number; w: number }[];
+}) {
+  const { t } = useI18n();
+  const K = n;
+  const groupsOf = (i: number) => Array.from({ length: K }, (_, k) => k).filter((k) => x[i * K + k]);
+  const groups = Array.from({ length: K }, (_, k) =>
+    Array.from({ length: n }, (_, i) => i).filter((i) => x[i * K + k]),
+  ).filter((g) => g.length > 0);
+  const valid = Array.from({ length: n }, (_, i) => groupsOf(i).length === 1).every(Boolean);
+  const inside = weights.reduce(
+    (s, { i, j, w }) => s + w * groupsOf(i).filter((k) => groupsOf(j).includes(k)).length,
+    0,
+  );
+
+  return (
+    <Box>
+      <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+        {groups.map((g, k) => (
+          <Paper key={k} variant="outlined" sx={{ px: 1.5, py: 1, borderColor: CATEGORY_COLORS[k % CATEGORY_COLORS.length], borderWidth: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {'{'} {g.map((i) => i + 1).join(', ')} {'}'}
+            </Typography>
+          </Paper>
+        ))}
+      </Stack>
+      <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" color="primary" label={t('domain.cluster.inside', { value: inside })} />
+        {!valid && <Chip size="small" color="error" label={t('domain.cluster.invalid')} />}
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.cluster.note', {
+          weights: weights.map(({ i, j, w }) => `w${i + 1}${j + 1} = ${w}`).join(', '),
+        })}
+      </Typography>
     </Box>
   );
 }

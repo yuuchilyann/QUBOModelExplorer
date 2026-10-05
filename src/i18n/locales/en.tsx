@@ -191,6 +191,19 @@ export const en: Dictionary = {
       one is negative, that is the reason.
     </>
   ),
+  'notes.case.max-independent-set': (
+    <>
+      The paper works no example of this one; it is an extension added by this site. Two points worth making:
+      the recipe is exactly §4.2’s Set Packing (row 1 of the p.10 table, <code>xᵢ + xⱼ ≤ 1 → P·xᵢxⱼ</code>),
+      only with the constraints taken from the edges of a graph; and it is the mirror image of §4.1 — the
+      complement of an independent set is a vertex cover, so the answer 2 = 5 − 3 follows straight from §4.1.
+      <br />
+      <br />
+      Worth demonstrating live: drag P down to 1. The optimal value is still 2, but the degeneracy jumps from 4
+      to 7, and the three newcomers each pick both ends of some edge. Gain and penalty tie exactly, which is why
+      P must be <strong>strictly</strong> greater than 1.
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       The headline of this page: <strong>the dimension of a QUBO is set by the variable count alone and is
@@ -283,6 +296,35 @@ export const en: Dictionary = {
   'verify.detail.bad': (p: TParams) => `${p.count} cells differ from the paper.`,
   'verify.detail.custom':
     'You have edited the input, so there is no longer a paper reference to compare against. Q is still derived live, and the solutions are still exact.',
+
+  'verify.searched': 'agrees with direct search of the original model',
+  'verify.searchedBad': 'disagrees with direct search of the original model',
+  'verify.searching': 'checking…',
+  'verify.customSearch': 'edited (no longer compared)',
+  'verify.restoreSite': 'Restore this site’s defaults',
+  'verify.detail.customSearch':
+    'You have changed the input or P, so the comparison with direct search of the original model is no longer shown. Q is still derived live, and the solutions are still exact.',
+  'verify.detail.searched': (p: TParams) =>
+    `The paper works no example of this problem, so there is no printed Q to compare cell by cell. What is checked instead: the QUBO optimum ${p.qubo} plus the constant ${p.constant} equals ${p.best}, the optimum found by searching the original constrained model directly, without any QUBO.`,
+  'verify.detail.searchedBad': (p: TParams) =>
+    `The QUBO optimum ${p.qubo} plus the constant ${p.constant} does not equal ${p.best}, the optimum of the original constrained model, or the optimum is infeasible.`,
+  'source.mentioned': 'named in the paper only',
+  'source.mentioned.tooltip':
+    'The paper mentions this problem here but gives no instance, Q matrix or answer. The instance on this page was chosen by this site.',
+  'extended.banner.title': 'Extension: named in the paper, never worked',
+  'extended.banner.body': (p: TParams) => (
+    <>
+      The paper lists this problem in {String(p.section)} ({String(p.pages)}) as one that QUBO encompasses, but{' '}
+      <strong>gives no instance, prints no Q matrix and states no answer</strong>. The instance on this page was
+      chosen by this site, so the Q shown here has nothing in the paper to be compared against.
+      <br />
+      <br />
+      The check that takes its place: search the original constrained model directly, without any QUBO —
+      enumerate every 0/1 assignment, discard the infeasible ones, score the rest with the original objective —
+      and confirm that the QUBO optimum plus its constant equals that value, and that every QUBO optimum is
+      feasible. That search shares no code with the derivation engine.
+    </>
+  ),
 
   // ── group intros ──────────────────────────────────────────────────────
   'group.natural.title': 'A · Natural form',
@@ -385,6 +427,8 @@ export const en: Dictionary = {
   'penalty.title': 'Penalty scalar P',
   'penalty.paperValue': (p: TParams) => `the paper takes P = ${p.value}`,
   'penalty.reset': 'Back to the paper’s value',
+  'penalty.siteValue': (p: TParams) => `this site takes P = ${p.value} (the paper gives none)`,
+  'penalty.resetSite': 'Back to this site’s default',
   'penalty.suggested': (p: TParams) => `suggested range ${p.lo} – ${p.hi}`,
   'penalty.hint': (
     <>
@@ -419,6 +463,7 @@ export const en: Dictionary = {
     '≤ ~20 variables (enumerates all 2ⁿ assignments, returns a guaranteed optimum)',
   'sampler.limit.tabu': 'thousands of variables (heuristic, returns the best found so far)',
   'sampler.limit.sa': 'thousands of variables (heuristic)',
+  'sampler.limit.mock': 'the same minor-embedding limits as the QPU; the annealing itself is simulated, with no connection to D-Wave',
   'sampler.limit.qpu':
     'bounded by minor-embedding; a few hundred logical variables for a fully connected problem',
   'sampler.limit.hybrid': 'tens of thousands of variables (classical/quantum hybrid)',
@@ -721,6 +766,26 @@ export const en: Dictionary = {
   'case.set-packing.uses':
     'booking rooms and equipment, compatible flight/crew combinations, ad slot allocation, wireless channel assignment',
 
+  'case.max-independent-set.name': 'Maximum independent set',
+  'case.max-independent-set.scenario': (
+    <>
+      Think of the nodes as people and each edge as “these two do not get along”. Pick a team in which{' '}
+      <strong>no two members conflict</strong>, as large as possible. The graph is the same 5-node, 6-edge one
+      used for minimum vertex cover.
+    </>
+  ),
+  'case.max-independent-set.xMeans': 'xᵢ = 1 puts node i in the set.',
+  'case.max-independent-set.uses':
+    'wireless channel and frequency allocation, scheduling jobs that can run together on a conflict graph, choosing codewords for error-correcting codes, module analysis in biological networks',
+  'case.max-independent-set.anchor': (
+    <>
+      The paper never states this answer, but it follows from a number the paper does print: a set of nodes is
+      independent exactly when the remaining nodes form a vertex cover. This page uses §4.1’s graph, whose
+      minimum cover §4.1 prints as 3, so the maximum independent set must be <strong>5 − 3 = 2</strong>. The
+      verification script asserts that the search finds exactly this value.
+    </>
+  ),
+
   'case.max-2-sat.name': 'Max 2-satisfiability',
   'case.max-2-sat.scenario': (
     <>
@@ -824,6 +889,8 @@ export const en: Dictionary = {
   'domain.cover.uncovered': 'uncovered edges',
   'domain.color.conflict': 'conflicting edge (same colour at both ends)',
   'domain.color.feasible': 'valid colouring',
+  'domain.independent.size': (p: TParams) => `independent set size = ${p.size}`,
+  'domain.independent.conflict': 'edges with both ends chosen',
   'domain.assign.facility': 'Facility',
   'domain.assign.location': 'Location',
   'domain.assign.cost': (p: TParams) => `weighted flow cost = ${p.cost}`,

@@ -15,7 +15,7 @@ import {
 import CloudOffIcon from '@mui/icons-material/CloudOff';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 
-import type { QuboCase, QuboModel } from 'qubo-core/types';
+import type { CatalogCase, QuboModel } from 'qubo-core/types';
 import {
   buildIpynb,
   buildNotebook,
@@ -35,7 +35,7 @@ import { JupyterPanel } from './JupyterPanel';
 import { useI18n } from '../i18n';
 
 export type CodeExportPanelProps = {
-  qcase: QuboCase;
+  qcase: CatalogCase;
   model: QuboModel;
   /** Extra pip packages the domain view needs (e.g. networkx for graph cases). */
   extraPackages?: string[];

@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Box, Grid, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
 
 import { applyEdit, maxMagnitude, SAFE_MAGNITUDE, type CaseEdit } from 'qubo-core/cases/mutate';
-import { derive } from 'qubo-core/derive';
+import { solveConstrained } from 'qubo-core/constrained';
+import { checkFeasibility, derive } from 'qubo-core/derive';
 import { diffMatrices } from 'qubo-core/qubo';
 import { useSolver } from '../hooks/useSolver';
-import type { Clause, Graph, QuboCase } from 'qubo-core/types';
+import type { Clause, Graph, CatalogCase } from 'qubo-core/types';
 import { CodeExportPanel } from './CodeExportPanel';
 import { ColoringEditor, GraphEditor, HelloEditor, NumbersEditor, SatEditor } from './CaseEditors';
 import { AssignmentView, GraphView, KnapsackView, PartitionView, SatView } from './DomainViews';
@@ -19,12 +20,13 @@ import { VerificationChip, type VerificationStatus } from './VerificationChip';
 import { useI18n } from '../i18n';
 
 /** Recover the editable payload from a case, so editors start on the paper's data. */
-function initialEdit(qcase: QuboCase): CaseEdit | null {
+function initialEdit(qcase: CatalogCase): CaseEdit | null {
   switch (qcase.id) {
     case 'number-partitioning':
       return { kind: 'numbers', numbers: [...qcase.model.constraints[0].coeffs] };
     case 'max-cut':
     case 'min-vertex-cover':
+    case 'max-independent-set':
       return qcase.graph ? { kind: 'graph', graph: qcase.graph } : null;
     case 'graph-coloring':
       return qcase.graph
@@ -52,7 +54,7 @@ function initialEdit(qcase: QuboCase): CaseEdit | null {
 type View = 'formulation' | 'matrix' | 'solutions' | 'domain' | 'code';
 
 export type CaseWorkbenchProps = {
-  base: QuboCase;
+  base: CatalogCase;
 };
 
 /**
@@ -87,14 +89,36 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
   const model = derivation.model;
   const solve = useSolver(model, qcase.model);
 
-  // Reconciliation is only meaningful on the published data at the published P.
+  // A case the paper only names has no printed Q; its reference is a direct
+  // search of the original model, which shares no code with `derive()`.
+  const reference = useMemo(
+    () => (base.source === 'mentioned' ? solveConstrained(base.model) : null),
+    [base],
+  );
+
+  // Reconciliation is only meaningful on the reference data at the reference P.
   const status: VerificationStatus = useMemo(() => {
-    if (edited || penaltyChanged || qcase.custom) return { kind: 'custom' };
-    const d = diffMatrices(model.Q, base.paperQ);
-    return d.equal
-      ? { kind: 'matches', n: model.n, constant: model.constant }
-      : { kind: 'mismatch', count: d.cells.length };
-  }, [edited, penaltyChanged, qcase.custom, model, base.paperQ]);
+    if (edited || penaltyChanged || qcase.custom) {
+      return { kind: 'custom', reference: base.source === 'worked' ? 'paper' : 'search' };
+    }
+    if (base.source === 'worked') {
+      const d = diffMatrices(model.Q, base.paperQ);
+      return d.equal
+        ? { kind: 'matches', n: model.n, constant: model.constant }
+        : { kind: 'mismatch', count: d.cells.length };
+    }
+    const top = solve.result?.best[0];
+    if (!top || !reference || reference.best === null) return { kind: 'searching' };
+    return {
+      kind: 'searched',
+      ok:
+        top.energy + model.constant === reference.best &&
+        checkFeasibility(qcase.model, top.x).feasible,
+      best: reference.best,
+      qubo: top.energy,
+      constant: model.constant,
+    };
+  }, [edited, penaltyChanged, qcase, base, model, reference, solve.result]);
 
   const magnitude = maxMagnitude(model.Q);
   const slackCount = model.n - qcase.model.numVars;
@@ -169,7 +193,10 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
 
       {view === 'formulation' && <FormulationTrace qcase={qcase} derivation={derivation} />}
       {view === 'matrix' && (
-        <QMatrixView model={model} paperQ={status.kind === 'matches' ? base.paperQ : undefined} />
+        <QMatrixView
+          model={model}
+          paperQ={status.kind === 'matches' && base.source === 'worked' ? base.paperQ : undefined}
+        />
       )}
       {view === 'solutions' && <SolutionPanel qcase={qcase} model={model} state={solve} />}
       {view === 'domain' && (domain ?? <Typography color="text.secondary">—</Typography>)}
@@ -184,7 +211,7 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
   );
 }
 
-function checkOk(qcase: QuboCase, x: number[]): boolean {
+function checkOk(qcase: CatalogCase, x: number[]): boolean {
   for (const c of qcase.model.constraints) {
     let lhs = 0;
     for (let j = 0; j < c.coeffs.length; j++) lhs += c.coeffs[j] * (x[j] ?? 0);
@@ -234,7 +261,7 @@ function renderEditor(edit: CaseEdit, setEdit: (e: CaseEdit) => void) {
 }
 
 /** Pick the problem-specific picture for a case. */
-function renderDomain(qcase: QuboCase, x: number[], constant: number, energy: number) {
+function renderDomain(qcase: CatalogCase, x: number[], constant: number, energy: number) {
   if (x.length === 0) return null;
   switch (qcase.id) {
     case 'number-partitioning':
@@ -243,6 +270,8 @@ function renderDomain(qcase: QuboCase, x: number[], constant: number, energy: nu
       return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="cut" /> : null;
     case 'min-vertex-cover':
       return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="cover" /> : null;
+    case 'max-independent-set':
+      return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="independent" /> : null;
     case 'graph-coloring': {
       if (!qcase.graph) return null;
       const K = qcase.model.numVars / qcase.graph.nodes.length;

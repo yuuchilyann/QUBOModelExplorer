@@ -144,6 +144,14 @@ export const zh = {
       這是最大化問題，所以懲罰是<strong>減</strong>的，非對角線因此是負數（−P/2 = −3）。如果觀眾問「為什麼 §4.1 的懲罰是正的、這裡是負的」，就是這個原因。
     </>
   ),
+  'notes.case.max-independent-set': (
+    <>
+      這一題論文沒有算例，是本站補的延伸案例。可以強調兩件事：第一，配方和 §4.2 Set Packing 完全相同（p.10 表格第 1 列，<code>xᵢ + xⱼ ≤ 1 → P·xᵢxⱼ</code>），只是約束來自圖的邊；第二，它和 §4.1 是一體兩面，獨立集的補集就是頂點覆蓋，所以答案 2 = 5 − 3 可以直接由 §4.1 推得。
+      <br />
+      <br />
+      值得現場示範：把 P 拉到 1，最優值仍然是 2，但簡併度從 4 變成 7，多出來的 3 個是同時選了某條邊兩端的不可行解。收益和懲罰剛好打平，所以 P 必須<strong>嚴格大於</strong> 1。
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       本頁的主秀：<strong>QUBO 的維度只由變數數決定，與子句數無關</strong>。現場請按幾次「新增子句」，讓大家看 Q 還是 4×4。論文 p.17 說 200 變數、
@@ -215,6 +223,30 @@ export const zh = {
   'verify.detail.bad': (p: TParams) => `有 ${p.count} 格與原論文不符。`,
   'verify.detail.custom':
     '您已修改輸入資料，因此不再與原論文對照。Q 矩陣仍然即時推導，解仍然精確。',
+
+  'verify.searched': '與原始模型窮舉一致',
+  'verify.searchedBad': '與原始模型窮舉不符',
+  'verify.searching': '比對中…',
+  'verify.customSearch': '已修改（不再比對）',
+  'verify.restoreSite': '回到本站預設資料',
+  'verify.detail.customSearch':
+    '您已修改輸入資料或 P，因此不再顯示與原始模型窮舉的比對。Q 矩陣仍然即時推導，解仍然精確。',
+  'verify.detail.searched': (p: TParams) =>
+    `論文沒有這題的算例，沒有可逐格對照的 Q。這裡比對的是：QUBO 窮舉最優值 ${p.qubo} 加上常數 ${p.constant}，等於直接窮舉原始約束模型（不經 QUBO）得到的最優值 ${p.best}。`,
+  'verify.detail.searchedBad': (p: TParams) =>
+    `QUBO 窮舉最優值 ${p.qubo} 加上常數 ${p.constant}，與直接窮舉原始約束模型的最優值 ${p.best} 不符，或最優解不可行。`,
+  'source.mentioned': '論文僅點名',
+  'source.mentioned.tooltip':
+    '論文在此處提到這個問題，但沒有給實例、Q 矩陣或答案。本頁實例由本站選定。',
+  'extended.banner.title': '延伸案例：論文只點名，沒有算例',
+  'extended.banner.body': (p: TParams) => (
+    <>
+      論文在 {String(p.section)}（{String(p.pages)}）把這個問題列為 QUBO 能涵蓋的問題之一，但<strong>沒有給實例、沒有印出 Q 矩陣，也沒有答案</strong>。這一頁的實例是本站選的，所以頁面上的 Q 沒有原論文可以逐格對照。
+      <br />
+      <br />
+      取而代之的檢查是：不經過 QUBO，直接窮舉原始約束模型（列出所有 0/1 組合、丟掉不可行的、用原始目標式計分），確認 QUBO 的最優值加上常數與它相同，而且 QUBO 的每個最優解都可行。這個比對和推導引擎沒有共用任何程式碼。
+    </>
+  ),
 
   // ── group intros ──────────────────────────────────────────────────────
   'group.natural.title': 'A · 自然形式',
@@ -314,6 +346,8 @@ export const zh = {
   'penalty.title': '懲罰係數 P',
   'penalty.paperValue': (p: TParams) => `原論文取 P = ${p.value}`,
   'penalty.reset': '回到原論文值',
+  'penalty.siteValue': (p: TParams) => `本站取 P = ${p.value}（論文未給）`,
+  'penalty.resetSite': '回到本站預設值',
   'penalty.suggested': (p: TParams) => `建議範圍 ${p.lo} – ${p.hi}`,
   'penalty.hint': (
     <>
@@ -345,6 +379,7 @@ export const zh = {
   'sampler.limit.exact': '≤ ~20 變數（窮舉全部 2ⁿ 組合，回傳保證最優解）',
   'sampler.limit.tabu': '數千變數（啟發式，回傳目前找到最好的解）',
   'sampler.limit.sa': '數千變數（啟發式）',
+  'sampler.limit.mock': '與 QPU 相同的 minor-embedding 限制；退火本身是模擬的，不連線 D-Wave',
   'sampler.limit.qpu': '受 minor-embedding 限制，全連通問題約數百個邏輯變數',
   'sampler.limit.hybrid': '數萬變數（古典／量子混合）',
   'export.install.label': '安裝',
@@ -576,6 +611,20 @@ export const zh = {
   'case.set-packing.xMeans': 'xⱼ = 1 表示選用第 j 個方案。',
   'case.set-packing.uses': '會議室與設備預約、航班與機組的相容組合、廣告版位配置、無線通道分配',
 
+  'case.max-independent-set.name': '最大獨立集',
+  'case.max-independent-set.scenario': (
+    <>
+      把節點看成人、邊看成「彼此有衝突」。要挑一群人組隊，條件是<strong>隊裡任兩人都沒有衝突</strong>，問最多能挑幾個人。用的是和最小頂點覆蓋同一張 5 個節點、6 條邊的圖。
+    </>
+  ),
+  'case.max-independent-set.xMeans': 'xᵢ = 1 表示選入節點 i。',
+  'case.max-independent-set.uses': '無線通道與頻率分配、衝突圖上可同時進行的作業排程、錯誤更正碼的碼字選取、生物網路的模組分析',
+  'case.max-independent-set.anchor': (
+    <>
+      這題的答案論文沒寫，但可以由論文印出的數字推得：一組點是獨立集，若且唯若其餘的點構成頂點覆蓋。本頁用的正是 §4.1 那張圖，§4.1 印出的最小頂點覆蓋是 3，所以最大獨立集必為 <strong>5 − 3 = 2</strong>。驗證腳本會斷言窮舉結果等於這個值。
+    </>
+  ),
+
   'case.max-2-sat.name': '最大 2-可滿足性',
   'case.max-2-sat.scenario': (
     <>
@@ -652,6 +701,8 @@ export const zh = {
   'domain.cover.uncovered': '未被覆蓋的邊',
   'domain.color.conflict': '衝突邊（兩端同色）',
   'domain.color.feasible': '合法著色',
+  'domain.independent.size': (p: TParams) => `獨立集大小 = ${p.size}`,
+  'domain.independent.conflict': '兩端都被選入的邊',
   'domain.assign.facility': '設施',
   'domain.assign.location': '位置',
   'domain.assign.cost': (p: TParams) => `加權流量成本 = ${p.cost}`,

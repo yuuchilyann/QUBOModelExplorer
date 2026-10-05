@@ -1,10 +1,10 @@
 import { Alert, Box, Button, Paper, Slider, Stack, Typography } from '@mui/material';
 
-import type { QuboCase } from 'qubo-core/types';
+import type { CatalogCase } from 'qubo-core/types';
 import { useI18n } from '../i18n';
 
 export type PenaltySliderProps = {
-  qcase: QuboCase;
+  qcase: CatalogCase;
   value: number;
   onChange: (v: number) => void;
   /** True when the current P leaves the optimum infeasible. */
@@ -37,6 +37,8 @@ export function PenaltySlider({ qcase, value, onChange, infeasible }: PenaltySli
   // The paper's rule of thumb: 75%–150% of a ballpark objective estimate.
   const lo = Math.max(spec.min, Math.round(spec.paperValue * 0.75));
   const hi = Math.round(spec.paperValue * 1.5);
+  // Only a worked example's reference P is the paper's; anything else is ours.
+  const fromPaper = qcase.source === 'worked';
 
   return (
     <Paper variant="outlined" sx={{ p: 1.5 }}>
@@ -50,7 +52,7 @@ export function PenaltySlider({ qcase, value, onChange, infeasible }: PenaltySli
         <Box sx={{ flexGrow: 1 }} />
         {value !== spec.paperValue && (
           <Button size="small" onClick={() => onChange(spec.paperValue)}>
-            {t('penalty.reset')}
+            {fromPaper ? t('penalty.reset') : t('penalty.resetSite')}
           </Button>
         )}
       </Stack>
@@ -71,7 +73,10 @@ export function PenaltySlider({ qcase, value, onChange, infeasible }: PenaltySli
       </Box>
 
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-        {t('penalty.paperValue', { value: spec.paperValue })} · {t('penalty.suggested', { lo, hi })}
+        {fromPaper
+          ? t('penalty.paperValue', { value: spec.paperValue })
+          : t('penalty.siteValue', { value: spec.paperValue })}{' '}
+        · {t('penalty.suggested', { lo, hi })}
       </Typography>
 
       {infeasible && (

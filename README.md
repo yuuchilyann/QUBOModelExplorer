@@ -2,7 +2,7 @@
 
 互動重現 Glover, Kochenberger & Du，
 *Quantum Bridge Analytics I: A Tutorial on Formulating and Using QUBO Models* (2019)
-的十一個建模案例的靜態網站。
+的十一個建模案例的靜態網站，並補上論文只點名、沒有算例的問題（延伸案例）。
 
 線上版：<https://yuuchilyann.github.io/QUBOModelExplorer/>
 
@@ -59,6 +59,27 @@ hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題
 | 5.4 | Quadratic Assignment (QAP) | 部門配廠房，流量 × 距離最小 | 9 | 200 | |
 | 5.5 | Quadratic Knapsack | 選投資專案，兩兩之間有綜效 | 4 + 2 slack | 10 | |
 
+## 延伸案例：論文只點名的問題
+
+論文 §1（pp.3–4）列了二十多種「QUBO 涵蓋的問題」，§6 也提到幾種，但**只有上面十一個有算例**。
+其餘的問題論文沒有給實例、沒有印 Q、也沒有答案。本站逐步補上這些問題，每一題都在頁面上
+**明講**這件事：
+
+| § | 案例 | 情境 | 變數 | P | 自訂輸入 |
+|---|---|---|---|---|---|
+| 1（點名） | Max Independent Set | 互有衝突的人不能同隊，最多挑幾人 | 5 | 2（本站選） | ✓ |
+
+- 頁首一則說明：論文在哪裡點名、實例是本站選的、所以 Q 沒有原論文可以對照
+- 來源徽章旁多一個「論文僅點名」標籤；懲罰滑桿寫「本站取 P = …（論文未給）」
+- 驗證晶片是另一種顏色的「與原始模型窮舉一致」，不會被誤讀成「符合原論文」
+- 產出的 Python 在預期答案的註解裡標明來源是窮舉，不是論文
+
+沒有論文的 Q 可以 diff，所以檢查換成**不經 QUBO、直接窮舉原始約束模型**（`solveConstrained`），
+要求 QUBO 最優值加常數與它相同、每個 QUBO 最優解都可行。它和推導引擎沒有共用程式碼，
+所以不是「拿推導結果驗證推導結果」。實例盡量沿用論文已有的資料：Max Independent Set 用的
+是 §4.1 那張圖，答案 2 可以由 §4.1 印出的 3 推得（獨立集的補集是頂點覆蓋，5 − 3 = 2），
+驗證腳本也會斷言這個值。
+
 論文用節號稱呼每個案例並直接進入代數，讀者若沒先接觸過該問題，會不知道算出來的
 `x` 是要拿來做什麼的。所以每個案例頁在工作區之前先給一段**情境**、一行 **`x` 的意義**，
 以及一列**真實應用**（`src/components/CaseScenario.tsx`，文字在 i18n 字典裡）。群組頁的
@@ -109,10 +130,11 @@ Hello World 與 §5.3 沒有情境，而且都**明講**這件事：前者是純
 | `dimod.ExactSolver` | ✗ |
 | `TabuSampler` (`dwave-samplers`) | ✗ |
 | `SimulatedAnnealingSampler` | ✗ |
+| `MockDWaveSampler` + `EmbeddingComposite` | ✗（真實 minor-embedding，退火本身是模擬的） |
 | `DWaveSampler` + `EmbeddingComposite` | ✓ |
 | `LeapHybridSampler` | ✓ |
 
-**論文十一個案例全部落在 `ExactSolver` 的射程內**，所以前三個 sampler 是純古典求解器，
+**論文十一個案例全部落在 `ExactSolver` 的射程內**，所以前三個 sampler 是純古典求解器（第四個 mock 另外做一次真實的 minor-embedding，同樣不連線），
 在執行 Python 的地方直接窮舉，不連線 D-Wave，因此不需要 Leap 帳號或 API token，
 也不會產生 QPU 費用。貼進 Colab 或自己的環境按執行，就會跑出論文印的答案。
 這不是示意用的假程式碼。
@@ -128,9 +150,9 @@ cd ../qubo-core && npm run verify:all
 
 | 指令 | 檢查什麼 |
 |---|---|
-| `npm run verify` | 推導的 Q == 論文的 Q（逐格）、加性常數、窮舉最優解 == 論文的解、`yOriginal = yQubo + constant`、最優解代回原始約束全部滿足。外加 tabu 回歸守衛。 |
-| `npm run verify:python` | 內嵌的 Python `build_qubo()` == TypeScript `derive()` == 論文的 Q。**三方一致。** |
-| `npm run verify:emit` | 把產出的 Python **原封不動執行**（注入純 stdlib 的 `dimod` 樁模組，不動您的環境），確認 11 案例 × 2 層 = 22 支程式都印出論文的答案。 |
+| `npm run verify` | 推導的 Q == 論文的 Q（逐格）、加性常數、窮舉最優解 == 論文的解、`yOriginal = yQubo + constant`、最優解代回原始約束全部滿足、**直接窮舉原始約束模型 == 論文的原始 y**。延伸案例改驗 QUBO 最優 + 常數 == 約束窮舉、每個最優解可行、簡併度一致，以及由論文數字推得的值。外加 tabu 回歸守衛。 |
+| `npm run verify:python` | 內嵌的 Python `build_qubo()` == TypeScript `derive()` == 論文的 Q。**三方一致**（延伸案例沒有論文的 Q，為兩方一致）。 |
+| `npm run verify:emit` | 把產出的 Python **原封不動執行**（注入純 stdlib 的 `dimod` 樁模組，不動您的環境），確認 12 案例 × 6 種 tier／sampler 組合 = 72 支程式都印出參照答案（論文的答案，或延伸案例的約束窮舉結果）。 |
 
 第三道檢查的是只存在於產碼器裡的邏輯：上三角轉換、最大化的符號翻轉、加性常數還原、
 變數索引對應。前兩道抓不到這些。

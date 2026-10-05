@@ -140,7 +140,7 @@ export function HelloWorldPage() {
 
   const status: VerificationStatus = pristine
     ? { kind: 'matches', n: model.n, constant: model.constant }
-    : { kind: 'custom' };
+    : { kind: 'custom', reference: 'paper' };
 
   return (
     <Box>

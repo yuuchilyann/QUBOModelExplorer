@@ -43,6 +43,12 @@ const SCENARIOS: Record<string, ScenarioKeys> = {
     xMeans: 'case.set-packing.xMeans',
     uses: 'case.set-packing.uses',
   },
+  'max-independent-set': {
+    name: 'case.max-independent-set.name',
+    scenario: 'case.max-independent-set.scenario',
+    xMeans: 'case.max-independent-set.xMeans',
+    uses: 'case.max-independent-set.uses',
+  },
   'max-2-sat': {
     name: 'case.max-2-sat.name',
     scenario: 'case.max-2-sat.scenario',

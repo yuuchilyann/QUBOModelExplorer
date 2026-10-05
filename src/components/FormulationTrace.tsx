@@ -1,7 +1,7 @@
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
 import type { Derivation } from 'qubo-core/derive';
-import type { Constraint, QuboCase } from 'qubo-core/types';
+import type { Constraint, CatalogCase } from 'qubo-core/types';
 import { Math } from './Math';
 import { useI18n } from '../i18n';
 
@@ -26,7 +26,7 @@ export function FormulationTrace({
   qcase,
   derivation,
 }: {
-  qcase: QuboCase;
+  qcase: CatalogCase;
   derivation: Derivation;
 }) {
   const { t } = useI18n();

@@ -4,7 +4,7 @@ import { derive } from 'qubo-core/derive';
 import { CaseScenarioLine, useCaseName } from '../components/CaseScenario';
 import { PresenterNotes } from '../components/PresenterNotes';
 import { SourceBadge } from '../components/SourceBadge';
-import type { CaseGroup, QuboCase } from 'qubo-core/types';
+import type { CaseGroup, CatalogCase } from 'qubo-core/types';
 import { useI18n } from '../i18n';
 
 const TITLE_KEY = {
@@ -31,7 +31,7 @@ const NOTE_KEY = {
  * Its own component because `useCaseName` is a hook and the list below maps
  * over cases — calling it inside the map would break the rules of hooks.
  */
-function CaseCard({ c, onOpen }: { c: QuboCase; onOpen: (id: string) => void }) {
+function CaseCard({ c, onOpen }: { c: CatalogCase; onOpen: (id: string) => void }) {
   const { t } = useI18n();
   const name = useCaseName(c.id);
   const { model } = derive(c);
@@ -82,7 +82,7 @@ function CaseCard({ c, onOpen }: { c: QuboCase; onOpen: (id: string) => void }) 
 
 export type GroupPageProps = {
   group: CaseGroup;
-  cases: QuboCase[];
+  cases: CatalogCase[];
   onOpen: (id: string) => void;
 };
 

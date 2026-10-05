@@ -1,6 +1,6 @@
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 
-import type { Clause, Graph, QuboCase } from 'qubo-core/types';
+import type { Clause, Graph, CatalogCase } from 'qubo-core/types';
 import { unsatisfiedClauses } from 'qubo-core/derive';
 import { CATEGORY_COLORS } from '../theme';
 import { useI18n } from '../i18n';
@@ -18,12 +18,12 @@ export type GraphViewProps = {
   graph: Graph;
   x: number[];
   /** How to interpret the assignment. */
-  mode: 'cut' | 'cover' | 'color';
+  mode: 'cut' | 'cover' | 'color' | 'independent';
   /** Colours per node, for `mode === 'color'`. */
   colorOf?: (node: number) => number | null;
 };
 
-/** Shared renderer for Max-Cut, Minimum Vertex Cover and Graph Colouring. */
+/** Shared renderer for Max-Cut, Minimum Vertex Cover, Max Independent Set and Graph Colouring. */
 export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
   const { t } = useI18n();
   const pts = layout(graph.nodes);
@@ -34,7 +34,9 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
   let cutValue = 0;
   let uncovered = 0;
   let conflicts = 0;
+  let clashes = 0;
   for (const [a, b] of graph.edges) {
+    if (mode === 'independent' && inSet(a) && inSet(b)) clashes++;
     if (mode === 'cut' && inSet(a) !== inSet(b)) cutValue++;
     if (mode === 'cover' && !inSet(a) && !inSet(b)) uncovered++;
     if (mode === 'color' && colorOf && colorOf(a) !== null && colorOf(a) === colorOf(b)) {
@@ -47,6 +49,11 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
       return inSet(a) !== inSet(b)
         ? { stroke: '#2f855a', width: 3, dash: undefined }
         : { stroke: '#cbd5e0', width: 1.5, dash: undefined };
+    }
+    if (mode === 'independent') {
+      return inSet(a) && inSet(b)
+        ? { stroke: '#c53030', width: 3, dash: '4 3' }
+        : { stroke: '#a0aec0', width: 1.5, dash: undefined };
     }
     if (mode === 'cover') {
       return !inSet(a) && !inSet(b)
@@ -64,7 +71,7 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
       const c = colorOf?.(node);
       return c === null || c === undefined ? '#e2e8f0' : CATEGORY_COLORS[c % CATEGORY_COLORS.length];
     }
-    if (mode === 'cover') return inSet(node) ? '#2b6cb0' : '#e2e8f0';
+    if (mode === 'cover' || mode === 'independent') return inSet(node) ? '#2b6cb0' : '#e2e8f0';
     return inSet(node) ? '#2b6cb0' : '#c05621';
   };
 
@@ -122,6 +129,18 @@ export function GraphView({ graph, x, mode, colorOf }: GraphViewProps) {
             />
             {uncovered > 0 && (
               <Chip size="small" color="error" label={`${t('domain.cover.uncovered')}: ${uncovered}`} />
+            )}
+          </>
+        )}
+        {mode === 'independent' && (
+          <>
+            <Chip
+              size="small"
+              color="primary"
+              label={t('domain.independent.size', { size: x.filter(Boolean).length })}
+            />
+            {clashes > 0 && (
+              <Chip size="small" color="error" label={`${t('domain.independent.conflict')}: ${clashes}`} />
             )}
           </>
         )}
@@ -316,7 +335,7 @@ export function KnapsackView({
 }
 
 /** §4.3 — clause-by-clause satisfaction, plus the size-independence point. */
-export function SatView({ clauses, x, qcase }: { clauses: Clause[]; x: number[]; qcase: QuboCase }) {
+export function SatView({ clauses, x, qcase }: { clauses: Clause[]; x: number[]; qcase: CatalogCase }) {
   const { t } = useI18n();
   const unsat = unsatisfiedClauses(clauses, x);
   const lit = (l: Clause[number]) => `${l.negated ? '¬' : ''}x${l.v + 1}`;

@@ -831,6 +831,16 @@ export const zh = {
   'case.constraint-satisfaction.xMeans': 'xᵢ = 1 表示第 i 個人在第 2 隊，= 0 表示在第 1 隊。',
   'case.constraint-satisfaction.uses': '分組與排班的硬性規則、實驗設計的區組分配、電路分割、編碼理論中的平衡條件',
 
+  'case.warehouse-location.provenance': (
+    <>
+      <strong>與原作者做法一致。</strong>論文 §1 這份清單出自 Kochenberger &amp; Glover（2006）。該文 §5.1 處理同一類問題時，把 y 取補數、再套 Transformation #2，得到 <code>P·xᵢⱼ(1 − yⱼ)</code>；展開就是本頁用的 p.10 第 4 列 <code>P(xᵢⱼ − xᵢⱼyⱼ)</code>，逐項相同，也同樣不需要新變數。該文的實例是隨機產生的，所以能比對的是做法，不是數字。
+    </>
+  ),
+  'case.constraint-satisfaction.provenance': (
+    <>
+      <strong>這不是原作者用的寫法。</strong>論文 §1 這份清單出自 Kochenberger &amp; Glover（2006）。該文 §5.2 的 CSP 是線性等式組 <code>Ax = b</code>（係數只有 −1、0、1，右邊是 1 或 2），用 Transformation #1、P = 2 轉換。本頁的「不能全部相同」也是 CSP，但是另一種；選它是為了示範三次項互相抵消，這是 Max 3-SAT 單獨示範不了的。
+    </>
+  ),
   'case.max-2-sat.name': '最大 2-可滿足性',
   'case.max-2-sat.scenario': (
     <>

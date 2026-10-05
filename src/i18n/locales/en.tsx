@@ -1082,6 +1082,23 @@ export const en: Dictionary = {
   'case.constraint-satisfaction.uses':
     'hard rules in grouping and rostering, block assignment in experimental design, circuit partitioning, balance conditions in coding theory',
 
+  'case.warehouse-location.provenance': (
+    <>
+      <strong>Matches the authors’ own method.</strong> The paper’s §1 list comes from Kochenberger &amp; Glover
+      (2006). Their §5.1 treats this class of problem by complementing y and applying Transformation #2, giving{' '}
+      <code>P·xᵢⱼ(1 − yⱼ)</code> — which expands to the p.10 row-4 penalty <code>P(xᵢⱼ − xᵢⱼyⱼ)</code> used on this
+      page, term for term, and likewise needs no new variables. Their instances are random, so the method can be
+      compared, not the numbers.
+    </>
+  ),
+  'case.constraint-satisfaction.provenance': (
+    <>
+      <strong>Not the authors’ own formulation.</strong> The paper’s §1 list comes from Kochenberger &amp; Glover
+      (2006), whose §5.2 treats CSPs as linear systems <code>Ax = b</code> (coefficients −1, 0, 1; right-hand
+      sides 1 or 2), recast with Transformation #1 at P = 2. “Not all equal” is a CSP too, but a different one —
+      chosen here to show cubic terms cancelling, which Max 3-SAT alone cannot.
+    </>
+  ),
   'case.max-2-sat.name': 'Max 2-satisfiability',
   'case.max-2-sat.scenario': (
     <>

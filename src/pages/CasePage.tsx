@@ -22,6 +22,17 @@ const ANCHOR_KEY: Record<string, TKey> = {
   'max-independent-set': 'case.max-independent-set.anchor',
 };
 
+/**
+ * How a mentioned case relates to what the authors themselves did in the work
+ * the §1 list comes from (Kochenberger & Glover 2006) — a confirmation, or a
+ * stated difference. Shown in the banner, not the presenter notes: it is a
+ * claim about provenance, which readers need as much as presenters do.
+ */
+const PROVENANCE_KEY: Record<string, TKey> = {
+  'warehouse-location': 'case.warehouse-location.provenance',
+  'constraint-satisfaction': 'case.constraint-satisfaction.provenance',
+};
+
 const NOTE_KEY: Record<string, TKey> = {
   'number-partitioning': 'notes.case.number-partitioning',
   'max-cut': 'notes.case.max-cut',
@@ -83,6 +94,9 @@ export function CasePage({ id }: { id: string }) {
           {t('extended.banner.body', { section: qcase.section, pages: pageLabel(qcase.pages) })}
           {ANCHOR_KEY[qcase.id] && (
             <Box sx={{ mt: 1.5 }}>{t(ANCHOR_KEY[qcase.id])}</Box>
+          )}
+          {PROVENANCE_KEY[qcase.id] && (
+            <Box sx={{ mt: 1.5 }}>{t(PROVENANCE_KEY[qcase.id])}</Box>
           )}
         </Alert>
       )}

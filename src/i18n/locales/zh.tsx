@@ -229,6 +229,22 @@ export const zh = {
       最優是 {'{'}1, 2{'}'} {'{'}3, 4{'}'}，總權重 7，但解空間顯示 12 個最優解：組的標籤可以互換（4 × 3 種命名）。可以藉此講對稱性為什麼讓 QUBO 的解空間變大。
     </>
   ),
+  'notes.case.max-3-sat': (
+    <>
+      這一題需要論文 §7 第 4 點的<strong>高次項降階</strong>。三個文字的子句，懲罰是三個「為假」指示函數的乘積，所以是三次的。八條子句加總後只剩兩個三次項 <code>−x₁x₂x₃</code>、<code>−x₁x₂x₄</code>，兩個都含 <code>x₁x₂</code>，所以只要一個輔助變數 x₅ 取代它，再加上 Rosenberg 懲罰 <code>P(x₁x₂ − 2x₁x₅ − 2x₂x₅ + 3x₅)</code>。
+      <br />
+      <br />
+      和 Max 2-SAT 對照：那裡 QUBO 的大小只看變數數，這裡多了輔助變數。現場可以把 P 拉到 1：最優值仍是 0，但會出現 x₅ ≠ x₁x₂ 的平手解；拉到 0 連最優值都錯了。
+    </>
+  ),
+  'notes.case.constraint-satisfaction': (
+    <>
+      每組三人「不能全在同一隊」寫成兩條子句 <code>(a ∨ b ∨ c)</code> 與 <code>(¬a ∨ ¬b ∨ ¬c)</code>。各自都是三次，但加起來三次項<strong>剛好抵消</strong>，整組約束是二次的 <code>1 − a − b − c + ab + ac + bc</code>。
+      <br />
+      <br />
+      所以這題一個輔助變數都不需要，和 Max 3-SAT 正好對照：引擎先把所有子句加總、再降階，抵消掉的項就不必付出額外變數的代價。8 種分隊方式都滿足所有約束，交換隊名算兩種，所以本質上是 4 種。
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       本頁的主秀：<strong>QUBO 的維度只由變數數決定，與子句數無關</strong>。現場請按幾次「新增子句」，讓大家看 Q 還是 4×4。論文 p.17 說 200 變數、
@@ -360,6 +376,9 @@ export const zh = {
   'formulation.original': '原始模型',
   'formulation.slack': 'Slack 變數展開',
   'formulation.penalty': '懲罰項',
+  'formulation.reduction': '高次項降階（§7 第 4 點）',
+  'formulation.reductionNote': (p: TParams) =>
+    `每個輔助變數取代兩個變數的乘積，懲罰在兩者相等時為 0。它取代的項 |係數| 總和最大為 ${p.load}，P 必須大於它才保證最優解精確（目前 P = ${p.P}）。`,
   'formulation.result': '結果',
   'formulation.resultBody': (p: TParams) =>
     `${p.n} 個變數、加性常數 ${p.constant}。原始目標值 = xᵀQx + 常數。`,
@@ -411,6 +430,7 @@ export const zh = {
   'scale.vars': (p: TParams) => `${p.n} 變數`,
   'scale.varsWithSlack': (p: TParams) =>
     `${p.base} 個原始變數 ＋ ${p.slack} 個 slack 位元 ＝ ${p.n} 變數`,
+  'scale.varsWithAux': (p: TParams) => `${p.base} 個原始變數 ＋ ${p.aux} 個輔助變數 ＝ ${p.n} 變數`,
   'scale.states': (p: TParams) => `${p.states} 種組合`,
   'scale.tier.green': '窮舉（精確），即時',
   'scale.tier.amber': '窮舉（精確），會跑一下',
@@ -793,6 +813,24 @@ export const zh = {
   'case.clique-partitioning.xMeans': '變數依「節點 × 組」排列（4 個節點、最多 4 組）：x₁…x₄ 是節點 1 放第 1–4 組，依此類推；= 1 表示放在那一組。',
   'case.clique-partitioning.uses': '相關性分群（correlation clustering）、社群偵測、生物資訊的基因分群、製造業的機器與零件分組',
 
+  'case.max-3-sat.name': '最大 3-可滿足性',
+  'case.max-3-sat.scenario': (
+    <>
+      和最大 2-可滿足性一樣，只是每個條件換成<strong>三選一以上成立</strong>：八個條件，每個由三個「是／否」陳述用「或」連起來，要讓最多條件成立。這組條件恰好有一種賦值可以全部滿足。
+    </>
+  ),
+  'case.max-3-sat.xMeans': 'xᵢ = 1 表示第 i 個陳述為真；x₅ 是降階加入的輔助變數，代表 x₁x₂。',
+  'case.max-3-sat.uses': '電路與硬體驗證、軟體模型檢查、排程與規劃問題的邏輯編碼、密碼分析',
+
+  'case.constraint-satisfaction.name': '約束滿足問題（分隊）',
+  'case.constraint-satisfaction.scenario': (
+    <>
+      六個人要分成兩隊，並列出了六組三人組：<strong>每一組三人都不能全在同一隊</strong>。找出所有可行的分法。這類「不能全部相同」的約束又叫集合分割或超圖二著色。
+    </>
+  ),
+  'case.constraint-satisfaction.xMeans': 'xᵢ = 1 表示第 i 個人在第 2 隊，= 0 表示在第 1 隊。',
+  'case.constraint-satisfaction.uses': '分組與排班的硬性規則、實驗設計的區組分配、電路分割、編碼理論中的平衡條件',
+
   'case.max-2-sat.name': '最大 2-可滿足性',
   'case.max-2-sat.scenario': (
     <>
@@ -901,6 +939,9 @@ export const zh = {
   'domain.cluster.inside': (p: TParams) => `組內相似度總和 = ${p.value}`,
   'domain.cluster.invalid': '有節點不在恰好一組裡',
   'domain.cluster.note': (p: TParams) => `相似度：${p.weights}`,
+  'domain.teams.team': (p: TParams) => `第 ${p.k} 隊`,
+  'domain.teams.ok': '每組三人都有分在兩隊',
+  'domain.teams.bad': (p: TParams) => `${p.count} 組三人全在同一隊`,
   'domain.assign.facility': '設施',
   'domain.assign.location': '位置',
   'domain.assign.cost': (p: TParams) => `加權流量成本 = ${p.cost}`,
@@ -909,6 +950,11 @@ export const zh = {
   'domain.sat.count': (p: TParams) => `${p.sat} / ${p.total} 個子句被滿足`,
   'domain.sat.current': (p: TParams) =>
     `目前：${p.vars} 變數 · ${p.clauses} 子句 → QUBO 仍是 ${p.vars}×${p.vars}`,
+  'domain.sat.auxNote': (p: TParams) => (
+    <>
+      和 Max 2-SAT 不同，這裡的 QUBO <strong>比原始變數多了 {String(p.aux)} 個輔助變數</strong>：三個文字的子句會產生三次項，必須用 §7 第 4 點的降階補上新變數。所以 §4.3 那句「QUBO 大小與子句數無關」在這裡不成立。
+    </>
+  ),
   'domain.sat.sizeNote': (
     <>
       注意 QUBO 的大小<strong>只由變數數決定，與子句數完全無關</strong>。論文 p.17：

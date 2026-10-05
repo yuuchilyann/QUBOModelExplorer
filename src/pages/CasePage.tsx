@@ -38,6 +38,8 @@ const NOTE_KEY: Record<string, TKey> = {
   'warehouse-location': 'notes.case.warehouse-location',
   'linear-ordering': 'notes.case.linear-ordering',
   'clique-partitioning': 'notes.case.clique-partitioning',
+  'max-3-sat': 'notes.case.max-3-sat',
+  'constraint-satisfaction': 'notes.case.constraint-satisfaction',
   'max-2-sat': 'notes.case.max-2-sat',
   'set-partitioning': 'notes.case.set-partitioning',
   'graph-coloring': 'notes.case.graph-coloring',

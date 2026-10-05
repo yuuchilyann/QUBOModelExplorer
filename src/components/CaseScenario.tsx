@@ -109,6 +109,18 @@ const SCENARIOS: Record<string, ScenarioKeys> = {
     xMeans: 'case.clique-partitioning.xMeans',
     uses: 'case.clique-partitioning.uses',
   },
+  'max-3-sat': {
+    name: 'case.max-3-sat.name',
+    scenario: 'case.max-3-sat.scenario',
+    xMeans: 'case.max-3-sat.xMeans',
+    uses: 'case.max-3-sat.uses',
+  },
+  'constraint-satisfaction': {
+    name: 'case.constraint-satisfaction.name',
+    scenario: 'case.constraint-satisfaction.scenario',
+    xMeans: 'case.constraint-satisfaction.xMeans',
+    uses: 'case.constraint-satisfaction.uses',
+  },
   'max-2-sat': {
     name: 'case.max-2-sat.name',
     scenario: 'case.max-2-sat.scenario',

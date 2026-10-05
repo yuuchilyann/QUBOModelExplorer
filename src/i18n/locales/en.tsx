@@ -318,6 +318,31 @@ export const en: Dictionary = {
       symmetry inflates a QUBO’s solution space.
     </>
   ),
+  'notes.case.max-3-sat': (
+    <>
+      This case needs the paper’s §7 point 4 <strong>higher-order reduction</strong>. A three-literal clause’s
+      penalty is the product of three “is false” indicators, so it is cubic. Summed over the eight clauses, only
+      two cubic terms survive, <code>−x₁x₂x₃</code> and <code>−x₁x₂x₄</code>; both contain <code>x₁x₂</code>, so one
+      auxiliary x₅ replaces it, with Rosenberg’s penalty <code>P(x₁x₂ − 2x₁x₅ − 2x₂x₅ + 3x₅)</code>.
+      <br />
+      <br />
+      Contrast it with Max 2-SAT, where the QUBO’s size depends only on the variable count: here auxiliaries are
+      added. On stage, drag P down to 1 — the optimal value is still 0, but a tie with x₅ ≠ x₁x₂ appears; at 0
+      even the value goes wrong.
+    </>
+  ),
+  'notes.case.constraint-satisfaction': (
+    <>
+      “Not all on one team” for a trio becomes two clauses, <code>(a ∨ b ∨ c)</code> and{' '}
+      <code>(¬a ∨ ¬b ∨ ¬c)</code>. Each is cubic, but added together their cubic terms <strong>cancel exactly</strong>,
+      and the constraint is the quadratic <code>1 − a − b − c + ab + ac + bc</code>.
+      <br />
+      <br />
+      So this case needs no auxiliary at all — the counterpoint to Max 3-SAT: because the engine sums every
+      clause before reducing, terms that cancel never cost an extra variable. Eight team assignments satisfy
+      every trio; swapping the team names pairs them up, so there are really four.
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       The headline of this page: <strong>the dimension of a QUBO is set by the variable count alone and is
@@ -478,6 +503,9 @@ export const en: Dictionary = {
   'formulation.original': 'Original model',
   'formulation.slack': 'Slack expansion',
   'formulation.penalty': 'Penalty terms',
+  'formulation.reduction': 'Higher-order reduction (§7 point 4)',
+  'formulation.reductionNote': (p: TParams) =>
+    `Each auxiliary replaces a product of two variables; its penalty is 0 exactly when the two agree. The largest total |coefficient| an auxiliary replaces is ${p.load}, and P must exceed it for every optimum to be exact (P is now ${p.P}).`,
   'formulation.result': 'Result',
   'formulation.resultBody': (p: TParams) =>
     `${p.n} variables, additive constant ${p.constant}. Original objective value = xᵀQx + constant.`,
@@ -529,6 +557,8 @@ export const en: Dictionary = {
   'scale.vars': (p: TParams) => `${p.n} variables`,
   'scale.varsWithSlack': (p: TParams) =>
     `${p.base} original variables + ${p.slack} slack bits = ${p.n} variables`,
+  'scale.varsWithAux': (p: TParams) =>
+    `${p.base} original variables + ${p.aux} ${p.aux === 1 ? 'auxiliary' : 'auxiliaries'} = ${p.n} variables`,
   'scale.states': (p: TParams) => `${p.states} assignments`,
   'scale.tier.green': 'exhaustive (exact), instant',
   'scale.tier.amber': 'exhaustive (exact), takes a moment',
@@ -1027,6 +1057,31 @@ export const en: Dictionary = {
   'case.clique-partitioning.uses':
     'correlation clustering, community detection, gene clustering in bioinformatics, machine–part grouping in manufacturing',
 
+  'case.max-3-sat.name': 'Maximum 3-satisfiability',
+  'case.max-3-sat.scenario': (
+    <>
+      Like maximum 2-satisfiability, but each condition now needs <strong>one of three</strong> statements to hold:
+      eight conditions, each three yes/no statements joined by “or”, and as many conditions as possible should
+      hold. This set has exactly one assignment that satisfies them all.
+    </>
+  ),
+  'case.max-3-sat.xMeans':
+    'xᵢ = 1 makes statement i true; x₅ is the auxiliary the reduction adds, standing for x₁x₂.',
+  'case.max-3-sat.uses':
+    'circuit and hardware verification, software model checking, logical encodings of scheduling and planning, cryptanalysis',
+
+  'case.constraint-satisfaction.name': 'Constraint satisfaction (team split)',
+  'case.constraint-satisfaction.scenario': (
+    <>
+      Six people are to be split into two teams, and six trios are listed: <strong>no trio may end up entirely
+      on one team</strong>. Find every way to do it. Constraints of this “not all equal” kind are also known as
+      set splitting, or 2-colouring a hypergraph.
+    </>
+  ),
+  'case.constraint-satisfaction.xMeans': 'xᵢ = 1 puts person i on team 2; = 0 on team 1.',
+  'case.constraint-satisfaction.uses':
+    'hard rules in grouping and rostering, block assignment in experimental design, circuit partitioning, balance conditions in coding theory',
+
   'case.max-2-sat.name': 'Max 2-satisfiability',
   'case.max-2-sat.scenario': (
     <>
@@ -1165,6 +1220,9 @@ export const en: Dictionary = {
   'domain.cluster.inside': (p: TParams) => `similarity inside groups = ${p.value}`,
   'domain.cluster.invalid': 'some node is not in exactly one group',
   'domain.cluster.note': (p: TParams) => `similarities: ${p.weights}`,
+  'domain.teams.team': (p: TParams) => `team ${p.k}`,
+  'domain.teams.ok': 'every trio is split across the teams',
+  'domain.teams.bad': (p: TParams) => `${p.count} trio(s) entirely on one team`,
   'domain.assign.facility': 'Facility',
   'domain.assign.location': 'Location',
   'domain.assign.cost': (p: TParams) => `weighted flow cost = ${p.cost}`,
@@ -1173,6 +1231,13 @@ export const en: Dictionary = {
   'domain.sat.count': (p: TParams) => `${p.sat} / ${p.total} clauses satisfied`,
   'domain.sat.current': (p: TParams) =>
     `Currently ${p.vars} variables · ${p.clauses} clauses → the QUBO is still ${p.vars}×${p.vars}`,
+  'domain.sat.auxNote': (p: TParams) => (
+    <>
+      Unlike Max 2-SAT, this QUBO has <strong>{String(p.aux)} {p.aux === 1 ? 'auxiliary variable' : 'auxiliary variables'} beyond the original ones</strong>:
+      three-literal clauses produce cubic terms, which §7 point 4’s reduction can only remove by adding variables.
+      So §4.3’s “QUBO size is independent of the clause count” does not hold here.
+    </>
+  ),
   'domain.sat.sizeNote': (
     <>
       Note that the size of a QUBO is <strong>set by the variable count alone and is completely

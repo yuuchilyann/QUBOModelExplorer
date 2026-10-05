@@ -109,7 +109,7 @@ export function SolutionPanel({ qcase, model, state }: SolutionPanelProps) {
                   fontSize: 13,
                   bgcolor: v ? 'primary.main' : 'action.hover',
                   color: v ? 'primary.contrastText' : 'text.disabled',
-                  border: model.varMeta[i]?.kind === 'slack' ? '2px dashed' : 'none',
+                  border: model.varMeta[i] && model.varMeta[i].kind !== 'decision' ? '2px dashed' : 'none',
                   borderColor: 'warning.main',
                 }}
                 title={model.varMeta[i]?.name}

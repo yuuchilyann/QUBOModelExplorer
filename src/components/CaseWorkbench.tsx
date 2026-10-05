@@ -9,6 +9,7 @@ import {
   FACILITY_SITES,
   KNAPSACK_CAPS,
   KNAPSACK_WEIGHTS,
+  NAE_TRIPLES,
   NUMBERS,
   ORDERING_VOTES,
   PROJECT_VALUES,
@@ -37,6 +38,7 @@ import {
   OrderingView,
   PartitionView,
   SatView,
+  TeamsView,
   TomographyView,
 } from './DomainViews';
 import { FormulationTrace } from './FormulationTrace';
@@ -151,7 +153,8 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
   }, [edited, penaltyChanged, qcase, base, model, reference, solve.result]);
 
   const magnitude = maxMagnitude(model.Q);
-  const slackCount = model.n - qcase.model.numVars;
+  const slackCount = model.varMeta.filter((m) => m.kind === 'slack').length;
+  const auxCount = model.varMeta.filter((m) => m.kind === 'aux').length;
   const bestX = solve.result?.best[0].x ?? [];
 
   const restore = () => {
@@ -167,7 +170,7 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
     { key: 'code', label: String(t('case.tab.code')) },
   ];
 
-  const domain = renderDomain(qcase, bestX, model.constant, solve.result?.best[0].energy ?? 0);
+  const domain = renderDomain(qcase, bestX, model.constant, solve.result?.best[0].energy ?? 0, auxCount);
 
   return (
     <Box>
@@ -182,7 +185,7 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <ScaleMeter baseVars={qcase.model.numVars} slackVars={slackCount} />
+          <ScaleMeter baseVars={qcase.model.numVars} slackVars={slackCount} auxVars={auxCount} />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <PenaltySlider
@@ -291,7 +294,13 @@ function renderEditor(edit: CaseEdit, setEdit: (e: CaseEdit) => void) {
 }
 
 /** Pick the problem-specific picture for a case. */
-function renderDomain(qcase: CatalogCase, x: number[], constant: number, energy: number) {
+function renderDomain(
+  qcase: CatalogCase,
+  x: number[],
+  constant: number,
+  energy: number,
+  auxCount: number,
+) {
   if (x.length === 0) return null;
   switch (qcase.id) {
     case 'number-partitioning':
@@ -338,6 +347,12 @@ function renderDomain(qcase: CatalogCase, x: number[], constant: number, energy:
       return <OrderingView x={x} votes={ORDERING_VOTES} />;
     case 'clique-partitioning':
       return <ClusterView x={x} n={4} weights={CLUSTER_WEIGHTS} />;
+    case 'max-3-sat':
+      return qcase.model.clauses ? (
+        <SatView clauses={qcase.model.clauses} x={x} qcase={qcase} auxCount={auxCount} />
+      ) : null;
+    case 'constraint-satisfaction':
+      return <TeamsView x={x} triples={NAE_TRIPLES} />;
     case 'graph-coloring': {
       if (!qcase.graph) return null;
       const K = qcase.model.numVars / qcase.graph.nodes.length;

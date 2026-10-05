@@ -380,10 +380,22 @@ export function KnapsackView({
 }
 
 /** §4.3 — clause-by-clause satisfaction, plus the size-independence point. */
-export function SatView({ clauses, x, qcase }: { clauses: Clause[]; x: number[]; qcase: CatalogCase }) {
+export function SatView({
+  clauses,
+  x,
+  qcase,
+  auxCount = 0,
+}: {
+  clauses: Clause[];
+  x: number[];
+  qcase: CatalogCase;
+  /** Auxiliary variables the reduction added; non-zero only for clauses of 3+ literals. */
+  auxCount?: number;
+}) {
   const { t } = useI18n();
   const unsat = unsatisfiedClauses(clauses, x);
   const lit = (l: Clause[number]) => `${l.negated ? '¬' : ''}x${l.v + 1}`;
+  const isFalse = (l: Clause[number]) => (l.negated ? !!x[l.v] : !x[l.v]);
 
   return (
     <Box>
@@ -395,31 +407,36 @@ export function SatView({ clauses, x, qcase }: { clauses: Clause[]; x: number[];
       />
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
         {clauses.map((c, i) => {
-          const ok = !(
-            (c[0].negated ? x[c[0].v] : !x[c[0].v]) && (c[1].negated ? x[c[1].v] : !x[c[1].v])
-          );
+          const ok = !c.every(isFalse);
           return (
             <Chip
               key={i}
               size="small"
               variant={ok ? 'filled' : 'outlined'}
               color={ok ? 'success' : 'error'}
-              label={`(${lit(c[0])} ∨ ${lit(c[1])})`}
+              label={`(${c.map(lit).join(' ∨ ')})`}
               sx={{ fontFamily: 'monospace' }}
             />
           );
         })}
       </Box>
       <Paper variant="outlined" sx={{ mt: 2, p: 1.5, bgcolor: 'action.hover' }}>
+        {/*
+          §4.3's headline — QUBO size independent of clause count — holds only
+          while every clause has two literals. Longer clauses add auxiliary
+          variables, so the note must not be shown there.
+        */}
         <Typography variant="body2" component="div">
-          {t('domain.sat.sizeNote')}
+          {auxCount > 0 ? t('domain.sat.auxNote', { aux: auxCount }) : t('domain.sat.sizeNote')}
         </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          {t('domain.sat.current', {
-            vars: qcase.model.numVars,
-            clauses: clauses.length,
-          })}
-        </Typography>
+        {auxCount === 0 && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+            {t('domain.sat.current', {
+              vars: qcase.model.numVars,
+              clauses: clauses.length,
+            })}
+          </Typography>
+        )}
       </Paper>
     </Box>
   );
@@ -885,6 +902,50 @@ export function ClusterView({
           weights: weights.map(({ i, j, w }) => `w${i + 1}${j + 1} = ${w}`).join(', '),
         })}
       </Typography>
+    </Box>
+  );
+}
+
+/** CSP (not-all-equal) — the two teams, and whether each listed trio is split. */
+export function TeamsView({ x, triples }: { x: number[]; triples: [number, number, number][] }) {
+  const { t } = useI18n();
+  const people = x.map((_, i) => i + 1);
+  const team = (p: number) => (x[p - 1] ? 1 : 0);
+  const split = (tr: [number, number, number]) => new Set(tr.map(team)).size === 2;
+  const bad = triples.filter((tr) => !split(tr)).length;
+
+  return (
+    <Box>
+      <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+        {[0, 1].map((k) => (
+          <Paper key={k} variant="outlined" sx={{ px: 1.5, py: 1, borderColor: CATEGORY_COLORS[k], borderWidth: 2 }}>
+            <Typography variant="caption" color="text.secondary">
+              {t('domain.teams.team', { k: k + 1 })}
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {people.filter((p) => team(p) === k).join(', ') || '—'}
+            </Typography>
+          </Paper>
+        ))}
+      </Stack>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
+        {triples.map((tr, i) => (
+          <Chip
+            key={i}
+            size="small"
+            variant={split(tr) ? 'filled' : 'outlined'}
+            color={split(tr) ? 'success' : 'error'}
+            label={`{${tr.join(', ')}}`}
+            sx={{ fontFamily: 'monospace' }}
+          />
+        ))}
+      </Box>
+      <Chip
+        size="small"
+        sx={{ mt: 1.5 }}
+        color={bad === 0 ? 'success' : 'error'}
+        label={bad === 0 ? t('domain.teams.ok') : t('domain.teams.bad', { count: bad })}
+      />
     </Box>
   );
 }

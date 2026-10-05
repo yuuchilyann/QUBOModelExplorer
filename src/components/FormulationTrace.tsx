@@ -35,6 +35,9 @@ export function FormulationTrace({
   const objective = steps.filter((s) => s.kind === 'objective');
   const slack = steps.filter((s) => s.kind === 'slack');
   const penalties = steps.filter((s) => s.kind === 'penalty');
+  const reductions = steps.filter((s) => s.kind === 'reduction');
+  // `Math` here is the KaTeX component, so no Math.max.
+  const maxLoad = derivation.auxInfo.reduce((m, a) => (a.load > m ? a.load : m), 0);
 
   return (
     <Stack spacing={2.5}>
@@ -113,6 +116,28 @@ export function FormulationTrace({
               </Typography>
             )}
           </Stack>
+        </Box>
+      )}
+
+      {reductions.length > 0 && (
+        <Box>
+          <Typography variant="overline" color="text.secondary">
+            {t('formulation.reduction')}
+          </Typography>
+          <Stack spacing={0.5}>
+            {reductions.map((s, i) => (
+              <Math key={i} block>
+                {s.latex}
+              </Math>
+            ))}
+          </Stack>
+          <Typography
+            variant="caption"
+            color={model.P > maxLoad ? 'text.secondary' : 'warning.main'}
+            sx={{ display: 'block', mt: 0.5 }}
+          >
+            {t('formulation.reductionNote', { load: maxLoad, P: model.P })}
+          </Typography>
         </Box>
       )}
 

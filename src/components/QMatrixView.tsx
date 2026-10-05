@@ -138,7 +138,7 @@ export function QMatrixView({ model, paperQ }: QMatrixViewProps) {
               sx={{
                 fontSize: font,
                 textAlign: 'center',
-                color: m.kind === 'slack' ? 'warning.main' : 'text.secondary',
+                color: m.kind !== 'decision' ? 'warning.main' : 'text.secondary',
                 pb: 0.5,
               }}
             >
@@ -155,7 +155,7 @@ export function QMatrixView({ model, paperQ }: QMatrixViewProps) {
                   alignItems: 'center',
                   justifyContent: 'flex-end',
                   pr: 0.5,
-                  color: model.varMeta[i].kind === 'slack' ? 'warning.main' : 'text.secondary',
+                  color: model.varMeta[i].kind !== 'decision' ? 'warning.main' : 'text.secondary',
                 }}
               >
                 {model.varMeta[i].name}

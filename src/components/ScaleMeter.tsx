@@ -8,6 +8,8 @@ export type ScaleMeterProps = {
   baseVars: number;
   /** Slack bits appended by the recasting. */
   slackVars: number;
+  /** Auxiliary variables from the higher-order reduction (§7 point 4). */
+  auxVars?: number;
 };
 
 const TIER_COLOR: Record<ScaleTier, 'success' | 'warning' | 'error'> = {
@@ -38,9 +40,9 @@ function formatStates(n: number): string {
  * facility is the most direct experience of what NP-hard costs, and it is
  * something only an interactive page can give.
  */
-export function ScaleMeter({ baseVars, slackVars }: ScaleMeterProps) {
+export function ScaleMeter({ baseVars, slackVars, auxVars = 0 }: ScaleMeterProps) {
   const { t } = useI18n();
-  const n = baseVars + slackVars;
+  const n = baseVars + slackVars + auxVars;
   const tier = scaleTier(n);
   const color = TIER_COLOR[tier];
 
@@ -54,9 +56,11 @@ export function ScaleMeter({ baseVars, slackVars }: ScaleMeterProps) {
           {t('scale.title')}
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-          {slackVars > 0
-            ? t('scale.varsWithSlack', { base: baseVars, slack: slackVars, n })
-            : t('scale.vars', { n })}
+          {auxVars > 0
+            ? t('scale.varsWithAux', { base: baseVars, aux: auxVars, n })
+            : slackVars > 0
+              ? t('scale.varsWithSlack', { base: baseVars, slack: slackVars, n })
+              : t('scale.vars', { n })}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           → {t('scale.states', { states: formatStates(n) })}

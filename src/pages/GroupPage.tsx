@@ -35,7 +35,8 @@ function CaseCard({ c, onOpen }: { c: CatalogCase; onOpen: (id: string) => void 
   const { t } = useI18n();
   const name = useCaseName(c.id);
   const { model } = derive(c);
-  const slack = model.n - c.model.numVars;
+  const slack = model.varMeta.filter((m) => m.kind === 'slack').length;
+  const aux = model.varMeta.filter((m) => m.kind === 'aux').length;
 
   return (
     <Card variant="outlined">
@@ -53,7 +54,9 @@ function CaseCard({ c, onOpen }: { c: CatalogCase; onOpen: (id: string) => void 
               size="small"
               variant="outlined"
               label={
-                slack > 0
+                aux > 0
+                  ? t('scale.varsWithAux', { base: c.model.numVars, aux, n: model.n })
+                  : slack > 0
                   ? t('scale.varsWithSlack', { base: c.model.numVars, slack, n: model.n })
                   : t('scale.vars', { n: model.n })
               }

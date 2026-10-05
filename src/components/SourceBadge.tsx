@@ -30,8 +30,15 @@ export function SourceBadge({ qcase }: { qcase: CatalogCase }) {
         />
       </Tooltip>
       {qcase.source === 'mentioned' && (
-        <Tooltip title={tStr('source.mentioned.tooltip')}>
-          <Chip size="small" color="warning" variant="outlined" label={t('source.mentioned')} />
+        <Tooltip
+          title={qcase.mention === 'cited' ? tStr('source.cited.tooltip') : tStr('source.mentioned.tooltip')}
+        >
+          <Chip
+            size="small"
+            color="warning"
+            variant="outlined"
+            label={qcase.mention === 'cited' ? t('source.cited') : t('source.mentioned')}
+          />
         </Tooltip>
       )}
     </>

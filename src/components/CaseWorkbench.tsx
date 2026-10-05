@@ -9,9 +9,12 @@ import {
   FACILITY_SITES,
   KNAPSACK_CAPS,
   KNAPSACK_WEIGHTS,
+  MATCHING_WEIGHTS,
   NAE_TRIPLES,
   NUMBERS,
   ORDERING_VOTES,
+  PORTFOLIO_COV,
+  PORTFOLIO_RETURNS,
   PROJECT_VALUES,
   TASK_COMM,
   TASK_EXEC,
@@ -34,9 +37,11 @@ import {
   FacilityView,
   GraphView,
   KnapsackView,
+  MatchingView,
   MultiKnapsackView,
   OrderingView,
   PartitionView,
+  PortfolioView,
   SatView,
   TeamsView,
   TomographyView,
@@ -353,6 +358,12 @@ function renderDomain(
       ) : null;
     case 'constraint-satisfaction':
       return <TeamsView x={x} triples={NAE_TRIPLES} />;
+    case 'graph-partitioning':
+      return qcase.graph ? <GraphView graph={qcase.graph} x={x} mode="cut" /> : null;
+    case 'portfolio':
+      return <PortfolioView x={x} returns={PORTFOLIO_RETURNS} cov={PORTFOLIO_COV} />;
+    case 'max-matching':
+      return qcase.graph ? <MatchingView graph={qcase.graph} x={x} weights={MATCHING_WEIGHTS} /> : null;
     case 'graph-coloring': {
       if (!qcase.graph) return null;
       const K = qcase.model.numVars / qcase.graph.nodes.length;

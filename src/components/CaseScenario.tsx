@@ -121,6 +121,24 @@ const SCENARIOS: Record<string, ScenarioKeys> = {
     xMeans: 'case.constraint-satisfaction.xMeans',
     uses: 'case.constraint-satisfaction.uses',
   },
+  'graph-partitioning': {
+    name: 'case.graph-partitioning.name',
+    scenario: 'case.graph-partitioning.scenario',
+    xMeans: 'case.graph-partitioning.xMeans',
+    uses: 'case.graph-partitioning.uses',
+  },
+  'portfolio': {
+    name: 'case.portfolio.name',
+    scenario: 'case.portfolio.scenario',
+    xMeans: 'case.portfolio.xMeans',
+    uses: 'case.portfolio.uses',
+  },
+  'max-matching': {
+    name: 'case.max-matching.name',
+    scenario: 'case.max-matching.scenario',
+    xMeans: 'case.max-matching.xMeans',
+    uses: 'case.max-matching.uses',
+  },
   'max-2-sat': {
     name: 'case.max-2-sat.name',
     scenario: 'case.max-2-sat.scenario',

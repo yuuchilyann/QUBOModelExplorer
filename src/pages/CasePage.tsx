@@ -51,6 +51,9 @@ const NOTE_KEY: Record<string, TKey> = {
   'clique-partitioning': 'notes.case.clique-partitioning',
   'max-3-sat': 'notes.case.max-3-sat',
   'constraint-satisfaction': 'notes.case.constraint-satisfaction',
+  'graph-partitioning': 'notes.case.graph-partitioning',
+  'portfolio': 'notes.case.portfolio',
+  'max-matching': 'notes.case.max-matching',
   'max-2-sat': 'notes.case.max-2-sat',
   'set-partitioning': 'notes.case.set-partitioning',
   'graph-coloring': 'notes.case.graph-coloring',
@@ -90,8 +93,13 @@ export function CasePage({ id }: { id: string }) {
       */}
       {qcase.source === 'mentioned' && (
         <Alert severity="info" sx={{ mb: 3 }}>
-          <AlertTitle>{t('extended.banner.title')}</AlertTitle>
-          {t('extended.banner.body', { section: qcase.section, pages: pageLabel(qcase.pages) })}
+          {/* §6 citations are a weaker claim than the §1 list, so they say so. */}
+          <AlertTitle>
+            {qcase.mention === 'cited' ? t('extended.banner.titleCited') : t('extended.banner.title')}
+          </AlertTitle>
+          {qcase.mention === 'cited'
+            ? t('extended.banner.bodyCited', { section: qcase.section, pages: pageLabel(qcase.pages) })
+            : t('extended.banner.body', { section: qcase.section, pages: pageLabel(qcase.pages) })}
           {ANCHOR_KEY[qcase.id] && (
             <Box sx={{ mt: 1.5 }}>{t(ANCHOR_KEY[qcase.id])}</Box>
           )}

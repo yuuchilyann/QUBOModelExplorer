@@ -245,6 +245,30 @@ export const zh = {
       所以這題一個輔助變數都不需要，和 Max 3-SAT 正好對照：引擎先把所有子句加總、再降階，抵消掉的項就不必付出額外變數的代價。8 種分隊方式都滿足所有約束，交換隊名算兩種，所以本質上是 4 種。
     </>
   ),
+  'notes.case.graph-partitioning': (
+    <>
+      這頁最好和 §3.2 Max-Cut 並排講：同一張圖、同一個割邊計數式，只是一個要最多、一個要最少。不加約束的話，「最少割邊」的答案是全部放同一組（割 0 條），所以必須加上「第 1 組恰好 2 個節點」，用 Transformation #1。
+      <br />
+      <br />
+      最優是 {'{'}1, 2{'}'} 對三角形 {'{'}3, 4, 5{'}'}，只割 2 條邊，唯一。五個節點分不成兩個一樣大的組，所以這裡是「盡量平衡」的 2／3 分法。
+    </>
+  ),
+  'notes.case.portfolio': (
+    <>
+      目標是「風險 − 報酬」：風險是持有資產的共變異數總和 <code>xᵀΣx</code>，本來就是二次的；唯一的約束是「恰好持有 3 檔」。報酬最高的組合（2、4、5）風險太大，最優是 3、4、5。
+      <br />
+      <br />
+      值得一提的設計細節：不加約束時最好只持有 3、5 兩檔，所以「恰好 3 檔」這條約束真的改變了答案，P 太小（低於 4）就會選錯。本站初稿要求持有 2 檔，結果無約束的最優解剛好也是 2 檔，P = 0 也能過，等於沒有示範到懲罰，所以改成 3 檔。
+    </>
+  ),
+  'notes.case.max-matching': (
+    <>
+      這題的變數是<strong>邊</strong>而不是點：每條邊一個變數，被選中表示配成一對。每個節點最多接一條被選的邊，就是 p.10 表格第 1 列（兩條邊的節點）和第 5 列（三條邊的節點），也就是 §4.2 Set Packing 的同一個懲罰。
+      <br />
+      <br />
+      最優是 {'{'}1–2, 3–4{'}'}，權重 4 + 5 = 9。因為 3、4、5 構成三角形，五個節點不可能全部配對。
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       本頁的主秀：<strong>QUBO 的維度只由變數數決定，與子句數無關</strong>。現場請按幾次「新增子句」，讓大家看 Q 還是 4×4。論文 p.17 說 200 變數、
@@ -338,6 +362,19 @@ export const zh = {
       <br />
       <br />
       取而代之的檢查是：不經過 QUBO，直接窮舉原始約束模型（列出所有 0/1 組合、丟掉不可行的、用原始目標式計分），確認 QUBO 的最優值加上常數與它相同，而且 QUBO 的每個最優解都可行。這個比對和推導引擎沒有共用任何程式碼。
+    </>
+  ),
+
+  'source.cited': '論文 §6 引用',
+  'source.cited.tooltip':
+    '論文只在 §6 引用他人研究時提到這個問題，不在 §1 的清單裡。本頁實例由本站選定。',
+  'extended.banner.titleCited': '延伸案例：論文只在引用的研究中提到',
+  'extended.banner.bodyCited': (p: TParams) => (
+    <>
+      這個問題不在論文 §1 的清單裡；論文只在 {String(p.section)}（{String(p.pages)}）引用其他人的研究時提到它，<strong>沒有給實例、沒有印出 Q 矩陣，也沒有答案</strong>。這一頁的模型與實例都是本站依標準寫法選的，所以頁面上的 Q 沒有原論文可以逐格對照。
+      <br />
+      <br />
+      取而代之的檢查和其他延伸案例相同：不經過 QUBO，直接窮舉原始約束模型，確認 QUBO 的最優值加上常數與它相同，而且 QUBO 的每個最優解都可行。
     </>
   ),
 
@@ -508,7 +545,7 @@ export const zh = {
     </>
   ),
   'overview.left': '問題端 · 組合最佳化問題',
-  'overview.extendedChip': (p: TParams) => `＋ ${p.n} 個延伸案例（論文只點名）`,
+  'overview.extendedChip': (p: TParams) => `＋ ${p.n} 個延伸案例（論文只點名或引用）`,
   'overview.middle': 'QUBO 標準型',
   'overview.right': '求解端 · 求解器',
   'overview.whyIsing': (
@@ -841,6 +878,33 @@ export const zh = {
       <strong>這不是原作者用的寫法。</strong>論文 §1 這份清單出自 Kochenberger &amp; Glover（2006）。該文 §5.2 的 CSP 是線性等式組 <code>Ax = b</code>（係數只有 −1、0、1，右邊是 1 或 2），用 Transformation #1、P = 2 轉換。本頁的「不能全部相同」也是 CSP，但是另一種；選它是為了示範三次項互相抵消，這是 Max 3-SAT 單獨示範不了的。
     </>
   ),
+  'case.graph-partitioning.name': '圖分割',
+  'case.graph-partitioning.scenario': (
+    <>
+      把網路的節點分成兩組（2 個和 3 個），讓<strong>跨組的連線越少越好</strong>，例如把工作分給兩台機器，盡量減少機器之間的通訊。用的是 §3.2 Max-Cut 同一張圖：Max-Cut 要切最多，這題要切最少。
+    </>
+  ),
+  'case.graph-partitioning.xMeans': 'xᵢ = 1 表示節點 i 分到第 1 組（第 1 組恰好 2 個節點）。',
+  'case.graph-partitioning.uses': '平行計算的工作切分、積體電路的區塊劃分、社群網路分群、大型模擬的網格分割',
+
+  'case.portfolio.name': '投資組合選擇',
+  'case.portfolio.scenario': (
+    <>
+      五檔資產各有預期報酬，彼此的漲跌也互相關聯（共變異數）。要<strong>恰好挑 3 檔</strong>持有，讓「風險減去報酬」最小。報酬最高的組合不一定最好，因為它們可能一起漲跌、風險疊加。
+    </>
+  ),
+  'case.portfolio.xMeans': 'xᵢ = 1 表示持有第 i 檔資產。',
+  'case.portfolio.uses': '基金與退休金的資產配置、指數追蹤的成分股挑選、專案組合的風險分散',
+
+  'case.max-matching.name': '最大權重匹配',
+  'case.max-matching.scenario': (
+    <>
+      把節點看成人、邊看成「可以搭檔」，邊上的數字是搭檔的效益。每個人<strong>最多只能有一個搭檔</strong>，要讓配成的搭檔效益總和最大。用的是 §3.2 同一張圖，六條邊各有權重。
+    </>
+  ),
+  'case.max-matching.xMeans': '每條邊一個變數（x₁₂, x₁₃, …, x₄₅），= 1 表示這兩個節點配成一對。',
+  'case.max-matching.uses': '人員與任務配對、器官捐贈的交換配對、無線網路的連線排程、化學分子的鍵結結構',
+
   'case.max-2-sat.name': '最大 2-可滿足性',
   'case.max-2-sat.scenario': (
     <>
@@ -952,6 +1016,15 @@ export const zh = {
   'domain.teams.team': (p: TParams) => `第 ${p.k} 隊`,
   'domain.teams.ok': '每組三人都有分在兩隊',
   'domain.teams.bad': (p: TParams) => `${p.count} 組三人全在同一隊`,
+  'domain.matching.total': (p: TParams) => `匹配權重 = ${p.value}`,
+  'domain.matching.clash': (p: TParams) => `${p.count} 個節點接了兩條以上的邊`,
+  'domain.portfolio.asset': (p: TParams) => `資產 ${p.i}`,
+  'domain.portfolio.return': '預期報酬',
+  'domain.portfolio.variance': '自身變異數',
+  'domain.portfolio.totalReturn': (p: TParams) => `總報酬 ${p.value}`,
+  'domain.portfolio.totalRisk': (p: TParams) => `總風險 ${p.value}`,
+  'domain.portfolio.objective': (p: TParams) => `風險 − 報酬 = ${p.value}`,
+  'domain.portfolio.note': '總風險是持有資產之間所有共變異數的總和，包含兩兩之間的關聯，不只是各自的變異數。',
   'domain.assign.facility': '設施',
   'domain.assign.location': '位置',
   'domain.assign.cost': (p: TParams) => `加權流量成本 = ${p.cost}`,

@@ -949,3 +949,120 @@ export function TeamsView({ x, triples }: { x: number[]; triples: [number, numbe
     </Box>
   );
 }
+
+/**
+ * Max Weight Matching — the variables are EDGES, so this draws the graph with
+ * each edge's weight, the chosen edges in green, and any node touched by two
+ * chosen edges in red.
+ */
+export function MatchingView({ graph, x, weights }: { graph: Graph; x: number[]; weights: number[] }) {
+  const { t } = useI18n();
+  const pts = layout(graph.nodes);
+  const pos = new Map(pts.map((p) => [p.id, p]));
+  const touches = (v: number) => graph.edges.filter(([a, b], k) => x[k] && (a === v || b === v)).length;
+  const clashes = graph.nodes.filter((v) => touches(v) > 1).length;
+  const total = weights.reduce((s, w, k) => s + (x[k] ? w : 0), 0);
+
+  return (
+    <Box>
+      <Box component="svg" viewBox="0 0 240 240" sx={{ width: 280, height: 280 }}>
+        {graph.edges.map(([a, b], k) => {
+          const pa = pos.get(a)!;
+          const pb = pos.get(b)!;
+          const on = !!x[k];
+          return (
+            <g key={k}>
+              <line
+                x1={pa.x}
+                y1={pa.y}
+                x2={pb.x}
+                y2={pb.y}
+                stroke={on ? '#2f855a' : '#cbd5e0'}
+                strokeWidth={on ? 4 : 1.5}
+              />
+              <text
+                x={(pa.x + pb.x) / 2}
+                y={(pa.y + pb.y) / 2 - 4}
+                textAnchor="middle"
+                fontSize={11}
+                fontWeight={on ? 700 : 400}
+                fill="#4a5568"
+              >
+                {weights[k]}
+              </text>
+            </g>
+          );
+        })}
+        {pts.map((p) => {
+          const bad = touches(p.id) > 1;
+          return (
+            <g key={p.id}>
+              <circle cx={p.x} cy={p.y} r={15} fill={bad ? '#c53030' : '#e2e8f0'} stroke="#fff" strokeWidth={2.5} />
+              <text x={p.x} y={p.y + 4.5} textAnchor="middle" fontSize={12} fontWeight={600} fill={bad ? '#fff' : '#4a5568'}>
+                {p.id}
+              </text>
+            </g>
+          );
+        })}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" color="primary" label={t('domain.matching.total', { value: total })} />
+        {clashes > 0 && <Chip size="small" color="error" label={t('domain.matching.clash', { count: clashes })} />}
+      </Stack>
+    </Box>
+  );
+}
+
+/** Portfolio — which assets are held, with the return gained and the risk taken on. */
+export function PortfolioView({ x, returns, cov }: { x: number[]; returns: number[]; cov: number[][] }) {
+  const { t } = useI18n();
+  const held = returns.map((_, i) => i).filter((i) => x[i]);
+  const ret = held.reduce((s, i) => s + returns[i], 0);
+  const risk = held.reduce((s, i) => s + held.reduce((a, j) => a + cov[i][j], 0), 0);
+
+  return (
+    <Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: `auto repeat(${returns.length}, 56px)`, gap: '3px', maxWidth: 420 }}>
+        <Box />
+        {returns.map((_, i) => (
+          <Typography key={i} variant="caption" align="center" color="text.secondary">
+            {t('domain.portfolio.asset', { i: i + 1 })}
+          </Typography>
+        ))}
+        {(['return', 'variance'] as const).map((row) => (
+          <Box key={row} sx={{ display: 'contents' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ pr: 1, alignSelf: 'center' }}>
+              {row === 'return' ? t('domain.portfolio.return') : t('domain.portfolio.variance')}
+            </Typography>
+            {returns.map((m, i) => (
+              <Box
+                key={i}
+                sx={{
+                  height: 36,
+                  borderRadius: 1,
+                  bgcolor: x[i] ? 'primary.main' : 'action.hover',
+                  color: x[i] ? 'primary.contrastText' : 'text.secondary',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontVariantNumeric: 'tabular-nums',
+                  fontWeight: x[i] ? 700 : 400,
+                }}
+              >
+                {row === 'return' ? m : cov[i][i]}
+              </Box>
+            ))}
+          </Box>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" variant="outlined" label={t('domain.portfolio.totalReturn', { value: ret })} />
+        <Chip size="small" variant="outlined" label={t('domain.portfolio.totalRisk', { value: risk })} />
+        <Chip size="small" color="primary" label={t('domain.portfolio.objective', { value: risk - ret })} />
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.portfolio.note')}
+      </Typography>
+    </Box>
+  );
+}

@@ -343,6 +343,41 @@ export const en: Dictionary = {
       every trio; swapping the team names pairs them up, so there are really four.
     </>
   ),
+  'notes.case.graph-partitioning': (
+    <>
+      Present this page side by side with §3.2’s Max-Cut: same graph, same cut-count expression, one maximised
+      and the other minimised. Without a constraint, the fewest cut edges means putting everything in one group
+      (cutting nothing), so “group 1 has exactly 2 nodes” is required, via Transformation #1.
+      <br />
+      <br />
+      The optimum is {'{'}1, 2{'}'} against the triangle {'{'}3, 4, 5{'}'}, cutting just 2 edges, unique. Five nodes
+      cannot split into equal halves, so this is the as-balanced-as-possible 2/3 split.
+    </>
+  ),
+  'notes.case.portfolio': (
+    <>
+      The objective is risk minus return: risk is the sum of covariances among the assets held,{' '}
+      <code>xᵀΣx</code>, quadratic from the start; the only row is “hold exactly 3”. The highest-return trio (2,
+      4, 5) carries too much risk; the optimum is 3, 4, 5.
+      <br />
+      <br />
+      A design detail worth mentioning: unconstrained, the best holding would be just assets 3 and 5, so the
+      “exactly 3” row genuinely changes the answer, and a P below 4 picks wrongly. This site’s first draft asked
+      for 2 assets — whose unconstrained optimum happened to hold 2 as well, so even P = 0 passed and the penalty
+      demonstrated nothing. Hence 3.
+    </>
+  ),
+  'notes.case.max-matching': (
+    <>
+      Here the variables are <strong>edges</strong>, not nodes: one per edge, chosen meaning “paired”. Each node
+      may touch at most one chosen edge — rows 1 and 5 of the p.10 table (for nodes with two and three edges), the
+      same penalty as §4.2’s Set Packing.
+      <br />
+      <br />
+      The optimum is {'{'}1–2, 3–4{'}'} with weight 4 + 5 = 9. Because 3, 4, 5 form a triangle, no matching can
+      pair all five nodes.
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       The headline of this page: <strong>the dimension of a QUBO is set by the variable count alone and is
@@ -462,6 +497,24 @@ export const en: Dictionary = {
       enumerate every 0/1 assignment, discard the infeasible ones, score the rest with the original objective —
       and confirm that the QUBO optimum plus its constant equals that value, and that every QUBO optimum is
       feasible. That search shares no code with the derivation engine.
+    </>
+  ),
+
+  'source.cited': 'cited in §6 only',
+  'source.cited.tooltip':
+    'The paper mentions this problem only in §6, while citing other people’s work; it is not in the §1 list. The instance on this page was chosen by this site.',
+  'extended.banner.titleCited': 'Extension: mentioned only in work the paper cites',
+  'extended.banner.bodyCited': (p: TParams) => (
+    <>
+      This problem is not in the paper’s §1 list; the paper mentions it only in {String(p.section)} (
+      {String(p.pages)}) while citing other people’s work, and <strong>gives no instance, prints no Q matrix
+      and states no answer</strong>. Both the model and the instance on this page follow the standard form and
+      were chosen by this site, so the Q shown here has nothing in the paper to be compared against.
+      <br />
+      <br />
+      The check that takes its place is the same as for the other extensions: search the original constrained
+      model directly, without any QUBO, and confirm that the QUBO optimum plus its constant equals that value
+      and that every QUBO optimum is feasible.
     </>
   ),
 
@@ -642,7 +695,7 @@ export const en: Dictionary = {
     </>
   ),
   'overview.left': 'Problem side · combinatorial optimisation',
-  'overview.extendedChip': (p: TParams) => `+ ${p.n} extensions (named in the paper only)`,
+  'overview.extendedChip': (p: TParams) => `+ ${p.n} extensions (named or cited, not worked)`,
   'overview.middle': 'QUBO standard form',
   'overview.right': 'Solver side · samplers and hardware',
   'overview.whyIsing': (
@@ -1099,6 +1152,42 @@ export const en: Dictionary = {
       chosen here to show cubic terms cancelling, which Max 3-SAT alone cannot.
     </>
   ),
+  'case.graph-partitioning.name': 'Graph partitioning',
+  'case.graph-partitioning.scenario': (
+    <>
+      Split the nodes of a network into two groups (of 2 and 3) so that <strong>as few links as possible cross
+      between them</strong> — splitting work across two machines while keeping their communication down, say.
+      It is §3.2’s Max-Cut graph: Max-Cut cuts as many edges as possible, this cuts as few.
+    </>
+  ),
+  'case.graph-partitioning.xMeans': 'xᵢ = 1 puts node i in group 1 (which has exactly 2 nodes).',
+  'case.graph-partitioning.uses':
+    'dividing work in parallel computing, partitioning integrated circuits, clustering social networks, mesh partitioning for large simulations',
+
+  'case.portfolio.name': 'Portfolio selection',
+  'case.portfolio.scenario': (
+    <>
+      Five assets each have an expected return, and their movements are correlated (covariance). Hold{' '}
+      <strong>exactly 3</strong> of them so that risk minus return is as small as possible. The highest-return
+      assets are not necessarily best: they may rise and fall together, compounding the risk.
+    </>
+  ),
+  'case.portfolio.xMeans': 'xᵢ = 1 holds asset i.',
+  'case.portfolio.uses':
+    'asset allocation for funds and pensions, choosing constituents to track an index, diversifying a project portfolio',
+
+  'case.max-matching.name': 'Maximum weight matching',
+  'case.max-matching.scenario': (
+    <>
+      Think of the nodes as people and each edge as “could work together”, with the number on it the value of
+      the pairing. Each person may have <strong>at most one partner</strong>; maximise the total value of the
+      pairs. The graph is §3.2’s, with a weight on each of its six edges.
+    </>
+  ),
+  'case.max-matching.xMeans': 'One variable per edge (x₁₂, x₁₃, …, x₄₅); = 1 pairs those two nodes.',
+  'case.max-matching.uses':
+    'matching people to tasks, kidney-exchange pairing, link scheduling in wireless networks, bond structures in chemistry',
+
   'case.max-2-sat.name': 'Max 2-satisfiability',
   'case.max-2-sat.scenario': (
     <>
@@ -1240,6 +1329,16 @@ export const en: Dictionary = {
   'domain.teams.team': (p: TParams) => `team ${p.k}`,
   'domain.teams.ok': 'every trio is split across the teams',
   'domain.teams.bad': (p: TParams) => `${p.count} trio(s) entirely on one team`,
+  'domain.matching.total': (p: TParams) => `matching weight = ${p.value}`,
+  'domain.matching.clash': (p: TParams) => `${p.count} node(s) touch two or more chosen edges`,
+  'domain.portfolio.asset': (p: TParams) => `asset ${p.i}`,
+  'domain.portfolio.return': 'expected return',
+  'domain.portfolio.variance': 'own variance',
+  'domain.portfolio.totalReturn': (p: TParams) => `total return ${p.value}`,
+  'domain.portfolio.totalRisk': (p: TParams) => `total risk ${p.value}`,
+  'domain.portfolio.objective': (p: TParams) => `risk − return = ${p.value}`,
+  'domain.portfolio.note':
+    'Total risk is the sum of every covariance among the assets held — pairwise links included, not just each asset’s own variance.',
   'domain.assign.facility': 'Facility',
   'domain.assign.location': 'Location',
   'domain.assign.cost': (p: TParams) => `weighted flow cost = ${p.cost}`,

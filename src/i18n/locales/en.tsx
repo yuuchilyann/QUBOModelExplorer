@@ -1039,6 +1039,65 @@ export const en: Dictionary = {
     </>
   ),
 
+  // ── DA3 submission structure ──────────────────────────────────────────
+  'daSubmit.title': 'Handing it to a third-generation DA: one case, three ways',
+  'daSubmit.intro': (
+    <>
+      The paper folds every constraint into a single Q, held in place by a <strong>hand-picked P</strong>. From the
+      third generation on, Fujitsu’s service takes more structure: objective and penalty can be submitted as{' '}
+      <strong>two separate polynomials</strong>, and one-hot groups and linear inequalities can be{' '}
+      <strong>declared directly</strong>. The table sets this case’s three forms side by side. The split is obtained
+      by deriving the same model at P = 0 and at P = 1 and subtracting, not by a separate set of rules.
+    </>
+  ),
+  'daSubmit.col.paper': 'Paper: one Q',
+  'daSubmit.col.split': 'Split: objective + penalty',
+  'daSubmit.col.native': 'Native constraints',
+  'daSubmit.row.submit': 'What is submitted',
+  'daSubmit.row.vars': 'Variables',
+  'daSubmit.row.P': 'Role of P',
+  'daSubmit.row.constraints': 'Constraints',
+  'daSubmit.paper.submit': 'one Q matrix',
+  'daSubmit.split.submit': 'objective polynomial + penalty polynomial (its shape at P = 1)',
+  'daSubmit.native.submit': 'objective polynomial + constraint declarations',
+  'daSubmit.slackSaved': (p: TParams) => `${p.n} slack bits saved`,
+  'daSubmit.paper.P': (p: TParams) => `fixed at ${p.P}, chosen by the modeller`,
+  'daSubmit.split.P': 'becomes the penalty weight, which the solver can adjust during the anneal',
+  'daSubmit.native.P': 'needed only for equalities that cannot be declared (and higher-order reductions)',
+  'daSubmit.paper.constraints': 'all become penalty terms; inequalities first gain slack bits',
+  'daSubmit.split.constraints': 'all in the penalty polynomial, which is 0 when feasible',
+  'daSubmit.native.constraints': (p: TParams) =>
+    `${p.oneHot} one-hot, ${p.inequality} inequalities, ${p.equality} other equalities kept as penalties`,
+  'daSubmit.none': 'This case has no constraints: the objective is everything, and the three forms coincide.',
+  'daSubmit.check': (p: TParams) => (
+    <>
+      <strong>At the current best assignment:</strong> objective = {String(p.cost)}, penalty = {String(p.penalty)};
+      objective + {String(p.P)} × penalty = {String(p.total)}, which is exactly this assignment’s energy on Q plus
+      the constant ({String(p.y)}; negated for a max problem, since the DA always minimises). A zero penalty means
+      every constraint holds.
+    </>
+  ),
+  'daSubmit.oneHot.oneWay': (p: TParams) => `One-hot: ${p.n} disjoint groups (one-way one-hot)`,
+  'daSubmit.oneHot.twoWay': (p: TParams) =>
+    `One-hot: a grid of ${p.rows} rows × ${p.cols} columns, one pick per row and per column (two-way one-hot)`,
+  'daSubmit.oneHot.overlapping': (p: TParams) =>
+    `One-hot: ${p.n} groups that overlap without forming a grid; only a disjoint subset can use the one-hot interface, the rest stay penalties`,
+  'daSubmit.kind.oneHot': 'one-hot',
+  'daSubmit.kind.inequality': 'inequality',
+  'daSubmit.kind.equality': 'penalty',
+  'daSubmit.list.constraint': 'Constraint',
+  'daSubmit.list.declared': 'Can be declared as',
+  'daSubmit.list.slack': 'Slack bits',
+  'daSubmit.note': (
+    <>
+      This shows the <strong>structure</strong> of a submission, not Fujitsu’s request format: the full format is in
+      Fujitsu’s API reference (QUBO API V3c/V4), which is not public, and details such as whether a one-hot group’s
+      variables must be consecutive are not reproduced here. Native inequalities have one more advantage: in §5.5 the
+      paper bounds the slack below the row’s full range, so some feasible solutions always carry a penalty in the
+      QUBO; declaring the inequality directly avoids that.
+    </>
+  ),
+
   'overview.cost.title': 'What QUBO really costs',
   'overview.cost.lead': (
     <>

@@ -816,6 +816,54 @@ export const zh = {
     </>
   ),
 
+  // ── DA3 submission structure ──────────────────────────────────────────
+  'daSubmit.title': '交給第三代以後的 DA：同一個案例的三種寫法',
+  'daSubmit.intro': (
+    <>
+      論文把每條約束都併進同一個 Q，靠一個<strong>手選的 P</strong> 撐住。富士通從第三代起的服務接受更多結構：目標與懲罰可以<strong>分成兩個多項式</strong>提交，one-hot 群組與線性不等式可以<strong>直接宣告</strong>。下表把這個案例的三種寫法並排；表中的拆分是把同一個模型在 P = 0 與 P = 1 各推導一次相減得到的，不是另外寫的規則。
+    </>
+  ),
+  'daSubmit.col.paper': '論文：單一 Q',
+  'daSubmit.col.split': '分離：目標＋懲罰',
+  'daSubmit.col.native': '原生約束',
+  'daSubmit.row.submit': '提交什麼',
+  'daSubmit.row.vars': '變數數',
+  'daSubmit.row.P': 'P 的角色',
+  'daSubmit.row.constraints': '約束',
+  'daSubmit.paper.submit': '一個 Q 矩陣',
+  'daSubmit.split.submit': '目標多項式＋懲罰多項式（P = 1 時的形狀）',
+  'daSubmit.native.submit': '目標多項式＋約束宣告',
+  'daSubmit.slackSaved': (p: TParams) => `省下 ${p.n} 個 slack 位元`,
+  'daSubmit.paper.P': (p: TParams) => `固定為 ${p.P}，由建模者選`,
+  'daSubmit.split.P': '成為懲罰的權重，可由求解器在退火中調整',
+  'daSubmit.native.P': '只剩無法宣告的等式約束（以及高次項降階）需要',
+  'daSubmit.paper.constraints': '全部變成懲罰項，不等式先加 slack 位元',
+  'daSubmit.split.constraints': '全部在懲罰多項式裡，可行時為 0',
+  'daSubmit.native.constraints': (p: TParams) =>
+    `one-hot ${p.oneHot} 條、不等式 ${p.inequality} 條、其餘等式 ${p.equality} 條留作懲罰`,
+  'daSubmit.none': '這個案例沒有約束，目標本身就是全部，三種寫法相同。',
+  'daSubmit.check': (p: TParams) => (
+    <>
+      <strong>代回目前的最佳解：</strong>目標 = {String(p.cost)}，懲罰 = {String(p.penalty)}；目標 + {String(p.P)} × 懲罰 ={' '}
+      {String(p.total)}，正好等於這組解在 Q 上的能量加常數（{String(p.y)}；max 問題取負號，因為 DA 一律求最小）。懲罰為 0 代表約束全部滿足。
+    </>
+  ),
+  'daSubmit.oneHot.oneWay': (p: TParams) => `one-hot：${p.n} 組互不重疊（單向 one-hot）`,
+  'daSubmit.oneHot.twoWay': (p: TParams) => `one-hot：${p.rows} 列 × ${p.cols} 行的格子，每列每行各選一個（雙向 one-hot）`,
+  'daSubmit.oneHot.overlapping': (p: TParams) =>
+    `one-hot：${p.n} 組彼此重疊，又不成格子，只有其中互不重疊的部分能用 one-hot 介面，其餘仍要當懲罰`,
+  'daSubmit.kind.oneHot': 'one-hot',
+  'daSubmit.kind.inequality': '不等式',
+  'daSubmit.kind.equality': '懲罰項',
+  'daSubmit.list.constraint': '約束',
+  'daSubmit.list.declared': '可以怎麼宣告',
+  'daSubmit.list.slack': 'slack 位元',
+  'daSubmit.note': (
+    <>
+      這裡呈現的是提交的<strong>結構</strong>，不是富士通的請求格式：完整的格式寫在富士通的 API Reference（QUBO API V3c／V4），目前沒有公開，例如 one-hot 群組的變數是否必須連續排列，本站都沒有重現。原生不等式還有一個好處：論文在 §5.5 替 slack 選了比整列範圍小的上界，有些可行解因此在 QUBO 裡永遠帶著懲罰；直接宣告不等式就沒有這個問題。
+    </>
+  ),
+
   'overview.cost.title': 'QUBO 的真實成本',
   'overview.cost.lead': (
     <>

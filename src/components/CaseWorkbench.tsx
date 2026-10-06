@@ -257,6 +257,8 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
           key={base.id}
           model={model}
           optimum={solve.result?.quality === 'exact' ? solve.result.best[0].energy : null}
+          original={qcase.model}
+          bestX={solve.result ? bestX : null}
         />
       )}
       {view === 'code' && (

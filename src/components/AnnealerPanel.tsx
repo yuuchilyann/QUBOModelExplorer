@@ -29,10 +29,11 @@ import {
   type DaPrecision,
 } from 'qubo-core/hardware/daPrecision';
 import type { AnnealTracePoint, DigitalAnnealerResult } from 'qubo-core/samplers/digitalAnnealer';
-import type { QuboModel } from 'qubo-core/types';
+import type { ConstrainedModel, QuboModel } from 'qubo-core/types';
 
 import type { AnnealRequest, AnnealResponse, QuantizeOutcome } from '../workers/anneal.worker';
 import { QUANTIZE_MAX_VARS } from '../workers/anneal.worker';
+import { DaSubmissionCard } from './DaSubmissionCard';
 import { useI18n } from '../i18n';
 import { CATEGORY_COLORS } from '../theme';
 
@@ -64,6 +65,10 @@ export type AnnealerPanelProps = {
   model: QuboModel;
   /** The exhaustive optimum, when the page's solver has proven one. */
   optimum: number | null;
+  /** The constrained model Q was derived from, for the DA3 submission view. */
+  original: ConstrainedModel;
+  /** The page solver's best assignment, if any. */
+  bestX: number[] | null;
 };
 
 /**
@@ -75,7 +80,7 @@ export type AnnealerPanelProps = {
  * show is Fujitsu's speed: the hardware does a step's n trials at once, and a
  * browser does not. The copy says so before any number appears.
  */
-export function AnnealerPanel({ model, optimum }: AnnealerPanelProps) {
+export function AnnealerPanel({ model, optimum, original, bestX }: AnnealerPanelProps) {
   const { t } = useI18n();
   const [sweeps, setSweeps] = useState<number>(200);
   const [seed, setSeed] = useState(DEFAULT_SEED);
@@ -202,6 +207,8 @@ export function AnnealerPanel({ model, optimum }: AnnealerPanelProps) {
         optimum={optimum}
         pending={state.kind === 'running'}
       />
+
+      <DaSubmissionCard original={original} model={model} bestX={bestX} />
 
       <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
         <Typography variant="body2" component="div">

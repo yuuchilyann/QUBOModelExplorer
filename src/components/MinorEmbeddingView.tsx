@@ -18,6 +18,12 @@ import { useI18n } from '../i18n';
 const MIN_N = 3;
 const MAX_N = 10;
 
+/** Same colour code as the Pegasus panel on the case pages. */
+const IDLE = '#dfe5ec';
+const IDLE_LINK = '#c3ccd8';
+const COUPLING = '#4a5568';
+const colorOf = (i: number) => CATEGORY_COLORS[i % CATEGORY_COLORS.length];
+
 /** A physical qubit: which unit cell it sits in, and its orientation. */
 type Qubit = { r: number; c: number; kind: 'h' | 'v' };
 
@@ -102,6 +108,34 @@ export function MinorEmbeddingView() {
 
   const CELL = Math.min(26, 220 / n);
   const gridSize = CELL * n;
+  const bar = Math.max(3, CELL * 0.22);
+  /** Centre line of the horizontal qubit in row r, and of the vertical one in column c. */
+  const hY = (r: number) => r * CELL + CELL / 2 - bar * 0.6;
+  const vX = (c: number) => c * CELL + CELL / 2 + bar * 0.6;
+  const qubitBar = (q: Qubit, fill: string, opacity = 1) =>
+    q.kind === 'h' ? (
+      <rect
+        key={`h${q.r}-${q.c}`}
+        x={q.c * CELL + 2.5}
+        y={hY(q.r) - bar / 2}
+        width={CELL - 5}
+        height={bar}
+        rx={bar / 2}
+        fill={fill}
+        opacity={opacity}
+      />
+    ) : (
+      <rect
+        key={`v${q.r}-${q.c}`}
+        x={vX(q.c) - bar / 2}
+        y={q.r * CELL + 2.5}
+        width={bar}
+        height={CELL - 5}
+        rx={bar / 2}
+        fill={fill}
+        opacity={opacity}
+      />
+    );
 
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
@@ -183,7 +217,7 @@ export function MinorEmbeddingView() {
                   cx={p.x}
                   cy={p.y}
                   r={12}
-                  fill={i < revealed ? CATEGORY_COLORS[i % CATEGORY_COLORS.length] : '#e2e8f0'}
+                  fill={i < revealed ? colorOf(i) : '#e2e8f0'}
                   stroke="#fff"
                   strokeWidth={2}
                 />
@@ -225,42 +259,67 @@ export function MinorEmbeddingView() {
                 />
               )),
             )}
-            {/* chains, in reveal order */}
-            {chains.slice(0, revealed).map((qubits, i) => {
-              const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
-              const bar = Math.max(3, CELL * 0.22);
-              const len = CELL - 5;
-              return (
-                <g key={`c${i}`}>
-                  {qubits.map((q, k) => {
-                    const x0 = q.c * CELL;
-                    const y0 = q.r * CELL;
-                    return q.kind === 'h' ? (
-                      <rect
-                        key={`q${k}`}
-                        x={x0 + 2.5}
-                        y={y0 + CELL / 2 - bar / 2 - bar * 0.6}
-                        width={len}
-                        height={bar}
-                        rx={bar / 2}
-                        fill={color}
-                      />
-                    ) : (
-                      <rect
-                        key={`q${k}`}
-                        x={x0 + CELL / 2 - bar / 2 + bar * 0.6}
-                        y={y0 + 2.5}
-                        width={bar}
-                        height={len}
-                        rx={bar / 2}
-                        fill={color}
-                        opacity={0.85}
-                      />
-                    );
-                  })}
+            {/* every qubit, idle until its chain is revealed: the hardware itself */}
+            {Array.from({ length: n }, (_, r) =>
+              Array.from({ length: n }, (_, c) => (
+                <g key={`i${r}-${c}`}>
+                  {qubitBar({ r, c, kind: 'h' }, IDLE)}
+                  {qubitBar({ r, c, kind: 'v' }, IDLE)}
                 </g>
-              );
-            })}
+              )),
+            )}
+            {/* chains, in reveal order */}
+            {chains.slice(0, revealed).map((qubits, i) => (
+              <g key={`c${i}`}>
+                {qubits.map((q) => qubitBar(q, colorOf(i), q.kind === 'v' ? 0.85 : 1))}
+              </g>
+            ))}
+            {/*
+              Couplers. Along a row, each horizontal qubit couples to the next;
+              down a column, each vertical one does. Those hold a chain
+              together, so they take the chain's colour once it is revealed.
+              Inside cell (r, c) the two qubits cross and couple: on the
+              diagonal that joins chain r's two arms, anywhere else it is where
+              q_rc lives, drawn dark like on the case pages.
+            */}
+            {Array.from({ length: n }, (_, r) =>
+              Array.from({ length: n - 1 }, (_, c) => (
+                <g key={`l${r}-${c}`}>
+                  <line
+                    x1={(c + 1) * CELL - 2.5}
+                    y1={hY(r)}
+                    x2={(c + 1) * CELL + 2.5}
+                    y2={hY(r)}
+                    stroke={r < revealed ? colorOf(r) : IDLE_LINK}
+                    strokeWidth={bar * 0.55}
+                  />
+                  <line
+                    x1={vX(r)}
+                    y1={(c + 1) * CELL - 2.5}
+                    x2={vX(r)}
+                    y2={(c + 1) * CELL + 2.5}
+                    stroke={r < revealed ? colorOf(r) : IDLE_LINK}
+                    strokeWidth={bar * 0.55}
+                  />
+                </g>
+              )),
+            )}
+            {Array.from({ length: n }, (_, r) =>
+              Array.from({ length: n }, (_, c) => {
+                const live = r < revealed && c < revealed;
+                return (
+                  <circle
+                    key={`x${r}-${c}`}
+                    cx={vX(c)}
+                    cy={hY(r)}
+                    r={bar * 0.62}
+                    fill={!live ? IDLE_LINK : r === c ? colorOf(r) : COUPLING}
+                    stroke="#fff"
+                    strokeWidth={bar * 0.22}
+                  />
+                );
+              }),
+            )}
           </Box>
         </Box>
       </Stack>

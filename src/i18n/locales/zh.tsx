@@ -674,7 +674,9 @@ export const zh = {
       <strong>第 {'i'} 列全部的水平 qubit ＋ 第 {'i'} 行全部的垂直 qubit</strong>。於是 chain <Math>{'i'}</Math> 與 chain <Math>{'j'}</Math> 各有一顆 qubit
       同時落在單元格 <Math>{'(i, j)'}</Math> 裡而彼此耦合，那就是{' '}
       <Math>{'q_{ij}'}</Math> 的實體所在。注意<strong>沒有任何 qubit 被兩條 chain
-      共用</strong>，這正是真實硬體的規則。代價是每條 chain 長{' '}
+      共用</strong>，這正是真實硬體的規則。圖上的小點與短線是硬體的 <strong>coupler</strong>：同一列相鄰的水平 qubit、同一行相鄰的垂直 qubit 之間各有一個（chain
+      就是靠它們連成一串，所以顯示成 chain 的顏色），每格裡兩顆 qubit 交叉處也有一個。對角格的交叉點把 chain <Math>{'i'}</Math> 的兩條臂接起來；其他格的
+      <strong>深色交叉點</strong>就是 <Math>{'q_{ij}'}</Math>，和案例頁「硬體嵌入」分頁的畫法相同。按「播放展開」從空晶片開始看。代價是每條 chain 長{' '}
       <Math>{'2n'}</Math>、總共 <Math>{'2n^2'}</Math> 顆物理 qubit。真實的 Pegasus / Zephyr 連接度高得多，minorminer 的啟發式也聰明得多，常數小很多，但<strong>「邏輯變數平方級放大」這個量級是真的</strong>。
       每個案例頁的「硬體嵌入」分頁，則是把該案例推導出來的 Q 真的放上 Pegasus 晶片。
     </>

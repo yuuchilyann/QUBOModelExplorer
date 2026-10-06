@@ -854,7 +854,13 @@ export const en: Dictionary = {
       <Math>{'i'}</Math> and chain <Math>{'j'}</Math> therefore each have a qubit inside cell{' '}
       <Math>{'(i, j)'}</Math>, coupled to one another — and that coupling is where{' '}
       <Math>{'q_{ij}'}</Math> physically lives. Note that <strong>no qubit is ever shared by two
-      chains</strong>, which is the rule real hardware follows too. The price is a chain length of{' '}
+      chains</strong>, which is the rule real hardware follows too. The small dots and dashes are the
+      hardware’s <strong>couplers</strong>: one between neighbouring horizontal qubits along a row, one
+      between neighbouring vertical qubits down a column (these string a chain together, so they take its
+      colour), and one where the two qubits in each cell cross. On the diagonal that crossing joins chain{' '}
+      <Math>{'i'}</Math>’s two arms; everywhere else the <strong>dark crossing</strong> is{' '}
+      <Math>{'q_{ij}'}</Math>, drawn as on each case’s “On the hardware” tab. Press Play to start from the
+      empty chip. The price is a chain length of{' '}
       <Math>{'2n'}</Math> and <Math>{'2n^2'}</Math> physical qubits in total. Real Pegasus and Zephyr
       topologies are far better connected and minorminer’s heuristics far cleverer, so the constants are
       much smaller — but <strong>the quadratic blow-up in the logical variable count is real</strong>.

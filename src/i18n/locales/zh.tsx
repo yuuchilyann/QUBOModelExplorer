@@ -539,6 +539,8 @@ export const zh = {
     'Q 以字面值寫死，直接呼叫 sampler。數值來自本頁即時推導的同一份 Q。',
   'export.tier2.hint':
     '把原始約束模型交給 build_qubo()，在 Python 裡自己算出 Q。這才是論文真正在教的東西。',
+  'export.tier2.hint.native':
+    '不把約束併進 Q，而是直接宣告給富士通 DA：one-hot 群組與線性不等式走原生介面（不需要 slack 位元），P 只用在仍然是懲罰的部分。對應「數位退火」分頁的「原生約束」那一欄。',
   'export.script': 'Python 腳本',
   'export.jupyter': 'Jupyter / Colab',
   'export.sampler': '求解器',
@@ -546,10 +548,12 @@ export const zh = {
   // reader's Python runs. A classical sampler behaves identically on a laptop
   // or in Colab, and Colab itself still requires a Google account, so calling
   // it "local, no account" would be wrong on both counts.
-  'export.sampler.local': '純古典求解 · 不連線 D-Wave',
-  'export.sampler.token': '需要 D-Wave Leap 帳號',
+  'export.sampler.local': '純古典求解 · 不連線任何雲端服務',
+  'export.sampler.token': '需要雲端帳號（D-Wave Leap 或富士通）',
   'export.sampler.tokenWarn':
     '這個 sampler 會連線到 D-Wave 並消耗 QPU 使用額度。論文的案例規模很小，改用上面的古典求解器就能得到同樣的答案。',
+  'export.sampler.tokenWarn.fujitsu':
+    '這段程式透過 Fixstars Amplify 呼叫富士通第四代 DA，需要富士通的 token，執行會用到你的 DA 使用額度。本站沒有富士通帳號，所以它只對 Amplify 的替身驗證過程式本身（約束轉換、符號、索引），未經富士通實機驗證。想先在自己電腦上看 DA 的演算法，選上面的「Digital Annealer algorithm」。',
   // Practical ceilings, keyed by sampler id (see lib/python/samplers.ts).
   'sampler.limit.exact': '≤ ~20 變數（窮舉全部 2ⁿ 組合，回傳保證最佳解）',
   'sampler.limit.tabu': '數千變數（啟發式，回傳目前找到最好的解）',
@@ -557,7 +561,10 @@ export const zh = {
   'sampler.limit.mock': '與 QPU 相同的 minor-embedding 限制；退火本身是模擬的，不連線 D-Wave',
   'sampler.limit.qpu': '受 minor-embedding 限制，全連通問題約數百個邏輯變數',
   'sampler.limit.hybrid': '數萬變數（古典／量子混合）',
+  'sampler.limit.da': '富士通 DA 公開的演算法，純 Python、免安裝；啟發式，適合數十個變數（不是富士通硬體）',
+  'sampler.limit.amplifyDa4': '富士通第四代 DA，最多 10 萬變數；經由 Fixstars Amplify，需要富士通 token',
   'export.install.label': '安裝',
+  'export.install.none': '不需要安裝任何套件：這段程式只用 Python 標準函式庫。',
   'export.install.hint': '複製到終端機執行；Colab 請用下方 Notebook 分頁的第一個 cell。',
   'export.install.copy.tooltip': '複製安裝指令',
   'export.tokenSetup.label': '設定憑證',
@@ -812,7 +819,7 @@ export const zh = {
   'anneal.note': (
     <>
       三件事要先說清楚：一、這是<strong>演算法的重現，不是富士通的硬體</strong>。晶片在同一個時脈內完成 n 個試翻，瀏覽器每步要花 O(n)；所以這裡能看的是方法<strong>怎麼走</strong>，不能看它<strong>多快</strong>，也不能拿來評比富士通的產品。二、「同樣步數」是論文的比較方式，但數位退火每步評估 n 個翻轉，工作量是單位元的 n 倍。三、平行試翻不是萬靈丹：在本站全部案例上（各 32 次退火、預設排程）它命中最佳解的比例較高（966／992 對 916／992），差距集中在約束多的延伸案例；獨立評比（Oshiyama &amp; Ohzeki 2022）也發現它只在部分問題類型上領先。
-      要在真的 DA 上跑，需要富士通的雲端帳號（Web API），本站<strong>目前不產生</strong>呼叫它的程式碼。
+      「程式碼」分頁可以產生兩種 Python：<strong>DA 演算法的純 Python 版</strong>（免安裝，在自己電腦上跑），以及<strong>透過 Fixstars Amplify 呼叫富士通第四代 DA</strong> 的版本（需要富士通 token；本站只驗證過程式本身，未經富士通實機驗證）。
     </>
   ),
 

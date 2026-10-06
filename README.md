@@ -80,7 +80,9 @@ Algorithm 2）跑該案例的 Q，並和同排程、同步數的單位元模擬�
 計算來自 qubo-core 的 `samplers/digitalAnnealer`、`hardware/daPrecision` 與 `hardware/daConstraints`，退火在 Web Worker 裡跑。
 頁面上明講：這是**演算法的重現，不是富士通的硬體**，只能看方法怎麼走，不能看它多快；
 「同樣步數」下數位退火每步評估 n 個翻轉。總覽頁平台表的富士通一列因此標「可實跑」，並加註
-「演算法重現，非富士通硬體」。本站**目前不產生**呼叫富士通雲端服務的程式碼。數據見 qubo-core 的
+「演算法重現，非富士通硬體」。「程式碼」分頁另有兩個富士通選項：**DA 演算法的純 Python 版**（免安裝，
+`verify:emit` 實際執行它），以及**透過 Fixstars Amplify 呼叫富士通第四代 DA**（需要富士通 token；
+第 2 層直接宣告 one-hot 與不等式；只對 Amplify 的替身驗證過程式本身，未經富士通實機驗證）。數據見 qubo-core 的
 `docs/DIGITAL_ANNEALER.md`。
 
 ## 論文的十一個算例

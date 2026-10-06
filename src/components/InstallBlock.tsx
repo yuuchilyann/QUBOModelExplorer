@@ -36,6 +36,7 @@ export function InstallBlock({ packages, extraStep }: InstallBlockProps) {
   const [toast, setToast] = useState<{ open: boolean; msg: string }>({ open: false, msg: '' });
 
   const cmd = installCommand(env, packages);
+  const nothingToInstall = !cmd;
 
   const copy = async (text: string) => {
     try {
@@ -48,6 +49,17 @@ export function InstallBlock({ packages, extraStep }: InstallBlockProps) {
       });
     }
   };
+
+  // A standalone program needs no package at all; say so instead of an empty command.
+  if (nothingToInstall && !extraStep) {
+    return (
+      <Box sx={{ mb: 2, px: 2, py: 1, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'action.hover' }}>
+        <Typography variant="caption" color="text.secondary">
+          {t('export.install.none')}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>

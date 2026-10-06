@@ -24,7 +24,7 @@ import {
 } from 'qubo-core/python/emit';
 import {
   SAMPLERS,
-  TOKEN_SETUP,
+  tokenSetupFor,
   findSampler,
   packagesFor,
   type SamplerId,
@@ -141,7 +141,9 @@ export function CodeExportPanel({ qcase, model, extraPackages = [] }: CodeExport
 
         {spec.needsToken && (
           <Alert severity="warning" sx={{ mt: 1.5, py: 0.5 }}>
-            <Typography variant="caption">{t('export.sampler.tokenWarn')}</Typography>
+            <Typography variant="caption">
+              {t(spec.family === 'amplify' ? 'export.sampler.tokenWarn.fujitsu' : 'export.sampler.tokenWarn')}
+            </Typography>
           </Alert>
         )}
       </Paper>
@@ -151,14 +153,16 @@ export function CodeExportPanel({ qcase, model, extraPackages = [] }: CodeExport
         <Tab value={2} label={t('export.tier2')} />
       </Tabs>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-        {tier === 1 ? t('export.tier1.hint') : t('export.tier2.hint')}
+        {tier === 1
+          ? t('export.tier1.hint')
+          : t(spec.family === 'amplify' ? 'export.tier2.hint.native' : 'export.tier2.hint')}
       </Typography>
 
       <InstallBlock
         packages={packages}
         extraStep={
           spec.needsToken
-            ? { label: String(t('export.tokenSetup.label')), command: TOKEN_SETUP }
+            ? { label: String(t('export.tokenSetup.label')), command: tokenSetupFor(spec) }
             : undefined
         }
       />

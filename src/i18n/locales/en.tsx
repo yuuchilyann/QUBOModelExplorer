@@ -705,6 +705,8 @@ export const en: Dictionary = {
     'Q is written out as a literal and handed straight to a sampler. The numbers are the very ones derived live on this page.',
   'export.tier2.hint':
     'Hands the original constrained model to build_qubo() and computes Q inside Python. This is what the paper is really teaching.',
+  'export.tier2.hint.native':
+    'Constraints are not folded into Q but declared to Fujitsu’s DA: one-hot groups and linear inequalities use the native interfaces (no slack bits), and P only weights what remains a penalty. It matches the “native constraints” column on the digital annealing tab.',
   'export.script': 'Python script',
   'export.jupyter': 'Jupyter / Colab',
   'export.sampler': 'Sampler',
@@ -712,10 +714,12 @@ export const en: Dictionary = {
   // reader's Python runs. A classical sampler behaves identically on a laptop
   // or in Colab, and Colab itself still requires a Google account, so calling
   // it "local, no account" would be wrong on both counts.
-  'export.sampler.local': 'purely classical · never contacts D-Wave',
-  'export.sampler.token': 'requires a D-Wave Leap account',
+  'export.sampler.local': 'purely classical · contacts no cloud service',
+  'export.sampler.token': 'requires a cloud account (D-Wave Leap or Fujitsu)',
   'export.sampler.tokenWarn':
     'This sampler connects to D-Wave and consumes QPU time. The paper’s cases are tiny, and the classical samplers above give the same answers.',
+  'export.sampler.tokenWarn.fujitsu':
+    'This program calls Fujitsu’s fourth-generation DA through Fixstars Amplify. It needs a Fujitsu token and uses your DA quota. This site has no Fujitsu account, so the program has only been checked against a stand-in for Amplify (constraint translation, signs, indexing), not on Fujitsu’s service. To watch the DA’s algorithm on your own machine first, pick “Digital Annealer algorithm” above.',
   'sampler.limit.exact':
     '≤ ~20 variables (enumerates all 2ⁿ assignments, returns a guaranteed optimum)',
   'sampler.limit.tabu': 'thousands of variables (heuristic, returns the best found so far)',
@@ -724,7 +728,12 @@ export const en: Dictionary = {
   'sampler.limit.qpu':
     'bounded by minor-embedding; a few hundred logical variables for a fully connected problem',
   'sampler.limit.hybrid': 'tens of thousands of variables (classical/quantum hybrid)',
+  'sampler.limit.da':
+    'Fujitsu DA’s published algorithm in plain Python, nothing to install; a heuristic, suited to a few dozen variables (not Fujitsu hardware)',
+  'sampler.limit.amplifyDa4':
+    'Fujitsu’s fourth-generation DA, up to 100,000 variables; through Fixstars Amplify, needs a Fujitsu token',
   'export.install.label': 'Install',
+  'export.install.none': 'Nothing to install: this program uses only the Python standard library.',
   'export.install.hint':
     'Copy into a terminal; in Colab, use the first cell of the Notebook tab below instead.',
   'export.install.copy.tooltip': 'Copy the install command',
@@ -1034,8 +1043,9 @@ export const en: Dictionary = {
       evaluates n flips per step, n times the work of single trial. Third, parallel trial is not a cure-all: across
       this site’s cases (32 anneals each, default schedule) it reaches the optimum more often (966/992 versus 916/992), with the gap concentrated in the
       heavily constrained extended cases, and an independent benchmark (Oshiyama &amp; Ohzeki 2022) likewise found it
-      ahead only on some problem classes. Running on a real DA needs a Fujitsu cloud account (Web API); this site does{' '}
-      <strong>not yet</strong> emit code that calls it.
+      ahead only on some problem classes. The Code tab emits two kinds of Python: <strong>the DA algorithm in plain Python</strong> (nothing to
+      install, runs on your machine), and <strong>Fujitsu’s fourth-generation DA through Fixstars Amplify</strong>{' '}
+      (needs a Fujitsu token; only the program has been checked here, not Fujitsu’s service).
     </>
   ),
 

@@ -2,7 +2,7 @@
 
 互動重現 Glover, Kochenberger & Du，
 *Quantum Bridge Analytics I: A Tutorial on Formulating and Using QUBO Models* (2019)
-的十一個建模案例的靜態網站，並補上論文只點名、沒有算例的問題（延伸案例）。
+的十一個建模案例的靜態網站，並補上論文點名或引用、但沒有算例的 20 個問題（延伸案例）。
 
 線上版：<https://yuuchilyann.github.io/QUBOModelExplorer/>
 
@@ -32,18 +32,18 @@ min / max   y = xᵀQx,   x ∈ {0,1}ⁿ
 
 | 分頁 | 內容 |
 |---|---|
-| **總覽** | 問題端（11 類問題）→ QUBO → 求解端（退火／閘模型／數位退火／古典）的全景；D-Wave 四層拆解（公司／硬體／Leap／Ocean）；**互動式 minor-embedding 展開動畫**；**「QUBO 的真實成本」**（見下） |
+| **總覽** | 問題端（論文的 10 類問題＋延伸案例數）→ QUBO → 求解端（退火／閘模型／數位退火／古典）的全景；D-Wave 四層拆解（公司／硬體／Leap／Ocean）；**互動式 minor-embedding 展開動畫**；**「QUBO 的真實成本」**（見下） |
 | **Hello World** | §2 的 4 變數例。16 種組合全部攤開即時計算，教 Q 矩陣的三件事（線性項在對角線、二次項對半拆、對稱 vs 上三角），並手把手示範怎麼貼進 Colab 跑。解空間表可切換 `x₁→x₄`／`x₄→x₁` 欄位順序，後者讀起來就是一般的二進位遞增 |
 | **A · 自然形式** | §3 — 問題本身就是二次的，不需要懲罰 |
-| **B · 已知懲罰** | §4 — 約束落在 p.10 對照表裡，直接查表 |
-| **C · 通用變換** | §5 — Transformation #1 / #2、slack 變數二進位展開 |
+| **B · 已知懲罰** | §4 — 約束落在 p.10 對照表裡，直接查表。延伸案例中用到同一張表或子句懲罰的也放在這裡（獨立集、團、匹配、3-SAT、CSP） |
+| **C · 通用變換** | §5 — Transformation #1 / #2、slack 變數二進位展開。其餘延伸案例依所用的配方放在這裡 |
 | **附錄** | §7 的高次項降階（Rosenberg）與邊變數→點變數置換。兩者現在都有實際案例：Max 3-SAT 用降階、Clique Partitioning 用點變數置換 |
 
 每個案例頁有五個聯動面板：**建模推導**（KaTeX 逐步展開）、**Q 矩陣**（熱圖＋來源溯源
 hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題檢視**（領域專屬圖）、
 **程式碼**（Python 匯出）。
 
-## 十一個案例
+## 論文的十一個算例
 
 | § | 案例 | 情境 | 變數 | P | 自訂輸入 |
 |---|---|---|---|---|---|
@@ -59,7 +59,7 @@ hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題
 | 5.4 | Quadratic Assignment (QAP) | 部門配廠房，流量 × 距離最小 | 9 | 200 | |
 | 5.5 | Quadratic Knapsack | 選投資專案，兩兩之間有綜效 | 4 + 2 slack | 10 | |
 
-## 延伸案例：論文只點名的問題
+## 延伸案例：論文點名或引用、但沒有算例的問題
 
 論文 §1（pp.3–4）列了二十多種「QUBO 涵蓋的問題」，§6 也提到幾種，但**只有上面十一個有算例**。
 其餘的問題論文沒有給實例、沒有印 Q、也沒有答案。本站逐步補上這些問題，每一題都在頁面上
@@ -83,6 +83,10 @@ hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題
 | 6（引用） | Graph Partitioning | §3.2 同一張圖分成 2／3 兩組，割邊最少 | 5 | 3 | |
 | 6（引用） | Portfolio | 恰好持有 3 檔資產，風險 − 報酬最小 | 5 | 40 | |
 | 6（引用） | Max Weight Matching | 每人最多一個搭檔，搭檔效益最大 | 6 | 6 | |
+| 6（引用） | Community Detection | 兩個三人小圈圈，以模組度分成兩個社群 | 12 | 34 | |
+| 6（引用） | Shortest Path | S 到 T 的最短路線（流量守恆寫法） | 7 | 11 | |
+| 6（引用） | Travelling Salesman | 車輛路徑的單車核心，4 個城市 | 9 | 22 | |
+| 6（引用） | Traffic Flow | 三輛車各選一條路線，照 Neukart 等的 QUBO | 9 | 7（原論文規則） | |
 
 §6 的問題不在論文 §1 清單裡，論文只在引用他人研究時提到；頁面上的標籤與說明框會寫「論文 §6 引用」，
 和 §1 的「論文僅點名」區分。
@@ -112,6 +116,22 @@ P 一律由本站選定（論文沒有給），每個案例的程式註解寫明
 
 Hello World 與 §5.3 沒有情境，而且都**明講**這件事：前者是純粹的 `xᵀQx` 算式示範，
 後者是通用模板。不說的話，讀者會把「沒有情境」誤讀成自己沒看懂。
+
+### 沒有收錄的問題
+
+論文提到但本站沒有收錄的問題共有幾類，各有原因：
+
+| 問題 | 出處 | 原因 |
+|---|---|---|
+| Asymmetric／Symmetric／Side Constrained Assignment | §1 | 追溯到 2006 年的出處與相關文獻都只有名稱、沒有定義；不自行挑一個定義冒充論文內容 |
+| Constrained Spanning Tree | §6 p.31 | 「必須連通」需要大量層級變數，在可精確驗證的規模內實例小到失去意義 |
+| 多車、有容量的 Vehicle Routing | §6 p.32 | 已收錄單車核心（旅行推銷員）；多車與容量超出窮舉規模 |
+| Cybersecurity、Predictive Health Analytics | §6 p.32 | 應用領域，論文沒有指出特定問題 |
+| 非負／二元矩陣分解 | §6 p.35 | 交替求解多個 QUBO，不是單一實例 |
+| 監督式學習（Boltzmann machine 等）、以機器學習改善求解、Ising 互換 | §6 | 學習模型或求解技巧，不是最佳化問題 |
+
+論文提到的每一項的完整狀態、收錄判準、追查過的文獻，以及延伸案例與原作者寫法的對照，見
+qubo-core 的 [`docs/COVERAGE.md`](https://github.com/yuuchilyann/qubo-core/blob/main/docs/COVERAGE.md)。
 
 ## 求解：全部在瀏覽器裡
 
@@ -159,7 +179,7 @@ Hello World 與 §5.3 沒有情境，而且都**明講**這件事：前者是純
 | `DWaveSampler` + `EmbeddingComposite` | ✓ |
 | `LeapHybridSampler` | ✓ |
 
-**論文十一個案例全部落在 `ExactSolver` 的射程內**，所以前三個 sampler 是純古典求解器（第四個 mock 另外做一次真實的 minor-embedding，同樣不連線），
+**本站所有案例（論文 11 個＋延伸 20 個，最多 16 個變數）全部落在 `ExactSolver` 的射程內**，所以前三個 sampler 是純古典求解器（第四個 mock 另外做一次真實的 minor-embedding，同樣不連線），
 在執行 Python 的地方直接窮舉，不連線 D-Wave，因此不需要 Leap 帳號或 API token，
 也不會產生 QPU 費用。貼進 Colab 或自己的環境按執行，就會跑出論文印的答案。
 這不是示意用的假程式碼。
@@ -177,7 +197,7 @@ cd ../qubo-core && npm run verify:all
 |---|---|
 | `npm run verify` | 推導的 Q == 論文的 Q（逐格）、加性常數、窮舉最優解 == 論文的解、`yOriginal = yQubo + constant`、最優解代回原始約束全部滿足、**直接窮舉原始約束模型 == 論文的原始 y**。延伸案例改驗 QUBO 最優 + 常數 == 約束窮舉、每個最優解可行、簡併度一致，以及由論文數字推得的值。外加 tabu 回歸守衛。 |
 | `npm run verify:python` | 內嵌的 Python `build_qubo()` == TypeScript `derive()` == 論文的 Q。**三方一致**（延伸案例沒有論文的 Q，為兩方一致）。 |
-| `npm run verify:emit` | 把產出的 Python **原封不動執行**（注入純 stdlib 的 `dimod` 樁模組，不動您的環境），確認 12 案例 × 6 種 tier／sampler 組合 = 72 支程式都印出參照答案（論文的答案，或延伸案例的約束窮舉結果）。 |
+| `npm run verify:emit` | 把產出的 Python **原封不動執行**（注入純 stdlib 的 `dimod` 樁模組，不動您的環境），確認 31 案例 × 6 種 tier／sampler 組合 = 186 支程式都印出參照答案（論文的答案，或延伸案例的約束窮舉結果）。 |
 
 第三道檢查的是只存在於產碼器裡的邏輯：上三角轉換、最大化的符號翻轉、加性常數還原、
 變數索引對應。前兩道抓不到這些。
@@ -212,7 +232,7 @@ Q 矩陣是對的，上面那行目標函數式子有排版錯誤。
 | 約束被壓成懲罰項，結構跟著消失 | §4.1 六條約束被吸收進對角線（`1` → `−15`／`−23`），常數 48；約束傳播、切平面、鬆弛界全部用不上，另外還多出人工調 `P` 的負擔 |
 | 係數動態範圍爆炸 | §5.5 原始資料全是個位數，Q 卻從 20 到 1922、常數 −2560；退火硬體的耦合器精度有限，小係數會被量化進雜訊 |
 | 不等式要拿 slack 變數換 | §5.5 四個物品，Q 卻是 6×6；硬體上還要再乘一次 chain 長度 |
-| 拿不到對偶界 | MIP 求解器回報「保證在最優的 x% 以內」，QUBO 啟發式只給一個數字。本站十一個案例看不出來，因為都小到可以窮舉 |
+| 拿不到對偶界 | MIP 求解器回報「保證在最優的 x% 以內」，QUBO 啟發式只給一個數字。本站的案例看不出來，因為都小到可以窮舉 |
 
 結論是與硬體成熟度無關的判準：**目標函數本來就是稠密二次、約束不多的問題，QUBO 是
 自然選擇；線性目標加大量結構化約束的問題，用 QUBO 是自找麻煩。** 頁面上附了「划算／
@@ -284,7 +304,9 @@ qubo-core/src/
 ├─ types.ts                    # QuboCase / ConstrainedModel / QuboModel
 ├─ qubo.ts                     # QuboBuilder、對稱／上三角、slack 展開
 ├─ derive.ts                   # 通用推導引擎（全案唯一入口）
-├─ cases/                      # 十一個案例定義（含 paperQ 對照）+ mutate
+├─ reduce.ts                   # 子句展開與 Rosenberg 高次項降階（§7 第 4 點）
+├─ constrained.ts              # 直接窮舉原始約束模型（延伸案例的參照）
+├─ cases/                      # 論文 11 個算例（含 paperQ）、20 個延伸案例（extended.ts）+ mutate
 ├─ samplers/                   # bruteForce.ts、tabu.ts
 └─ python/                     # samplers / module / emit / serialize
 ```
@@ -313,8 +335,8 @@ build 都會產生新檔名並永久留在 git 歷史裡，所以 production bui
 ## 已知限制
 
 - **大 n 視覺擁擠**：Q 矩陣熱圖在 n > 20 時字級會縮到很小，目前以橫向捲動因應。
-- **自訂輸入只開放五個案例**：Number Partitioning、Max-Cut、Min Vertex Cover、
-  Max 2-SAT、Graph Colouring。其餘案例只開放 P 滑桿。
+- **自訂輸入只開放八個案例**：Hello World、Number Partitioning、Max-Cut、Min Vertex Cover、
+  Max 2-SAT、Graph Colouring、Max Independent Set、Max Clique。其餘案例只開放 P 滑桿。
 - **不連線 D-Wave 實機**：QPU sampler 只產碼不執行。這是刻意的：論文案例小到
   QPU 毫無優勢，而且實連需要後端 proxy 保管 token。
 

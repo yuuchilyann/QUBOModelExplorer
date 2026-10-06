@@ -139,6 +139,30 @@ const SCENARIOS: Record<string, ScenarioKeys> = {
     xMeans: 'case.max-matching.xMeans',
     uses: 'case.max-matching.uses',
   },
+  'community-detection': {
+    name: 'case.community-detection.name',
+    scenario: 'case.community-detection.scenario',
+    xMeans: 'case.community-detection.xMeans',
+    uses: 'case.community-detection.uses',
+  },
+  'shortest-path': {
+    name: 'case.shortest-path.name',
+    scenario: 'case.shortest-path.scenario',
+    xMeans: 'case.shortest-path.xMeans',
+    uses: 'case.shortest-path.uses',
+  },
+  'travelling-salesman': {
+    name: 'case.travelling-salesman.name',
+    scenario: 'case.travelling-salesman.scenario',
+    xMeans: 'case.travelling-salesman.xMeans',
+    uses: 'case.travelling-salesman.uses',
+  },
+  'traffic-flow': {
+    name: 'case.traffic-flow.name',
+    scenario: 'case.traffic-flow.scenario',
+    xMeans: 'case.traffic-flow.xMeans',
+    uses: 'case.traffic-flow.uses',
+  },
   'max-2-sat': {
     name: 'case.max-2-sat.name',
     scenario: 'case.max-2-sat.scenario',

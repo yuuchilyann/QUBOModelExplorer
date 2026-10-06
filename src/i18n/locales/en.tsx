@@ -378,6 +378,53 @@ export const en: Dictionary = {
       pair all five nodes.
     </>
   ),
+  'notes.case.community-detection': (
+    <>
+      The same form Negre et al. use: k communities, each node in exactly one (Transformation #1), maximising
+      modularity. Modularity is a fraction, so the objective is scaled by (2m)² to keep every coefficient an
+      integer; the problem view converts back to the real Q.
+      <br />
+      <br />
+      Two triangles joined by a bridge is the textbook example of community detection; the optimum is the two
+      triangles, Q = 5/14 ≈ 0.357. The solutions tab shows 2 optima because the two community labels can swap.
+      Compare it with clique partitioning: there the number of groups is free and the weights are given; here
+      the weights come from the structure of the graph.
+    </>
+  ),
+  'notes.case.shortest-path': (
+    <>
+      This is the standard flow formulation of shortest path, <strong>not</strong> the maze encoding of the Pakin
+      paper the tutorial cites. One variable per directed arc; at every node “out minus in” is +1 at the start, −1
+      at the end and 0 elsewhere, one equality row each.
+      <br />
+      <br />
+      The shortest route, S→A→B→C→T with length 6, has the most arcs; the two-arc S→B→T is the longest (10). Drag
+      P below 4 and the route breaks; the problem view marks the nodes whose flow no longer balances.
+    </>
+  ),
+  'notes.case.travelling-salesman': (
+    <>
+      The paper cites vehicle routing; this page is its single-vehicle, uncapacitated core, the travelling
+      salesman problem. The cited works add vehicles and capacities on top of exactly this structure.
+      <br />
+      <br />
+      Variables are city × position. City 1 is fixed first, which removes the four rotations of every tour —
+      16 variables become 9 without excluding any tour. The shortest tour 1→2→4→3→1 has length 18; the solutions
+      tab shows 2 optima because a tour and its reverse cost the same.
+    </>
+  ),
+  'notes.case.traffic-flow': (
+    <>
+      This page follows the QUBO of the cited paper itself (Neukart et al., Volkswagen and D-Wave’s study of
+      Beijing taxis): three candidate routes per car, congestion as the sum over road segments of the squared
+      number of cars, and exactly one route per car. The square makes crowding one segment more and more costly.
+      <br />
+      <br />
+      λ follows their rule too: the most segment-cost terms any one car appears in, 7 here. All three cars
+      originally share segments c and d, congestion 19; the optimum moves car 1 to route 2 and car 3 to route 3,
+      leaving one car per segment, congestion 5.
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       The headline of this page: <strong>the dimension of a QUBO is set by the variable count alone and is
@@ -1188,6 +1235,55 @@ export const en: Dictionary = {
   'case.max-matching.uses':
     'matching people to tasks, kidney-exchange pairing, link scheduling in wireless networks, bond structures in chemistry',
 
+  'case.community-detection.name': 'Community detection',
+  'case.community-detection.scenario': (
+    <>
+      A social network of six people: two tight trios joined by a single acquaintance. Split them into{' '}
+      <strong>two communities</strong> so that links inside communities exceed what chance would predict by as
+      much as possible — the measure called modularity.
+    </>
+  ),
+  'case.community-detection.xMeans':
+    'Variables run node by community: x₁, x₂ put node 1 in community 1 or 2, and so on; = 1 places it there.',
+  'case.community-detection.uses':
+    'social network analysis, functional modules in protein networks, research fields in citation networks, partitioning power grids',
+
+  'case.shortest-path.name': 'Shortest path',
+  'case.shortest-path.scenario': (
+    <>
+      A small road network with several one-way routes from S to T, each road with a length. Find the route
+      with the <strong>smallest total length</strong>.
+    </>
+  ),
+  'case.shortest-path.xMeans': 'One variable per directed road (S→A, S→B, …, C→T); = 1 means the route uses it.',
+  'case.shortest-path.uses': 'navigation and route planning, packet routing, robot and maze path finding, logistics routes',
+
+  'case.travelling-salesman.name': 'Travelling salesman (vehicle routing)',
+  'case.travelling-salesman.scenario': (
+    <>
+      A vehicle starts at city 1 and must <strong>visit every city once and return</strong>, travelling as short a
+      distance as possible. It is the core of vehicle routing with one vehicle and no capacity limit.
+    </>
+  ),
+  'case.travelling-salesman.xMeans':
+    'Variables run city 2–4 by position 2–4 (city 1 is fixed first); = 1 puts that city at that position.',
+  'case.travelling-salesman.uses':
+    'delivery and pickup routes, drilling order for circuit boards, inspection rounds, ordering fragments in genome sequencing',
+
+  'case.traffic-flow.name': 'Traffic flow optimisation',
+  'case.traffic-flow.scenario': (
+    <>
+      Three cars each have three candidate routes, and their original routes all crowd onto the same stretch of
+      road. Give <strong>each car one route</strong> so that total congestion — the squared number of cars on each
+      road segment, summed — is as low as possible. A miniature of Volkswagen and D-Wave’s study on Beijing taxi
+      data.
+    </>
+  ),
+  'case.traffic-flow.xMeans':
+    'Variables run car by route: x₁…x₃ are car 1’s three routes, and so on; = 1 takes that route.',
+  'case.traffic-flow.uses':
+    'real-time traffic redirection, fleet and ride-sharing route assignment, spreading network traffic over paths, logistics fleet scheduling',
+
   'case.max-2-sat.name': 'Max 2-satisfiability',
   'case.max-2-sat.scenario': (
     <>
@@ -1339,6 +1435,18 @@ export const en: Dictionary = {
   'domain.portfolio.objective': (p: TParams) => `risk − return = ${p.value}`,
   'domain.portfolio.note':
     'Total risk is the sum of every covariance among the assets held — pairwise links included, not just each asset’s own variance.',
+  'domain.community.q': (p: TParams) => `modularity Q = ${p.q} (${p.num}/${p.den})`,
+  'domain.community.invalid': 'some node is not in exactly one community',
+  'domain.path.length': (p: TParams) => `route length = ${p.value}`,
+  'domain.path.broken': (p: TParams) => `${p.count} node(s) out of balance — not a single route`,
+  'domain.tour.length': (p: TParams) => `tour length = ${p.value}`,
+  'domain.tour.invalid': 'not a valid tour (some city or position is not used exactly once)',
+  'domain.tour.note': 'City 1 (orange) is fixed as start and end.',
+  'domain.traffic.route': (p: TParams) => `route ${p.r}`,
+  'domain.traffic.car': (p: TParams) => `car ${p.i}`,
+  'domain.traffic.congestion': (p: TParams) => `congestion = Σ cars² = ${p.value}`,
+  'domain.traffic.note':
+    'Each cell lists the segments of a route; below, how many cars each segment carries now, red for more than one.',
   'domain.assign.facility': 'Facility',
   'domain.assign.location': 'Location',
   'domain.assign.cost': (p: TParams) => `weighted flow cost = ${p.cost}`,

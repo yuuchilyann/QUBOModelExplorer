@@ -4,6 +4,7 @@ import { Alert, Box, Grid, Paper, Stack, Tab, Tabs, Typography } from '@mui/mate
 import {
   BUDGET_ROWS,
   CLUSTER_WEIGHTS,
+  COMMUNITY_GRAPH,
   FACILITY_CUSTOMERS,
   FACILITY_OPEN_COST,
   FACILITY_SITES,
@@ -13,12 +14,16 @@ import {
   NAE_TRIPLES,
   NUMBERS,
   ORDERING_VOTES,
+  PATH_ARCS,
+  PATH_NODES,
   PORTFOLIO_COV,
   PORTFOLIO_RETURNS,
   PROJECT_VALUES,
   TASK_COMM,
   TASK_EXEC,
   TOMOGRAPHY_SUMS,
+  TRAFFIC_ROUTES,
+  TSP_DIST,
 } from 'qubo-core/cases';
 import { applyEdit, maxMagnitude, SAFE_MAGNITUDE, type CaseEdit } from 'qubo-core/cases/mutate';
 import { solveConstrained } from 'qubo-core/constrained';
@@ -33,6 +38,7 @@ import {
   AssignmentView,
   BudgetView,
   ClusterView,
+  CommunityView,
   DiversityView,
   FacilityView,
   GraphView,
@@ -41,10 +47,13 @@ import {
   MultiKnapsackView,
   OrderingView,
   PartitionView,
+  PathView,
   PortfolioView,
   SatView,
   TeamsView,
   TomographyView,
+  TourView,
+  TrafficView,
 } from './DomainViews';
 import { FormulationTrace } from './FormulationTrace';
 import { PenaltySlider } from './PenaltySlider';
@@ -364,6 +373,14 @@ function renderDomain(
       return <PortfolioView x={x} returns={PORTFOLIO_RETURNS} cov={PORTFOLIO_COV} />;
     case 'max-matching':
       return qcase.graph ? <MatchingView graph={qcase.graph} x={x} weights={MATCHING_WEIGHTS} /> : null;
+    case 'community-detection':
+      return <CommunityView graph={COMMUNITY_GRAPH} x={x} k={2} />;
+    case 'shortest-path':
+      return <PathView x={x} nodes={PATH_NODES} arcs={PATH_ARCS} />;
+    case 'travelling-salesman':
+      return <TourView x={x} dist={TSP_DIST} />;
+    case 'traffic-flow':
+      return <TrafficView x={x} routes={TRAFFIC_ROUTES} />;
     case 'graph-coloring': {
       if (!qcase.graph) return null;
       const K = qcase.model.numVars / qcase.graph.nodes.length;

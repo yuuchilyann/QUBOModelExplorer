@@ -269,6 +269,38 @@ export const zh = {
       最優是 {'{'}1–2, 3–4{'}'}，權重 4 + 5 = 9。因為 3、4、5 構成三角形，五個節點不可能全部配對。
     </>
   ),
+  'notes.case.community-detection': (
+    <>
+      和 Negre 等的寫法相同：k 個社群、每個節點恰好屬於一個（Transformation #1），最大化模組度。模組度本身是分數，所以目標乘上 (2m)² 讓係數全是整數；問題檢視再換算回真正的 Q。
+      <br />
+      <br />
+      兩個三角形用一條橋連起來，是社群偵測的教科書例子；最優就是兩個三角形，Q = 5/14 ≈ 0.357。解空間顯示 2 個最優解，因為兩個社群的標籤可以互換。可以和「團分割」對照：那題的組數不固定、權重是自己給的，這題的權重來自圖的結構。
+    </>
+  ),
+  'notes.case.shortest-path': (
+    <>
+      這是最短路徑的標準流量寫法，<strong>不是</strong>論文引用的 Pakin 那篇的迷宮編碼。每條有向弧一個變數；每個節點「流出 − 流入」在起點是 +1、終點是 −1、其他是 0，各是一條等式約束。
+      <br />
+      <br />
+      最短路徑 S→A→B→C→T 長 6，而且弧數最多；只有兩段的 S→B→T 反而最長（10）。把 P 拉低（低於 4）會看到路徑斷掉，問題檢視會標出哪些節點流量不平衡。
+    </>
+  ),
+  'notes.case.travelling-salesman': (
+    <>
+      論文引用的是車輛路徑問題；這頁做的是它的單車、無容量核心，也就是旅行推銷員問題。被引用的研究就是在這個結構上再加車輛數與容量。
+      <br />
+      <br />
+      變數是「城市 × 順序」。城市 1 固定排第一，消掉每條路線的 4 種旋轉，變數從 16 個降到 9 個，且不排除任何路線。最短路線 1→2→4→3→1 長 18；解空間有 2 個最優解，因為同一條路線正著走和反著走一樣長。
+    </>
+  ),
+  'notes.case.traffic-flow': (
+    <>
+      這頁照原論文（Neukart 等，Volkswagen 與 D-Wave 的北京計程車研究）的 QUBO：每輛車三條候選路線，擁塞是每個路段「車數的平方」加總，每輛車恰好一條路線。平方讓同一路段擠越多車、成本上升越快。
+      <br />
+      <br />
+      λ 也照原論文的規則：單一車輛出現在路段成本裡的最多次數，這裡是 7。三輛車原本都走 c、d 路段，擁塞 19；最優解把車 1 改走路線 2、車 3 改走路線 3，每個路段只剩一輛車，擁塞 5。
+    </>
+  ),
   'notes.case.max-2-sat': (
     <>
       本頁的主秀：<strong>QUBO 的維度只由變數數決定，與子句數無關</strong>。現場請按幾次「新增子句」，讓大家看 Q 還是 4×4。論文 p.17 說 200 變數、
@@ -905,6 +937,42 @@ export const zh = {
   'case.max-matching.xMeans': '每條邊一個變數（x₁₂, x₁₃, …, x₄₅），= 1 表示這兩個節點配成一對。',
   'case.max-matching.uses': '人員與任務配對、器官捐贈的交換配對、無線網路的連線排程、化學分子的鍵結結構',
 
+  'case.community-detection.name': '社群偵測',
+  'case.community-detection.scenario': (
+    <>
+      六個人的社交網路：兩個三人小圈圈，中間只靠一段關係連起來。要把人分成<strong>兩個社群</strong>，讓社群內部的連結比隨機情況下預期的多越好，這個指標叫模組度（modularity）。
+    </>
+  ),
+  'case.community-detection.xMeans': '變數依「節點 × 社群」排列：x₁、x₂ 是節點 1 屬於社群 1、2，依此類推；= 1 表示屬於該社群。',
+  'case.community-detection.uses': '社群網路分析、蛋白質交互作用網路的功能模組、引用網路的研究領域分群、電力網路的分區',
+
+  'case.shortest-path.name': '最短路徑',
+  'case.shortest-path.scenario': (
+    <>
+      一個小路網，從 S 到 T 有好幾條單向路可以走，每段路有長度。要找<strong>總長度最短</strong>的路線。
+    </>
+  ),
+  'case.shortest-path.xMeans': '每條有向路段一個變數（S→A、S→B、…、C→T），= 1 表示路線經過這一段。',
+  'case.shortest-path.uses': '導航與路徑規劃、網路封包路由、機器人與迷宮尋路、物流路線',
+
+  'case.travelling-salesman.name': '旅行推銷員（車輛路徑）',
+  'case.travelling-salesman.scenario': (
+    <>
+      一輛車從城市 1 出發，要<strong>每個城市都去一次再回到原點</strong>，總距離越短越好。這是車輛路徑問題只有一輛車、沒有載重限制時的核心。
+    </>
+  ),
+  'case.travelling-salesman.xMeans': '變數依「城市 2–4 × 順序 2–4」排列（城市 1 固定第一）；= 1 表示該城市排在該順序。',
+  'case.travelling-salesman.uses': '配送與收件路線、電路板鑽孔順序、巡檢排程、基因定序的片段排列',
+
+  'case.traffic-flow.name': '交通流量最佳化',
+  'case.traffic-flow.scenario': (
+    <>
+      三輛車各有三條候選路線，原本的路線全都擠在同一段路上。要幫每輛車<strong>各挑一條路線</strong>，讓所有路段的擁塞程度（每段路車數的平方）加總最小。這是 Volkswagen 與 D-Wave 用北京計程車資料做的研究的縮小版。
+    </>
+  ),
+  'case.traffic-flow.xMeans': '變數依「車輛 × 路線」排列：x₁…x₃ 是車 1 的三條路線，依此類推；= 1 表示走該路線。',
+  'case.traffic-flow.uses': '即時交通導流、車隊與共乘路線分配、網路流量的路徑分散、物流車隊排程',
+
   'case.max-2-sat.name': '最大 2-可滿足性',
   'case.max-2-sat.scenario': (
     <>
@@ -1025,6 +1093,17 @@ export const zh = {
   'domain.portfolio.totalRisk': (p: TParams) => `總風險 ${p.value}`,
   'domain.portfolio.objective': (p: TParams) => `風險 − 報酬 = ${p.value}`,
   'domain.portfolio.note': '總風險是持有資產之間所有共變異數的總和，包含兩兩之間的關聯，不只是各自的變異數。',
+  'domain.community.q': (p: TParams) => `模組度 Q = ${p.q}（${p.num}/${p.den}）`,
+  'domain.community.invalid': '有節點不屬於恰好一個社群',
+  'domain.path.length': (p: TParams) => `路線長度 = ${p.value}`,
+  'domain.path.broken': (p: TParams) => `${p.count} 個節點流量不平衡，不是一條完整路線`,
+  'domain.tour.length': (p: TParams) => `路線長度 = ${p.value}`,
+  'domain.tour.invalid': '不是合法的路線（有城市或順序沒被恰好用一次）',
+  'domain.tour.note': '城市 1（橘色）固定為起點與終點。',
+  'domain.traffic.route': (p: TParams) => `路線 ${p.r}`,
+  'domain.traffic.car': (p: TParams) => `車 ${p.i}`,
+  'domain.traffic.congestion': (p: TParams) => `擁塞 = Σ 車數² = ${p.value}`,
+  'domain.traffic.note': '格子裡是路線經過的路段；下方是每個路段目前的車數，紅色表示超過一輛車。',
   'domain.assign.facility': '設施',
   'domain.assign.location': '位置',
   'domain.assign.cost': (p: TParams) => `加權流量成本 = ${p.cost}`,

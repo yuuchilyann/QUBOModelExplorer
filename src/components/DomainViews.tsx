@@ -1066,3 +1066,284 @@ export function PortfolioView({ x, returns, cov }: { x: number[]; returns: numbe
     </Box>
   );
 }
+
+/**
+ * Community Detection — nodes coloured by community, edges inside a community
+ * in green, and the modularity Q recomputed from the partition itself.
+ */
+export function CommunityView({ graph, x, k }: { graph: Graph; x: number[]; k: number }) {
+  const { t } = useI18n();
+  const pts = layout(graph.nodes);
+  const pos = new Map(pts.map((p) => [p.id, p]));
+  const groupsOf = (i: number) => Array.from({ length: k }, (_, c) => c).filter((c) => x[i * k + c]);
+  const valid = graph.nodes.every((_, i) => groupsOf(i).length === 1);
+  const comm = (v: number) => {
+    const g = groupsOf(graph.nodes.indexOf(v));
+    return g.length === 1 ? g[0] : null;
+  };
+  const deg = graph.nodes.map((v) => graph.edges.filter(([a, b]) => a === v || b === v).length);
+  const twoM = graph.edges.length * 2;
+  // Q = (1/2m) Σ_ij (A_ij − k_i k_j / 2m) δ(c_i, c_j), over ordered pairs including i = j.
+  let num = 0;
+  graph.nodes.forEach((a, i) =>
+    graph.nodes.forEach((b, j) => {
+      if (!valid || comm(a) !== comm(b)) return;
+      const adj = graph.edges.some(([p, q]) => (p === a && q === b) || (p === b && q === a)) ? 1 : 0;
+      num += twoM * adj - deg[i] * deg[j];
+    }),
+  );
+  const den = twoM * twoM;
+
+  return (
+    <Box>
+      <Box component="svg" viewBox="0 0 240 240" sx={{ width: 280, height: 280 }}>
+        {graph.edges.map(([a, b], i) => {
+          const pa = pos.get(a)!;
+          const pb = pos.get(b)!;
+          const inside = comm(a) !== null && comm(a) === comm(b);
+          return (
+            <line key={i} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={inside ? '#2f855a' : '#cbd5e0'} strokeWidth={inside ? 3 : 1.5} />
+          );
+        })}
+        {pts.map((p) => {
+          const c = comm(p.id);
+          const fill = c === null ? '#c53030' : CATEGORY_COLORS[c % CATEGORY_COLORS.length];
+          return (
+            <g key={p.id}>
+              <circle cx={p.x} cy={p.y} r={15} fill={fill} stroke="#fff" strokeWidth={2.5} />
+              <text x={p.x} y={p.y + 4.5} textAnchor="middle" fontSize={12} fontWeight={600} fill="#fff">
+                {p.id}
+              </text>
+            </g>
+          );
+        })}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+        {valid ? (
+          <Chip
+            size="small"
+            color="primary"
+            label={t('domain.community.q', { q: (num / den).toFixed(3), num, den })}
+          />
+        ) : (
+          <Chip size="small" color="error" label={t('domain.community.invalid')} />
+        )}
+      </Stack>
+    </Box>
+  );
+}
+
+/** Shortest Path — the network, the chosen arcs, and whether they form one S→T route. */
+export function PathView({ x, nodes, arcs }: { x: number[]; nodes: string[]; arcs: [string, string, number][] }) {
+  const { t } = useI18n();
+  const at: Record<string, { x: number; y: number }> = {
+    S: { x: 30, y: 80 },
+    A: { x: 120, y: 30 },
+    B: { x: 120, y: 130 },
+    C: { x: 220, y: 30 },
+    T: { x: 310, y: 80 },
+  };
+  const length = arcs.reduce((s, [, , c], k) => s + (x[k] ? c : 0), 0);
+  const bad = nodes.filter((v) => {
+    const net = arcs.reduce((s, [a, b], k) => s + (x[k] ? (a === v ? 1 : 0) - (b === v ? 1 : 0) : 0), 0);
+    return net !== (v === 'S' ? 1 : v === 'T' ? -1 : 0);
+  }).length;
+  // Follow chosen arcs from S, for the route label.
+  const route = ['S'];
+  for (let guard = 0; guard < nodes.length && route[route.length - 1] !== 'T'; guard++) {
+    const k = arcs.findIndex(([a], i) => x[i] && a === route[route.length - 1]);
+    if (k < 0) break;
+    route.push(arcs[k][1]);
+  }
+
+  return (
+    <Box>
+      <Box component="svg" viewBox="0 0 340 160" sx={{ width: '100%', maxWidth: 440 }}>
+        <defs>
+          <marker id="arrow-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f855a" />
+          </marker>
+          <marker id="arrow-off" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#a0aec0" />
+          </marker>
+        </defs>
+        {arcs.map(([a, b, c], k) => {
+          const pa = at[a];
+          const pb = at[b];
+          const dx = pb.x - pa.x;
+          const dy = pb.y - pa.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const on = !!x[k];
+          return (
+            <g key={k}>
+              <line
+                x1={pa.x + (dx / len) * 15}
+                y1={pa.y + (dy / len) * 15}
+                x2={pb.x - (dx / len) * 17}
+                y2={pb.y - (dy / len) * 17}
+                stroke={on ? '#2f855a' : '#a0aec0'}
+                strokeWidth={on ? 3 : 1.5}
+                markerEnd={on ? 'url(#arrow-on)' : 'url(#arrow-off)'}
+              />
+              <text x={(pa.x + pb.x) / 2 + 4} y={(pa.y + pb.y) / 2 - 4} fontSize={11} fontWeight={on ? 700 : 400} fill="#4a5568">
+                {c}
+              </text>
+            </g>
+          );
+        })}
+        {nodes.map((v) => (
+          <g key={v}>
+            <circle cx={at[v].x} cy={at[v].y} r={14} fill={v === 'S' || v === 'T' ? '#2b6cb0' : '#e2e8f0'} stroke="#fff" strokeWidth={2.5} />
+            <text x={at[v].x} y={at[v].y + 4.5} textAnchor="middle" fontSize={12} fontWeight={600} fill={v === 'S' || v === 'T' ? '#fff' : '#4a5568'}>
+              {v}
+            </text>
+          </g>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+        <Chip size="small" color="primary" label={t('domain.path.length', { value: length })} />
+        {bad === 0 ? (
+          <Chip size="small" variant="outlined" label={route.join(' → ')} />
+        ) : (
+          <Chip size="small" color="error" label={t('domain.path.broken', { count: bad })} />
+        )}
+      </Stack>
+    </Box>
+  );
+}
+
+/** Travelling Salesman — the tour the position variables describe, with its length. */
+export function TourView({ x, dist }: { x: number[]; dist: [number, number, number][] }) {
+  const { t } = useI18n();
+  const free = [2, 3, 4];
+  const at: Record<number, { x: number; y: number }> = {
+    1: { x: 50, y: 50 },
+    2: { x: 190, y: 50 },
+    3: { x: 190, y: 170 },
+    4: { x: 50, y: 170 },
+  };
+  const d = (a: number, b: number) => dist.find(([p, q]) => (p === a && q === b) || (p === b && q === a))![2];
+  const cityAt = (p: number) => free.filter((v) => x[free.indexOf(v) * 3 + (p - 2)]);
+  const valid =
+    [2, 3, 4].every((p) => cityAt(p).length === 1) &&
+    free.every((v) => [2, 3, 4].filter((p) => x[free.indexOf(v) * 3 + (p - 2)]).length === 1);
+  const tour = valid ? [1, ...[2, 3, 4].map((p) => cityAt(p)[0]), 1] : null;
+  const length = tour ? tour.slice(1).reduce((s, v, i) => s + d(tour[i], v), 0) : null;
+
+  return (
+    <Box>
+      <Box component="svg" viewBox="0 0 240 220" sx={{ width: 260, height: 240 }}>
+        {dist.map(([a, b, c], k) => {
+          const onTour = tour ? tour.slice(1).some((v, i) => (tour[i] === a && v === b) || (tour[i] === b && v === a)) : false;
+          return (
+            <g key={k}>
+              <line
+                x1={at[a].x}
+                y1={at[a].y}
+                x2={at[b].x}
+                y2={at[b].y}
+                stroke={onTour ? '#2f855a' : '#e2e8f0'}
+                strokeWidth={onTour ? 3.5 : 1.5}
+              />
+              <text x={(at[a].x + at[b].x) / 2 + 5} y={(at[a].y + at[b].y) / 2 - 5} fontSize={11} fontWeight={onTour ? 700 : 400} fill="#4a5568">
+                {c}
+              </text>
+            </g>
+          );
+        })}
+        {[1, 2, 3, 4].map((v) => (
+          <g key={v}>
+            <circle cx={at[v].x} cy={at[v].y} r={15} fill={v === 1 ? '#c05621' : '#2b6cb0'} stroke="#fff" strokeWidth={2.5} />
+            <text x={at[v].x} y={at[v].y + 4.5} textAnchor="middle" fontSize={12} fontWeight={600} fill="#fff">
+              {v}
+            </text>
+          </g>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 1 }}>
+        {tour ? (
+          <>
+            <Chip size="small" color="primary" label={t('domain.tour.length', { value: length })} />
+            <Chip size="small" variant="outlined" label={tour.join(' → ')} />
+          </>
+        ) : (
+          <Chip size="small" color="error" label={t('domain.tour.invalid')} />
+        )}
+      </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.tour.note')}
+      </Typography>
+    </Box>
+  );
+}
+
+/** Traffic Flow — each car's three candidate routes, the chosen one, and how loaded each segment is. */
+export function TrafficView({ x, routes }: { x: number[]; routes: string[][][] }) {
+  const { t } = useI18n();
+  const load = new Map<string, number>();
+  routes.forEach((cand, car) =>
+    cand.forEach((segs, r) => {
+      if (x[car * 3 + r]) segs.forEach((s) => load.set(s, (load.get(s) ?? 0) + 1));
+    }),
+  );
+  const segments = [...new Set(routes.flat(2))].sort();
+  const congestion = [...load.values()].reduce((s, n) => s + n * n, 0);
+
+  return (
+    <Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'auto repeat(3, minmax(88px, auto))', gap: '4px', maxWidth: 460 }}>
+        <Box />
+        {[1, 2, 3].map((r) => (
+          <Typography key={r} variant="caption" align="center" color="text.secondary">
+            {t('domain.traffic.route', { r })}
+          </Typography>
+        ))}
+        {routes.map((cand, car) => (
+          <Box key={car} sx={{ display: 'contents' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ pr: 1, alignSelf: 'center' }}>
+              {t('domain.traffic.car', { i: car + 1 })}
+            </Typography>
+            {cand.map((segs, r) => {
+              const on = !!x[car * 3 + r];
+              return (
+                <Box
+                  key={r}
+                  sx={{
+                    py: 0.75,
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    fontFamily: 'monospace',
+                    bgcolor: on ? 'primary.main' : 'action.hover',
+                    color: on ? 'primary.contrastText' : 'text.secondary',
+                    fontWeight: on ? 700 : 400,
+                  }}
+                >
+                  {segs.join('-')}
+                </Box>
+              );
+            })}
+          </Box>
+        ))}
+      </Box>
+      <Stack direction="row" spacing={0.5} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 0.5 }}>
+        {segments.map((s) => {
+          const n = load.get(s) ?? 0;
+          return (
+            <Chip
+              key={s}
+              size="small"
+              variant={n ? 'filled' : 'outlined'}
+              color={n > 1 ? 'error' : n === 1 ? 'success' : 'default'}
+              label={`${s}: ${n}`}
+              sx={{ fontFamily: 'monospace' }}
+            />
+          );
+        })}
+      </Stack>
+      <Chip size="small" color="primary" sx={{ mt: 1 }} label={t('domain.traffic.congestion', { value: congestion })} />
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        {t('domain.traffic.note')}
+      </Typography>
+    </Box>
+  );
+}

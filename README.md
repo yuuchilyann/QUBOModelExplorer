@@ -39,9 +39,9 @@ min / max   y = xᵀQx,   x ∈ {0,1}ⁿ
 | **C · 通用變換** | §5 — Transformation #1 / #2、slack 變數二進位展開。其餘延伸案例依所用的配方放在這裡 |
 | **附錄** | §7 的高次項降階（Rosenberg）與邊變數→點變數置換。兩者現在都有實際案例：Max 3-SAT 用降階、Clique Partitioning 用點變數置換 |
 
-每個案例頁有六個聯動面板：**建模推導**（KaTeX 逐步展開）、**Q 矩陣**（熱圖＋來源溯源
+每個案例頁有七個聯動面板：**建模推導**（KaTeX 逐步展開）、**Q 矩陣**（熱圖＋來源溯源
 hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題檢視**（領域專屬圖）、
-**硬體嵌入**（見下）、**程式碼**（Python 匯出）。
+**硬體嵌入**（見下）、**數位退火**（見下）、**程式碼**（Python 匯出）。
 
 ### 硬體嵌入
 
@@ -61,6 +61,23 @@ hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題
 規模放大後它比 minorminer 早用完（例如 P(3) 上的全連通圖只到 14 個變數，minorminer 到 24 個），
 找不到時頁面寫「本站的啟發式找不到」，不寫「硬體放不下」。數據見 qubo-core 的
 `docs/EMBEDDING.md`。
+
+### 數位退火
+
+在瀏覽器裡照富士通 Digital Annealer 公開的演算法（Aramon 等 2019, *Frontiers in Physics*,
+Algorithm 2）跑該案例的 Q，並和同排程、同步數的單位元模擬退火並排比較：
+
+- **兩張結果卡**：最佳能量、命中窮舉最佳解的次數（16 次獨立退火）、有執行翻轉的步數比例、
+  偏移上升的步數、評估的翻轉數。可切換 sweep 數、換 seed。
+- **軌跡圖**：第一次退火的能量曲線（兩種方法疊在一起），下方是動態偏移 `E_off` 的鋸齒。
+- **暫存器精度**：這個 Q 需要幾個位元，能否原封不動放進第一代（26／16 位元）與第三代起
+  （76／64 位元）的 DA；再用滑桿把暫存器縮小，看縮放並四捨五入後最佳解會不會被移走。
+
+計算來自 qubo-core 的 `samplers/digitalAnnealer` 與 `hardware/daPrecision`，在 Web Worker 裡跑。
+頁面上明講：這是**演算法的重現，不是富士通的硬體**，只能看方法怎麼走，不能看它多快；
+「同樣步數」下數位退火每步評估 n 個翻轉。總覽頁平台表的富士通一列因此標「可實跑」，並加註
+「演算法重現，非富士通硬體」。本站**目前不產生**呼叫富士通雲端服務的程式碼。數據見 qubo-core 的
+`docs/DIGITAL_ANNEALER.md`。
 
 ## 論文的十一個算例
 
@@ -308,7 +325,7 @@ QUBOModelExplorer/
 └─ src/
    ├─ theme.ts
    ├─ App.tsx                  # 分頁群組 + hash 路由 + 線性導引
-   ├─ workers/solver.worker.ts # Web Worker 薄殼，求解器本身在 qubo-core
+   ├─ workers/                 # solver / embed / anneal 的 Web Worker 薄殼，演算法本身在 qubo-core
    ├─ hooks/                   # useSolver、useHashRoute
    ├─ i18n/                    # zh 為正典，en 已補齊（型別上要求完整）
    │  └─ coreKeys.ts           # 斷言字典涵蓋 qubo-core 需要的鍵

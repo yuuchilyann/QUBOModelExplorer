@@ -449,6 +449,7 @@ export const zh = {
   'case.tab.domain': '問題檢視',
   'case.tab.code': '程式碼',
   'case.tab.embedding': '硬體嵌入',
+  'case.tab.annealer': '數位退火',
 
   'formulation.original': '原始模型',
   'formulation.slack': 'Slack 變數展開',
@@ -598,7 +599,7 @@ export const zh = {
   'overview.platforms': '求解端平台',
   'overview.platform.annealing': '量子退火',
   'overview.platform.gate': '閘模型',
-  'overview.platform.digital': '數位退火',
+  'overview.platform.digital': '數位退火（量子啟發）',
   'overview.platform.classical': '古典啟發式',
   // Platform rows: proper nouns stay put, everything descriptive is a key.
   'overview.platform.name.qaoa': 'QAOA（閘模型）',
@@ -607,7 +608,7 @@ export const zh = {
   'overview.topology.asic': '全連通 (ASIC)',
   'overview.topology.varies': '依硬體而異',
   'overview.scale.advantage2': '全連通約數百個邏輯變數',
-  'overview.scale.digital': '1,024 變數（Aramon et al. 2019）',
+  'overview.scale.digital': '100,000 變數（第三代起；第一代 1,024）',
   'overview.scale.qaoa': '目前僅小規模 MaxCut / MIS',
   'overview.scale.tabu': '數千變數',
   'overview.scale.exhaustive': '≤ 24 變數，保證最佳',
@@ -619,6 +620,7 @@ export const zh = {
   'overview.here.run': '可實跑',
   'overview.here.emit': '產碼',
   'overview.here.planned': '規劃中',
+  'overview.here.note.digital': '演算法重現，非富士通硬體',
   'overview.yes': '是',
   'overview.no': '否',
 
@@ -742,6 +744,75 @@ export const zh = {
       三件事要先說清楚：一、這是<strong>理想的 Pegasus 片段</strong>，不是任何一台真實機器的 working graph（真機會少掉製造時壞掉的 qubit，每台不同）。二、這是
       <strong>本站的簡化啟發式</strong>，不是最佳嵌入，也不是 <code>EmbeddingComposite</code> 實際會算出的結果；在本站的案例上，它和 Ocean 的 minorminer
       結果幾乎相同（31 個案例有 29 個最長 chain 一樣）。三、<strong>論文沒有這部分</strong>，只在 p.33 提到嵌入本身就是很難的問題，這一頁是本站補充的。
+    </>
+  ),
+
+  // ── digital annealer tab ──────────────────────────────────────────────
+  'anneal.intro': (
+    <>
+      富士通的 <strong>Digital Annealer（數位退火）</strong>是專用的數位晶片，屬於「量子啟發」：晶片上沒有量子效應，跑的是改良過的模擬退火。它的演算法公開在
+      Aramon 等人（2019, <em>Frontiers in Physics</em>）的 Algorithm 2，和一般模擬退火只差兩處：<strong>平行試翻</strong>，每一步同時判定全部 n 個位元的翻轉，再從通過的翻轉中隨機挑一個執行；以及<strong>動態偏移</strong>，整步都沒有翻轉通過時，就把能量偏移{' '}
+      <Math>{'E_{\\text{off}}'}</Math> 往上加，降低門檻直到能爬出局部最小。這一頁在瀏覽器裡照這份演算法跑這個案例的 Q，並和同樣排程、同樣步數的單位元模擬退火並排比較。
+    </>
+  ),
+  'anneal.sweeps': '每次退火的 sweep 數',
+  'anneal.reseed': '換一個 seed',
+  'anneal.reseed.tooltip': '用另一個亂數種子重跑。兩種方法用同一個種子，所以比較是公平的；換種子可以看出結果有多少運氣成分。',
+  'anneal.budget': (p: TParams) => `各 ${p.runs} 次獨立退火，每次 ${p.steps} 步 · 第 ${p.seed} 個 seed`,
+  'anneal.running': '退火中…',
+  'anneal.error': (p: TParams) => `退火時發生錯誤：${p.message}`,
+  'anneal.tooLarge': (p: TParams) =>
+    `這個 QUBO 有 ${p.n} 個變數，超過本頁示範的上限（${p.max}）。在瀏覽器裡每一步要花 O(n) 的時間，太大就不再即時。`,
+  'anneal.da.title': '數位退火（平行試翻）',
+  'anneal.da.sub': '每步判定全部 n 個翻轉，並使用動態偏移',
+  'anneal.sa.title': '模擬退火（單位元試翻）',
+  'anneal.sa.sub': '每步只判定一個隨機位元，不使用偏移；排程與步數相同',
+  'anneal.reached': '找到最佳解',
+  'anneal.missed': '未找到最佳解',
+  'anneal.stat.best': '最佳能量 y',
+  'anneal.stat.hits': '命中最佳解的次數',
+  'anneal.stat.acceptance': '有執行翻轉的步數比例',
+  'anneal.stat.offsetSteps': '偏移上升的步數',
+  'anneal.stat.evaluated': '評估的翻轉數',
+  'anneal.noOptimum': '這個規模沒有窮舉出的最佳解可以對照，只能比較兩種方法彼此找到的值。',
+  'anneal.trace.title': '第一次退火的軌跡',
+  'anneal.trace.optimum': '最佳解',
+  'anneal.trace.steps': (p: TParams) => `步數 → （共 ${p.n} 步）`,
+  'anneal.trace.legend': (
+    <>
+      <strong>讀圖：</strong>上半部是能量隨步數下降的過程，彩色是數位退火，灰色是單位元模擬退火，綠色虛線是窮舉出的最佳解。下半部是數位退火的{' '}
+      <Math>{'E_{\\text{off}}'}</Math>：沒有任何翻轉通過時它一路往上爬，一旦接受了翻轉就歸零。退火後段溫度很低、幾乎所有上坡都被拒絕，這時偏移的鋸齒最密集，那正是它在把軌跡推出局部最小。
+    </>
+  ),
+  'anneal.precision.title': '放得進 DA 的暫存器嗎？',
+  'anneal.precision.intro': (
+    <>
+      DA 收的係數是定寬的有號整數：一次項 <Math>{'h_i = q_{ii}'}</Math>，二次項 <Math>{'J_{ij} = 2q_{ij}'}</Math>。放不下時要先乘上同一個比例、再四捨五入；論文就是這樣把高斯係數的實例放上第一代 DA，富士通的雲端服務也會自動做。同一個比例不會改變最佳解，<strong>會改變的只有四捨五入</strong>。
+    </>
+  ),
+  'anneal.precision.col.linear': '一次項 h',
+  'anneal.precision.col.quadratic': '二次項 J',
+  'anneal.precision.col.fits': '原封不動載入',
+  'anneal.precision.needed': '這個 Q 需要',
+  'anneal.precision.bits': (p: TParams) => `${p.bits} 位元（最大 |值| ${p.max}）`,
+  'anneal.precision.nonInteger': '非整數，需縮放',
+  'anneal.precision.register': (p: TParams) => `${p.bits} 位元`,
+  'anneal.precision.da1': '第一代 DA（1,024 位元）',
+  'anneal.precision.da3': '第三代起（100,000 位元）',
+  'anneal.precision.fits': '可以',
+  'anneal.precision.scaled': '需縮放',
+  'anneal.precision.what': (p: TParams) =>
+    `如果二次項暫存器只有 ${p.bits} 位元（最大 ±${p.max}，一次項多 10 位元，比照第一代的 26／16）：`,
+  'anneal.precision.tooLarge': (p: TParams) => `超過 ${p.max} 個變數就不窮舉四捨五入後的問題，這個示範只在小案例上進行。`,
+  'anneal.precision.untouched': (p: TParams) => `這個 Q 的係數在 ${p.bits} 位元內就放得下，不必縮放，也沒有任何四捨五入。把位元數再調低看看。`,
+  'anneal.precision.kept': (p: TParams) =>
+    `最佳解不變。係數乘上 ${p.scale} 後，有 ${p.rounded} 個被四捨五入，但沒有影響最佳解的位置。`,
+  'anneal.precision.moved': (p: TParams) =>
+    `最佳解被移走了：係數乘上 ${p.scale}、${p.rounded} 個被四捨五入後，四捨五入版本的最佳解放回原本的 Q 只得到 y = ${p.got}，真正的最佳值是 ${p.optimum}。係數跨度越大（例如懲罰係數 P 越大），小的項越容易在四捨五入中消失。`,
+  'anneal.note': (
+    <>
+      三件事要先說清楚：一、這是<strong>演算法的重現，不是富士通的硬體</strong>。晶片在同一個時脈內完成 n 個試翻，瀏覽器每步要花 O(n)；所以這裡能看的是方法<strong>怎麼走</strong>，不能看它<strong>多快</strong>，也不能拿來評比富士通的產品。二、「同樣步數」是論文的比較方式，但數位退火每步評估 n 個翻轉，工作量是單位元的 n 倍。三、平行試翻不是萬靈丹：在本站全部案例上（各 32 次退火、預設排程）它命中最佳解的比例較高（966／992 對 916／992），差距集中在約束多的延伸案例；獨立評比（Oshiyama &amp; Ohzeki 2022）也發現它只在部分問題類型上領先。
+      要在真的 DA 上跑，需要富士通的雲端帳號（Web API），本站<strong>目前不產生</strong>呼叫它的程式碼。
     </>
   ),
 

@@ -42,6 +42,8 @@ const PLATFORMS: {
   embedding: boolean;
   scaleKey: TKey;
   here: Here;
+  /** Qualifies the support badge when "runs here" needs a caveat. */
+  hereNoteKey?: TKey;
 }[] = [
   {
     name: 'D-Wave Advantage2',
@@ -59,7 +61,9 @@ const PLATFORMS: {
     topologyKey: 'overview.topology.asic',
     embedding: false,
     scaleKey: 'overview.scale.digital',
-    here: 'planned',
+    // The published algorithm runs here; Fujitsu's hardware does not.
+    here: 'run',
+    hereNoteKey: 'overview.here.note.digital',
   },
   {
     name: 'QAOA',
@@ -263,6 +267,11 @@ export function OverviewPage() {
                 </TableCell>
                 <TableCell>
                   <Chip size="small" color={HERE_COLOR[p.here]} label={t(HERE_KEY[p.here])} />
+                  {p.hereNoteKey && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                      {t(p.hereNoteKey)}
+                    </Typography>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

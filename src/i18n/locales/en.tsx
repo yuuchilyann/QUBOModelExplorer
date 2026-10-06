@@ -611,6 +611,7 @@ export const en: Dictionary = {
   'case.tab.domain': 'Problem view',
   'case.tab.code': 'Code',
   'case.tab.embedding': 'On the hardware',
+  'case.tab.annealer': 'Digital annealing',
 
   'formulation.original': 'Original model',
   'formulation.slack': 'Slack expansion',
@@ -770,7 +771,7 @@ export const en: Dictionary = {
   'overview.platforms': 'Solver-side platforms',
   'overview.platform.annealing': 'quantum annealing',
   'overview.platform.gate': 'gate model',
-  'overview.platform.digital': 'digital annealing',
+  'overview.platform.digital': 'digital annealing (quantum-inspired)',
   'overview.platform.classical': 'classical heuristic',
   'overview.platform.name.qaoa': 'QAOA (gate model)',
   'overview.platform.name.tabu': 'Tabu search (classical)',
@@ -778,7 +779,7 @@ export const en: Dictionary = {
   'overview.topology.asic': 'fully connected (ASIC)',
   'overview.topology.varies': 'hardware-dependent',
   'overview.scale.advantage2': 'a few hundred fully connected logical variables',
-  'overview.scale.digital': '1,024 variables (Aramon et al. 2019)',
+  'overview.scale.digital': '100,000 variables (third generation on; first: 1,024)',
   'overview.scale.qaoa': 'small MaxCut / MIS instances only, so far',
   'overview.scale.tabu': 'thousands of variables',
   'overview.scale.exhaustive': '≤ 24 variables, optimality guaranteed',
@@ -790,6 +791,7 @@ export const en: Dictionary = {
   'overview.here.run': 'runs here',
   'overview.here.emit': 'code emitted',
   'overview.here.planned': 'planned',
+  'overview.here.note.digital': 'the published algorithm, not Fujitsu hardware',
   'overview.yes': 'yes',
   'overview.no': 'no',
 
@@ -943,6 +945,97 @@ export const en: Dictionary = {
       comes out almost the same as Ocean’s minorminer (same longest chain in 29 of 31). Three:{' '}
       <strong>the paper does not cover this</strong>; it only says on p.33 that embedding is itself a hard
       problem. This page is the site’s addition.
+    </>
+  ),
+
+  // ── digital annealer tab ──────────────────────────────────────────────
+  'anneal.intro': (
+    <>
+      Fujitsu’s <strong>Digital Annealer</strong> is a special-purpose digital chip, “quantum-inspired”: there is
+      nothing quantum on it, and what it runs is a modified simulated annealing. The algorithm is published as
+      Algorithm 2 of Aramon et al. (2019, <em>Frontiers in Physics</em>) and differs from plain simulated annealing
+      in two ways: <strong>parallel trial</strong>, where every step tests a flip of all n variables and applies one of
+      the accepted flips at random; and a <strong>dynamic offset</strong>, where a step with no accepted flip raises an
+      energy offset <Math>{'E_{\\text{off}}'}</Math>, lowering the bar until the search can climb out of a local
+      minimum. This page runs that algorithm on this case’s Q in the browser, next to single-trial simulated
+      annealing with the same schedule and the same number of steps.
+    </>
+  ),
+  'anneal.sweeps': 'Sweeps per anneal',
+  'anneal.reseed': 'New seed',
+  'anneal.reseed.tooltip':
+    'Run again with another random seed. Both methods share the seed, so the comparison stays fair; changing it shows how much of the result is luck.',
+  'anneal.budget': (p: TParams) => `${p.runs} independent anneals each, ${p.steps} steps per anneal · seed ${p.seed}`,
+  'anneal.running': 'Annealing…',
+  'anneal.error': (p: TParams) => `Annealing failed: ${p.message}`,
+  'anneal.tooLarge': (p: TParams) =>
+    `This QUBO has ${p.n} variables, above this page’s limit of ${p.max}. Each step costs O(n) in a browser, so larger problems stop being interactive.`,
+  'anneal.da.title': 'Digital annealing (parallel trial)',
+  'anneal.da.sub': 'Tests all n flips per step and uses the dynamic offset',
+  'anneal.sa.title': 'Simulated annealing (single trial)',
+  'anneal.sa.sub': 'Tests one random variable per step, no offset; same schedule and step count',
+  'anneal.reached': 'Optimum reached',
+  'anneal.missed': 'Optimum missed',
+  'anneal.stat.best': 'Best energy y',
+  'anneal.stat.hits': 'Runs reaching the optimum',
+  'anneal.stat.acceptance': 'Steps that applied a flip',
+  'anneal.stat.offsetSteps': 'Steps that raised the offset',
+  'anneal.stat.evaluated': 'Flips evaluated',
+  'anneal.noOptimum':
+    'There is no exhaustive optimum at this size to compare against; the two methods can only be compared with each other.',
+  'anneal.trace.title': 'Trajectory of the first anneal',
+  'anneal.trace.optimum': 'optimum',
+  'anneal.trace.steps': (p: TParams) => `steps → (${p.n} in total)`,
+  'anneal.trace.legend': (
+    <>
+      <strong>Reading the chart:</strong> the top half is energy falling over the steps: colour for digital
+      annealing, grey for single-trial simulated annealing, the dashed green line for the exhaustive optimum. The
+      bottom half is the digital annealer’s <Math>{'E_{\\text{off}}'}</Math>: it climbs while no flip is accepted and
+      drops to zero as soon as one is. Late in the anneal, when the temperature is low and nearly every uphill move is
+      rejected, the sawtooth is densest — that is the offset pushing the trajectory out of a local minimum.
+    </>
+  ),
+  'anneal.precision.title': 'Does it fit the DA’s registers?',
+  'anneal.precision.intro': (
+    <>
+      The DA takes its coefficients as fixed-width signed integers: linear <Math>{'h_i = q_{ii}'}</Math>, quadratic{' '}
+      <Math>{'J_{ij} = 2q_{ij}'}</Math>. If they do not fit they are multiplied by one common factor and rounded; that
+      is how the paper put its Gaussian instances on the first-generation DA, and Fujitsu’s cloud service does it
+      automatically. The common factor cannot move the optimum; <strong>only the rounding can</strong>.
+    </>
+  ),
+  'anneal.precision.col.linear': 'Linear h',
+  'anneal.precision.col.quadratic': 'Quadratic J',
+  'anneal.precision.col.fits': 'Loads unchanged',
+  'anneal.precision.needed': 'This Q needs',
+  'anneal.precision.bits': (p: TParams) => `${p.bits} bits (max |value| ${p.max})`,
+  'anneal.precision.nonInteger': 'non-integer, must be scaled',
+  'anneal.precision.register': (p: TParams) => `${p.bits} bits`,
+  'anneal.precision.da1': 'First-generation DA (1,024 bits)',
+  'anneal.precision.da3': 'Third generation on (100,000 bits)',
+  'anneal.precision.fits': 'yes',
+  'anneal.precision.scaled': 'scaled',
+  'anneal.precision.what': (p: TParams) =>
+    `If the quadratic register had only ${p.bits} bits (max ±${p.max}; linear gets 10 more, as in the first generation’s 26/16):`,
+  'anneal.precision.tooLarge': (p: TParams) =>
+    `Above ${p.max} variables the rounded problem is not enumerated; this demonstration runs on the small cases only.`,
+  'anneal.precision.untouched': (p: TParams) =>
+    `This Q already fits in ${p.bits} bits: no scaling, nothing rounded. Try fewer bits.`,
+  'anneal.precision.kept': (p: TParams) =>
+    `The optimum survives. After multiplying by ${p.scale}, ${p.rounded} coefficients were rounded, without moving the optimum.`,
+  'anneal.precision.moved': (p: TParams) =>
+    `The optimum moved. After multiplying by ${p.scale} and rounding ${p.rounded} coefficients, the rounded problem’s optimum scores only y = ${p.got} on the original Q; the true optimum is ${p.optimum}. The wider the coefficient range (a larger penalty P widens it), the more easily the small terms round away.`,
+  'anneal.note': (
+    <>
+      Three things to be clear about. First, this <strong>reproduces the algorithm, not Fujitsu’s hardware</strong>.
+      The chip completes a step’s n trials at once, while a browser spends O(n) per step; so this shows{' '}
+      <strong>how</strong> the method moves, not <strong>how fast</strong>, and it cannot be used to benchmark
+      Fujitsu’s product. Second, “the same number of steps” is how the paper compares them, but digital annealing
+      evaluates n flips per step, n times the work of single trial. Third, parallel trial is not a cure-all: across
+      this site’s cases (32 anneals each, default schedule) it reaches the optimum more often (966/992 versus 916/992), with the gap concentrated in the
+      heavily constrained extended cases, and an independent benchmark (Oshiyama &amp; Ohzeki 2022) likewise found it
+      ahead only on some problem classes. Running on a real DA needs a Fujitsu cloud account (Web API); this site does{' '}
+      <strong>not yet</strong> emit code that calls it.
     </>
   ),
 

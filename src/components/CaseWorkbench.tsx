@@ -32,6 +32,7 @@ import { diffMatrices } from 'qubo-core/qubo';
 import { useSolver } from '../hooks/useSolver';
 import type { Clause, Graph, CatalogCase } from 'qubo-core/types';
 import { CodeExportPanel } from './CodeExportPanel';
+import { EmbeddingPanel } from './EmbeddingPanel';
 import { ColoringEditor, GraphEditor, HelloEditor, NumbersEditor, SatEditor } from './CaseEditors';
 import {
   AllocationView,
@@ -97,7 +98,7 @@ function initialEdit(qcase: CatalogCase): CaseEdit | null {
   }
 }
 
-type View = 'formulation' | 'matrix' | 'solutions' | 'domain' | 'code';
+type View = 'formulation' | 'matrix' | 'solutions' | 'domain' | 'embedding' | 'code';
 
 export type CaseWorkbenchProps = {
   base: CatalogCase;
@@ -181,6 +182,7 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
     { key: 'matrix', label: String(t('case.tab.matrix')) },
     { key: 'solutions', label: String(t('case.tab.solutions')) },
     { key: 'domain', label: String(t('case.tab.domain')) },
+    { key: 'embedding', label: String(t('case.tab.embedding')) },
     { key: 'code', label: String(t('case.tab.code')) },
   ];
 
@@ -247,6 +249,7 @@ export function CaseWorkbench({ base }: CaseWorkbenchProps) {
       )}
       {view === 'solutions' && <SolutionPanel qcase={qcase} model={model} state={solve} />}
       {view === 'domain' && (domain ?? <Typography color="text.secondary">—</Typography>)}
+      {view === 'embedding' && <EmbeddingPanel key={base.id} model={model} />}
       {view === 'code' && (
         <CodeExportPanel
           qcase={qcase}

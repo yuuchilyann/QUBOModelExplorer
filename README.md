@@ -39,9 +39,28 @@ min / max   y = xᵀQx,   x ∈ {0,1}ⁿ
 | **C · 通用變換** | §5 — Transformation #1 / #2、slack 變數二進位展開。其餘延伸案例依所用的配方放在這裡 |
 | **附錄** | §7 的高次項降階（Rosenberg）與邊變數→點變數置換。兩者現在都有實際案例：Max 3-SAT 用降階、Clique Partitioning 用點變數置換 |
 
-每個案例頁有五個聯動面板：**建模推導**（KaTeX 逐步展開）、**Q 矩陣**（熱圖＋來源溯源
+每個案例頁有六個聯動面板：**建模推導**（KaTeX 逐步展開）、**Q 矩陣**（熱圖＋來源溯源
 hover）、**解空間**（窮舉＋能量分佈＋可行性回代）、**問題檢視**（領域專屬圖）、
-**程式碼**（Python 匯出）。
+**硬體嵌入**（見下）、**程式碼**（Python 匯出）。
+
+### 硬體嵌入
+
+把該案例推導出來的 Q 放上 D-Wave Advantage 的 **Pegasus** 晶片，也就是 D-Wave minorminer
+文件裡 Source graph／Target graph／Embedding 那三張圖，套在每個案例自己的 Q 上：
+
+- **左邊（Source graph）**：Q 需要的耦合，`Q[i][j] + Q[j][i] ≠ 0` 的變數對。
+- **右邊（Embedding）**：Pegasus 片段，每條線段是一顆 qubit，每個變數的 chain 上色；
+  兩條 chain 交會處的深色接點就是承載 `q_ij` 的 coupler。「只看硬體」切換拿掉顏色，就是 Target graph。
+- 滑過或點選一個變數，只留下它的 chain 和鄰居；可以換 seed 看嵌入不是唯一的。
+
+計算全部來自 qubo-core 的 `hardware/` 模組（Pegasus 拓樸與 `dwave_networkx` 逐項一致、
+簡化的 minorminer 啟發式、獨立檢查器），在 Web Worker 裡跑，自動從最小的 P(2) 往上試。
+頁面上明講三件事：這是**理想的 Pegasus 片段**，不是任何一台真機的 working graph；
+這是**本站的簡化啟發式**，不是 `EmbeddingComposite` 的實際結果；**論文沒有這部分**，
+只在 p.33 提到嵌入本身就很難。在本站 31 個案例上，它和 minorminer 的最長 chain 有 29 個相同；
+規模放大後它比 minorminer 早用完（例如 P(3) 上的全連通圖只到 14 個變數，minorminer 到 24 個），
+找不到時頁面寫「本站的啟發式找不到」，不寫「硬體放不下」。數據見 qubo-core 的
+`docs/EMBEDDING.md`。
 
 ## 論文的十一個算例
 

@@ -119,6 +119,10 @@ export const zh = {
       <br />
       <br />
       加性常數是 83² = 6,889，所以完美平分時 xᵀQx = −6889、原始目標值 = 0。在「解空間」分頁可以看到這一點。試著改一組加不起來的數字，看差額怎麼變。
+      <br />
+      <br />
+      「硬體嵌入」分頁很適合和 Max-Cut 對照：這裡的 Q 是<strong>全連通</strong>的（8 個數字就是 K₈），上晶片要 12 顆 qubit、有 chain；Max-Cut 的 Q
+      只有原圖的邊，每個變數一顆 qubit 就夠。現場把數字加到 20 個，本站的啟發式就找不到了，可以順便說明這不代表硬體放不下。
     </>
   ),
   'notes.case.max-cut': (
@@ -127,6 +131,9 @@ export const zh = {
       <br />
       <br />
       注意最優解一定<strong>至少有兩個</strong>（degeneracy ≥ 2）：把整個 x 取補集，割集完全一樣。「解空間」分頁的簡併度會顯示這件事，這是窮舉才看得到的現象。
+      <br />
+      <br />
+      「硬體嵌入」分頁：Max-Cut 的 Q 耦合就是原圖的邊，所以每個變數剛好一顆 qubit、完全不需要 chain。拿來對照數字分割（全連通，需要 chain）最清楚。
     </>
   ),
   'notes.case.min-vertex-cover': (
@@ -441,6 +448,7 @@ export const zh = {
   'case.tab.solutions': '解空間',
   'case.tab.domain': '問題檢視',
   'case.tab.code': '程式碼',
+  'case.tab.embedding': '硬體嵌入',
 
   'formulation.original': '原始模型',
   'formulation.slack': 'Slack 變數展開',
@@ -668,6 +676,70 @@ export const zh = {
       <Math>{'q_{ij}'}</Math> 的實體所在。注意<strong>沒有任何 qubit 被兩條 chain
       共用</strong>，這正是真實硬體的規則。代價是每條 chain 長{' '}
       <Math>{'2n'}</Math>、總共 <Math>{'2n^2'}</Math> 顆物理 qubit。真實的 Pegasus / Zephyr 連接度高得多，minorminer 的啟發式也聰明得多，常數小很多，但<strong>「邏輯變數平方級放大」這個量級是真的</strong>。
+      每個案例頁的「硬體嵌入」分頁，則是把該案例推導出來的 Q 真的放上 Pegasus 晶片。
+    </>
+  ),
+
+  // ── hardware embedding tab ────────────────────────────────────────────
+  'embed.intro': (
+    <>
+      Q 推導出來之後，還要放上晶片才能在 D-Wave 上跑。晶片上一顆 qubit 只連到少數幾個鄰居，所以每個變數要展開成一條{' '}
+      <strong>chain</strong>（一組相連的 qubit），讓 Q 裡每一對有耦合的變數，都落在兩條 chain 之間一條真實的 coupler 上。左邊是這個 QUBO
+      需要的耦合（Source graph），右邊是 D-Wave Advantage 的 <strong>Pegasus</strong> 拓樸上的一個片段，以及每條 chain 的位置。
+    </>
+  ),
+  'embed.size.label': '晶片片段',
+  'embed.size.auto': '自動',
+  'embed.reseed': '換一個 seed',
+  'embed.reseed.tooltip': '用另一個亂數種子重新嵌入。嵌入不是唯一的：同一個 QUBO 可以有很多種放法，chain 的長度也會不同。',
+  'embed.seed': (p: TParams) => `第 ${p.seed} 個 seed`,
+  'embed.hardwareOnly': '只看硬體（Target graph）',
+  'embed.stat.vars': (p: TParams) => `邏輯變數 ${p.n}`,
+  'embed.stat.edges': (p: TParams) => `需要的耦合 ${p.edges} 對（密度 ${p.density}%）`,
+  'embed.stat.fragment': (p: TParams) => `Pegasus P(${p.m})，${p.qubits} 顆 qubit`,
+  'embed.stat.used': (p: TParams) => `用掉 ${p.qubits} 顆 qubit`,
+  'embed.stat.maxChain': (p: TParams) => `最長 chain ${p.len}`,
+  'embed.stat.meanChain': (p: TParams) => `平均 chain ${p.len}`,
+  'embed.valid': '檢查器：合法嵌入',
+  'embed.invalid': '檢查器：嵌入不合法',
+  'embed.valid.tooltip':
+    '由獨立的檢查器確認：每條 chain 都相連、彼此不共用 qubit，而且每一對需要的耦合都有 coupler 對應。檢查器與搜尋程式不共用任何程式碼。',
+  'embed.running': (p: TParams) => (p.m ? `正在嘗試 Pegasus P(${p.m})…` : '準備中…'),
+  'embed.failed': (p: TParams) => (
+    <>
+      本站的簡化啟發式在 P({String(p.m)}) 以內<strong>找不到</strong>嵌入。這<strong>不代表硬體放不下</strong>：Ocean 的 minorminer
+      比本站的版本強得多，例如 P(3) 上它放得下 24 個變數的全連通圖，本站只到 14 個。試試換一個 seed，或把輸入改小一點。
+    </>
+  ),
+  'embed.tooLarge': (p: TParams) =>
+    `這個 QUBO 有 ${p.n} 個變數，超過本頁示範的上限，不嘗試嵌入。畫面上同時有這麼多條 chain 也已經看不清楚。`,
+  'embed.error': (p: TParams) => `嵌入時發生錯誤：${p.message}`,
+  'embed.source.title': '這個 QUBO 需要的耦合（Source graph）',
+  'embed.target.pending': 'Pegasus 片段',
+  'embed.target.title': (p: TParams) =>
+    `Pegasus P(${p.m})（Target graph）：${p.qubits} 顆 qubit、${p.couplers} 個 coupler`,
+  'embed.embedding.title': (p: TParams) => `嵌入到 Pegasus P(${p.m}) 上（Embedding）`,
+  'embed.var.title': (p: TParams) => `${p.name}：chain 長 ${p.len}`,
+  'embed.qubit.used': (p: TParams) => `qubit ${p.q} · 屬於 ${p.name} 的 chain`,
+  'embed.qubit.free': (p: TParams) => `qubit ${p.q} · 未使用`,
+  'embed.legend': (
+    <>
+      <strong>讀圖：</strong>每條線段是一顆 qubit。同色的粗線段是同一條 chain，同色的接點是 chain 內部的 coupler；D-Wave 會用很強的耦合（chain strength）把它們綁成同一個變數，讀出時若同一條
+      chain 的 qubit 值不一致，叫 <strong>chain break</strong>。兩條不同色 chain 交會處的<strong>深灰接點</strong>，就是實際承載{' '}
+      <Math>{'q_{ij}'}</Math> 的 coupler。淺灰線段是沒用到的 qubit。<strong>滑過或點選</strong>左邊的變數或右邊的 qubit，只留下它的 chain 和鄰居。
+    </>
+  ),
+  'embed.legend.hardware': (
+    <>
+      <strong>這就是硬體本身</strong>：每條線段是一顆 qubit。兩條線段交叉的地方是一個 coupler；同一直線上首尾相接的兩顆、以及並排的一對之間，也各有一個 coupler。
+      只有這些位置能設定耦合強度，所以任兩個變數要有耦合，它們的 chain 就必須在這張圖上相遇。
+    </>
+  ),
+  'embed.note': (
+    <>
+      三件事要先說清楚：一、這是<strong>理想的 Pegasus 片段</strong>，不是任何一台真實機器的 working graph（真機會少掉製造時壞掉的 qubit，每台不同）。二、這是
+      <strong>本站的簡化啟發式</strong>，不是最佳嵌入，也不是 <code>EmbeddingComposite</code> 實際會算出的結果；在本站的案例上，它和 Ocean 的 minorminer
+      結果幾乎相同（31 個案例有 29 個最長 chain 一樣）。三、<strong>論文沒有這部分</strong>，只在 p.33 提到嵌入本身就是很難的問題，這一頁是本站補充的。
     </>
   ),
 

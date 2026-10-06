@@ -158,6 +158,12 @@ export const en: Dictionary = {
       The additive constant is 83² = 6,889, so a perfect split gives xᵀQx = −6889 and an original objective
       value of 0 — visible on the “Solution space” tab. Try a set of numbers that cannot be split evenly
       and watch what happens to the difference.
+      <br />
+      <br />
+      The “On the hardware” tab is best shown next to Max-Cut: here Q is <strong>fully connected</strong>{' '}
+      (eight numbers make K₈), so it takes 12 qubits and real chains on the chip, while Max-Cut’s Q has only
+      the edges of the original graph and needs one qubit per variable. Grow the list to 20 numbers live and
+      this site’s heuristic gives up — a good moment to say that this does not mean the hardware could not.
     </>
   ),
   'notes.case.max-cut': (
@@ -170,6 +176,11 @@ export const en: Dictionary = {
       Note that the optimum always comes <strong>at least in pairs</strong> (degeneracy ≥ 2): complement
       the whole of x and the cut is unchanged. The degeneracy readout on the “Solution space” tab shows
       this — a phenomenon only exhaustive enumeration reveals.
+      <br />
+      <br />
+      On the “On the hardware” tab: Max-Cut’s couplings are exactly the edges of the original graph, so
+      every variable gets one qubit and no chains are needed at all. Number Partitioning (fully connected,
+      chains required) is the clearest contrast.
     </>
   ),
   'notes.case.min-vertex-cover': (
@@ -599,6 +610,7 @@ export const en: Dictionary = {
   'case.tab.solutions': 'Solution space',
   'case.tab.domain': 'Problem view',
   'case.tab.code': 'Code',
+  'case.tab.embedding': 'On the hardware',
 
   'formulation.original': 'Original model',
   'formulation.slack': 'Slack expansion',
@@ -846,6 +858,85 @@ export const en: Dictionary = {
       <Math>{'2n'}</Math> and <Math>{'2n^2'}</Math> physical qubits in total. Real Pegasus and Zephyr
       topologies are far better connected and minorminer’s heuristics far cleverer, so the constants are
       much smaller — but <strong>the quadratic blow-up in the logical variable count is real</strong>.
+      Each case page’s “On the hardware” tab places that case’s own derived Q on an actual Pegasus chip.
+    </>
+  ),
+
+  // ── hardware embedding tab ────────────────────────────────────────────
+  'embed.intro': (
+    <>
+      Deriving Q is not the last step: to run on D-Wave it has to be placed on the chip. A qubit there is
+      coupled to only a handful of neighbours, so each variable is spread over a <strong>chain</strong> of
+      connected qubits, such that every pair of variables Q couples ends up with a real coupler between
+      their two chains. On the left are the couplings this QUBO needs (the source graph); on the right, a
+      fragment of the <strong>Pegasus</strong> topology of D-Wave’s Advantage machines, and where each chain sits.
+    </>
+  ),
+  'embed.size.label': 'Chip fragment',
+  'embed.size.auto': 'Auto',
+  'embed.reseed': 'Another seed',
+  'embed.reseed.tooltip':
+    'Embed again with a different random seed. Embeddings are not unique: the same QUBO can be placed many ways, with different chain lengths.',
+  'embed.seed': (p: TParams) => `seed #${p.seed}`,
+  'embed.hardwareOnly': 'Hardware only (target graph)',
+  'embed.stat.vars': (p: TParams) => `${p.n} logical variables`,
+  'embed.stat.edges': (p: TParams) => `${p.edges} couplings needed (density ${p.density}%)`,
+  'embed.stat.fragment': (p: TParams) => `Pegasus P(${p.m}), ${p.qubits} qubits`,
+  'embed.stat.used': (p: TParams) => `${p.qubits} qubits used`,
+  'embed.stat.maxChain': (p: TParams) => `longest chain ${p.len}`,
+  'embed.stat.meanChain': (p: TParams) => `mean chain ${p.len}`,
+  'embed.valid': 'Checker: valid embedding',
+  'embed.invalid': 'Checker: invalid embedding',
+  'embed.valid.tooltip':
+    'Confirmed by an independent checker: every chain is connected, no qubit is shared, and every needed coupling has a coupler. The checker shares no code with the search.',
+  'embed.running': (p: TParams) => (p.m ? `Trying Pegasus P(${p.m})…` : 'Preparing…'),
+  'embed.failed': (p: TParams) => (
+    <>
+      This site’s simplified heuristic found <strong>no embedding</strong> up to P({String(p.m)}). That
+      does <strong>not</strong> mean the hardware cannot hold it: Ocean’s minorminer is much stronger — on
+      P(3) it fits a fully connected graph of 24 variables, where this site stops at 14. Try another seed,
+      or make the input smaller.
+    </>
+  ),
+  'embed.tooLarge': (p: TParams) =>
+    `This QUBO has ${p.n} variables, beyond what this page demonstrates, so no embedding is attempted. That many chains would not be readable anyway.`,
+  'embed.error': (p: TParams) => `Embedding failed with an error: ${p.message}`,
+  'embed.source.title': 'Couplings this QUBO needs (source graph)',
+  'embed.target.pending': 'Pegasus fragment',
+  'embed.target.title': (p: TParams) =>
+    `Pegasus P(${p.m}) (target graph): ${p.qubits} qubits, ${p.couplers} couplers`,
+  'embed.embedding.title': (p: TParams) => `Embedded on Pegasus P(${p.m}) (embedding)`,
+  'embed.var.title': (p: TParams) => `${p.name}: chain of ${p.len}`,
+  'embed.qubit.used': (p: TParams) => `qubit ${p.q} · in the chain of ${p.name}`,
+  'embed.qubit.free': (p: TParams) => `qubit ${p.q} · unused`,
+  'embed.legend': (
+    <>
+      <strong>Reading it:</strong> each line segment is one qubit. Thick segments in one colour are one
+      chain, and the joints in that colour are the couplers inside it; D-Wave sets them strongly (the chain
+      strength) so the chain acts as one variable, and a chain whose qubits read out different values is a{' '}
+      <strong>chain break</strong>. The <strong>dark joints</strong> where two differently coloured chains
+      meet are the couplers that actually carry a <Math>{'q_{ij}'}</Math>. Light grey segments are unused
+      qubits. <strong>Hover or tap</strong> a variable on the left or a qubit on the right to keep only its
+      chain and its neighbours.
+    </>
+  ),
+  'embed.legend.hardware': (
+    <>
+      <strong>This is the hardware itself</strong>: each line segment is a qubit. Where two segments cross
+      there is a coupler, and there is one between two qubits end to end on the same line and between each
+      side-by-side pair. Only there can a coupling strength be set, so for two variables to interact,
+      their chains have to meet somewhere on this picture.
+    </>
+  ),
+  'embed.note': (
+    <>
+      Three things to be clear about. One: this is an <strong>ideal Pegasus fragment</strong>, not the
+      working graph of any real machine (a real QPU is missing whatever qubits failed in fabrication, and
+      each differs). Two: this is <strong>this site’s simplified heuristic</strong> — not an optimal
+      embedding, and not what <code>EmbeddingComposite</code> would actually return; on this site’s cases it
+      comes out almost the same as Ocean’s minorminer (same longest chain in 29 of 31). Three:{' '}
+      <strong>the paper does not cover this</strong>; it only says on p.33 that embedding is itself a hard
+      problem. This page is the site’s addition.
     </>
   ),
 
